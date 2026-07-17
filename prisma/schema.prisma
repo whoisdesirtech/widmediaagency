@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agency {
+  id                   String        @id @default(uuid())
+  name                 String
+  homeJurisdiction     String        @default("Florida, United States")
+  communicationTools   String        @default("[]") // JSON array
+  responseTimeDefault  String        @default("24 business hours")
+  urgentResponseTime   String        @default("2-4 hours")
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  users                User[]
+  masterAgreements     MasterAgreement[]
+  contractors          Contractor[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("contractor") // admin | staff | contractor
+  agencyId     String?
+  agency       Agency?  @relation(fields: [agencyId], references: [id])
+  contractorId String?
+  createdAt    DateTime @default(now())
+}
+
+model Contractor {
+  id                  String              @id @default(uuid())
+  name                String
+  businessName        String
+  role                String
+  state               String
+  country             String              @default("United States")
+  status              String              @default("invited") // invited | active | terminated
+  taxFormType         String?
+  taxFormUrl          String?
+  insuranceProofUrl   String?
+  licensingProofUrl   String?
+  agencyId            String
+  agency              Agency              @relation(fields: [agencyId], references: [id])
+  userId              String?
+  sows                SOW[]
+  assembledContracts  AssembledContract[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model MasterAgreement {
+  id            String   @id @default(uuid())
+  agencyId      String
+  agency        Agency   @relation(fields: [agencyId], references: [id])
+  version       Int      @default(1)
+  effectiveDate DateTime @default(now())
+  clauses       String   @default("[]") // JSON array of clause objects
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  contracts     AssembledContract[]
+}
+
+model Addendum {
+  id         String   @id @default(uuid())
+  roleType   String
+  title      String
+  fields     String   @default("[]") // JSON array of field definitions
+  content    String   @default("")    // rendered clause content template
+  isTemplate Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SOW {
+  id                String              @id @default(uuid())
+  contractorId      String
+  contractor        Contractor          @relation(fields: [contractorId], references: [id])
+  rate              Float
+  rateType          String              // hourly | half-day | full-day | project | monthly-retainer
+  paymentSchedule   String              // weekly | biweekly | monthly | net15 | net30
+  startDate         String
+  endDate           String?
+  specialEquipment  String              @default("")
+  software          String              @default("")
+  deliverables      String              @default("[]") // JSON array
+  attachedAddendumIds String            @default("[]") // JSON array of addendum IDs
+  status            String              @default("draft") // draft | active | completed | cancelled
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  contracts         AssembledContract[]
+}
+
+model AssembledContract {
+  id            String          @id @default(uuid())
+  contractorId  String
+  contractor    Contractor      @relation(fields: [contractorId], references: [id])
+  masterId      String
+  master        MasterAgreement @relation(fields: [masterId], references: [id])
+  sowId         String?
+  sow           SOW?            @relation(fields: [sowId], references: [id])
+  addendumIds   String          @default("[]") // JSON array
+  mergedContent String          @default("")
+  status        String          @default("draft") // draft | pending_signatures | active | terminated
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  signatures    Signature[]
+}
+
+model Signature {
+  id           String            @id @default(uuid())
+  contractId   String
+  contract     AssembledContract @relation(fields: [contractId], references: [id])
+  signerRole   String            // agency | contractor
+  signerName   String
+  signerEmail  String
+  signatureData String           // base64 signature image
+  signedAt     DateTime          @default(now())
+}

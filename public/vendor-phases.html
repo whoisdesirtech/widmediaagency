@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhoIsDésir® Media — Vendor Onboarding & Payment Phases</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ED145A;
+      --blue: #18D8F0;
+      --teal: #22ABC7;
+      --light-pink: #F090C0;
+      --light-blue: #18C0F0;
+      --dark: #0A0D1A;
+      --dark-card: #12152A;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F8F9FC;
+      color: #1E2233;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--dark) 0%, #1a1040 50%, #0d2137 100%);
+      padding: 48px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-header::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(237,20,90,0.15), transparent 70%);
+      top: -150px; right: -100px;
+      border-radius: 50%;
+    }
+
+    .page-header::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(24,216,240,0.1), transparent 70%);
+      bottom: -150px; left: -50px;
+      border-radius: 50%;
+    }
+
+    .page-header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header .logo {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .page-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 32px;
+      color: white;
+      margin-bottom: 6px;
+    }
+
+    .page-header .sub {
+      color: rgba(255,255,255,0.45);
+      font-size: 13px;
+    }
+
+    .section-label {
+      max-width: 1100px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+    }
+
+    .section-label h2 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label h2 .line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--pink), transparent);
+      border-radius: 1px;
+    }
+
+    .grid {
+      max-width: 1100px;
+      margin: 20px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #E2E6EF;
+      border-radius: 16px;
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .card .accent-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .card .step-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      color: white;
+      margin-bottom: 14px;
+    }
+
+    .card .icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--dark);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .card p {
+      font-size: 12px;
+      color: #8891A5;
+      line-height: 1.6;
+    }
+
+    .card .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .card .tag.pink {
+      background: rgba(237,20,90,0.08);
+      color: var(--pink);
+    }
+
+    .card .tag.blue {
+      background: rgba(24,216,240,0.1);
+      color: #0EA5C0;
+    }
+
+    .card .tag.teal {
+      background: rgba(34,167,199,0.1);
+      color: var(--teal);
+    }
+
+    .card .tag.green {
+      background: rgba(16,185,129,0.1);
+      color: #059669;
+    }
+
+    .card .tag.amber {
+      background: rgba(245,158,11,0.1);
+      color: #D97706;
+    }
+
+    .connector {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .connector .arrow {
+      text-align: center;
+      padding: 8px 0;
+      color: #CBD5E1;
+      font-size: 20px;
+    }
+
+    .footer-bar {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .footer-bar .inner {
+      background: white;
+      border: 1px solid #E2E6EF;
+      border-radius: 16px;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-bar .note {
+      font-size: 12px;
+      color: #8891A5;
+    }
+
+    .footer-bar .note strong {
+      color: var(--dark);
+    }
+
+    .footer-bar .brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--dark);
+    }
+
+    .footer-bar .brand span {
+      color: var(--pink);
+    }
+
+    /* Color themes for cards */
+    .card.pink-theme .accent-bar { background: linear-gradient(90deg, var(--pink), var(--light-pink)); }
+    .card.pink-theme .step-badge { background: linear-gradient(135deg, var(--pink), #C01048); }
+
+    .card.blue-theme .accent-bar { background: linear-gradient(90deg, var(--blue), var(--light-blue)); }
+    .card.blue-theme .step-badge { background: linear-gradient(135deg, var(--blue), #10A8D0); }
+
+    .card.teal-theme .accent-bar { background: linear-gradient(90deg, var(--teal), #1A8FA8); }
+    .card.teal-theme .step-badge { background: linear-gradient(135deg, var(--teal), #1890A8); }
+
+    .card.green-theme .accent-bar { background: linear-gradient(90deg, #10B981, #059669); }
+    .card.green-theme .step-badge { background: linear-gradient(135deg, #10B981, #059669); }
+
+    .card.amber-theme .accent-bar { background: linear-gradient(90deg, #F59E0B, #D97706); }
+    .card.amber-theme .step-badge { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+    .card.dark-theme .accent-bar { background: linear-gradient(90deg, var(--dark), #2A2D4A); }
+    .card.dark-theme .step-badge { background: linear-gradient(135deg, var(--dark), #2A2D4A); }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+      .page-header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-content">
+    <div class="logo">W</div>
+    <h1>Vendor Onboarding & Payment Phases</h1>
+    <p class="sub">WhoIsDésir® Media — Freelancer Talent Agreement System</p>
+  </div>
+</div>
+
+<!-- ONBOARDING PHASES -->
+<div class="section-label">
+  <h2>Onboarding <span class="line"></span></h2>
+</div>
+
+<div class="grid">
+  <div class="card pink-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">1</div>
+    <div class="icon">🤝</div>
+    <h3>Vendor Registration</h3>
+    <p>Agency adds the contractor to the system with name, business entity, role, and jurisdiction.</p>
+    <span class="tag pink">Admin Action</span>
+  </div>
+
+  <div class="card blue-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">2</div>
+    <div class="icon">🔑</div>
+    <h3>Portal Access Granted</h3>
+    <p>Admin generates login credentials using the vendor's real email. Credentials are shared privately.</p>
+    <span class="tag blue">Admin Action</span>
+  </div>
+
+  <div class="card teal-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">3</div>
+    <div class="icon">📄</div>
+    <h3>Document Upload</h3>
+    <p>Vendor uploads required documents: Tax form (W-9/W-8BEN), insurance proof, and licensing.</p>
+    <span class="tag teal">Vendor Action</span>
+  </div>
+
+  <div class="card green-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">4</div>
+    <div class="icon">✅</div>
+    <h3>Document Review</h3>
+    <p>Agency reviews uploaded documents for compliance. Vendor is notified of any issues.</p>
+    <span class="tag green">Admin Action</span>
+  </div>
+</div>
+
+<!-- ENGAGEMENT PHASES -->
+<div class="section-label" style="margin-top:40px">
+  <h2>Engagement Setup <span class="line"></span></h2>
+</div>
+
+<div class="grid">
+  <div class="card pink-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">5</div>
+    <div class="icon">📝</div>
+    <h3>SOW Creation</h3>
+    <p>Agency creates a Statement of Work: rate type, payment schedule, deliverables, equipment, and software.</p>
+    <span class="tag pink">Admin Action</span>
+  </div>
+
+  <div class="card blue-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">6</div>
+    <div class="icon">👍</div>
+    <h3>SOW Approval</h3>
+    <p>Agency reviews and approves the SOW. Contract assembly is blocked until approval is given.</p>
+    <span class="tag blue">Required Gate</span>
+  </div>
+
+  <div class="card teal-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">7</div>
+    <div class="icon">📑</div>
+    <h3>Contract Assembly</h3>
+    <p>System merges Master Agreement + Role Addendum + SOW into a single reviewable contract.</p>
+    <span class="tag teal">Automated</span>
+  </div>
+
+  <div class="card green-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">8</div>
+    <div class="icon">✍️</div>
+    <h3>Contract Signing</h3>
+    <p>Both parties review and digitally sign the assembled contract. Status becomes "Active."</p>
+    <span class="tag green">Both Parties</span>
+  </div>
+</div>
+
+<!-- PAYMENT PHASES -->
+<div class="section-label" style="margin-top:40px">
+  <h2>Payment & Lifecycle <span class="line"></span></h2>
+</div>
+
+<div class="grid">
+  <div class="card amber-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">9</div>
+    <div class="icon">🚀</div>
+    <h3>Active Engagement</h3>
+    <p>Work begins under the agreed SOW terms. Vendor delivers against defined milestones and deliverables.</p>
+    <span class="tag amber">In Progress</span>
+  </div>
+
+  <div class="card dark-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">10</div>
+    <div class="icon">💰</div>
+    <h3>Invoicing</h3>
+    <p>Vendor submits invoices per the payment schedule (weekly, biweekly, monthly, net 15, or net 30).</p>
+    <span class="tag pink">Vendor Action</span>
+  </div>
+
+  <div class="card blue-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">11</div>
+    <div class="icon">🏦</div>
+    <h3>Payment Processing</h3>
+    <p>Agency reviews and processes payment according to the agreed schedule and terms.</p>
+    <span class="tag blue">Admin Action</span>
+  </div>
+
+  <div class="card green-theme">
+    <div class="accent-bar"></div>
+    <div class="step-badge">12</div>
+    <div class="icon">📊</div>
+    <h3>Contract Renewal</h3>
+    <p>At engagement end, agency can renew with updated SOW terms or mark the contract as completed.</p>
+    <span class="tag green">Admin Action</span>
+  </div>
+</div>
+
+<div class="footer-bar">
+  <div class="inner">
+    <div class="note">
+      <strong>Note:</strong> All contracts are drafts until reviewed by a licensed attorney. IP assignment, indemnity, and worker-classification clauses carry real legal risk.
+    </div>
+    <div class="brand">WhoIsDésir<span>®</span> Media</div>
+  </div>
+</div>
+
+</body>
+</html>

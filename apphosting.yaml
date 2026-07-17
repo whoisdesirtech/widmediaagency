@@ -1,0 +1,12 @@
+runConfig:
+  runtime: nodejs20
+
+buildConfig:
+  buildCommand: npm run build
+  outputDirectory: .next
+
+env:
+  - variable: NEXTAUTH_SECRET
+    secret: NEXTAUTH_SECRET
+  - variable: DATABASE_URL
+    secret: DATABASE_URL

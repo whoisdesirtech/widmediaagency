@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhoIsDésir® Media — Contractor Portal Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ED145A;
+      --blue: #18D8F0;
+      --teal: #22ABC7;
+      --light-pink: #F090C0;
+      --dark: #0A0D1A;
+      --gray-bg: #F8F9FC;
+      --gray-border: #E2E6EF;
+      --gray-text: #8891A5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-bg);
+      color: #1E2233;
+      line-height: 1.7;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--dark) 0%, #1a1040 50%, #0d2137 100%);
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(237,20,90,0.15), transparent 70%);
+      top: -100px; right: -100px;
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(24,216,240,0.1), transparent 70%);
+      bottom: -100px; left: -50px;
+      border-radius: 50%;
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+
+    .hero .logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 36px;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .hero .subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .hero .badge {
+      display: inline-block;
+      background: rgba(24,216,240,0.15);
+      border: 1px solid rgba(24,216,240,0.3);
+      color: var(--blue);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid var(--gray-border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      color: white;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      margin-right: 12px;
+      vertical-align: middle;
+    }
+
+    .section h2 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    .section h3 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--dark);
+      margin: 20px 0 10px;
+    }
+
+    .section p, .section li {
+      font-size: 14px;
+      color: #4A5068;
+      margin-bottom: 8px;
+    }
+
+    .section ul, .section ol {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .step {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gray-border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--pink);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .step-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--gray-text);
+      margin-bottom: 0;
+    }
+
+    .url-box {
+      background: var(--dark);
+      color: var(--blue);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      margin: 12px 0;
+      display: inline-block;
+    }
+
+    .credentials {
+      background: #F0F7FF;
+      border: 1px solid rgba(24,216,240,0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 12px 0;
+    }
+
+    .credentials .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .credentials .row {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .credentials .row strong { color: var(--dark); }
+
+    .tip {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13px;
+      color: #166534;
+    }
+
+    .tip strong { color: #15803D; }
+
+    .warning {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13px;
+      color: #92400E;
+    }
+
+    .warning strong { color: #B45309; }
+
+    .info-box {
+      background: #FFF5F7;
+      border: 1px solid rgba(237,20,90,0.15);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 12px 0;
+    }
+
+    .info-box .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pink);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .portal-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .portal-nav-item {
+      background: white;
+      border: 2px solid var(--gray-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .portal-nav-item:hover {
+      border-color: var(--pink);
+      box-shadow: 0 2px 8px rgba(237,20,90,0.1);
+    }
+
+    .portal-nav-item .icon { font-size: 28px; margin-bottom: 8px; }
+    .portal-nav-item .title { font-size: 13px; font-weight: 600; color: var(--dark); }
+    .portal-nav-item .desc { font-size: 11px; color: var(--gray-text); margin-top: 4px; }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 10px 0;
+      padding-left: 32px;
+      position: relative;
+      border-bottom: 1px solid var(--gray-border);
+      font-size: 14px;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .checklist li::before {
+      content: '☐';
+      position: absolute;
+      left: 0;
+      font-size: 16px;
+    }
+
+    .checklist li.done::before {
+      content: '☑';
+      color: #15803D;
+    }
+
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+      justify-content: center;
+    }
+
+    .flow-box {
+      background: white;
+      border: 2px solid var(--gray-border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--dark);
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .flow-box.highlight {
+      border-color: var(--pink);
+      background: #FFF5F7;
+      color: var(--pink);
+    }
+
+    .flow-box.done {
+      border-color: #15803D;
+      background: #F0FDF4;
+      color: #15803D;
+    }
+
+    .flow-arrow {
+      color: var(--gray-text);
+      font-size: 18px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--gray-text);
+      font-size: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 40px 20px; }
+      .hero h1 { font-size: 24px; }
+      .container { padding: 20px 16px; }
+      .section { padding: 24px 20px; }
+      .portal-nav { grid-template-columns: 1fr; }
+      .flow-diagram { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="logo">W</div>
+    <h1>Welcome to WhoIsDésir® Media</h1>
+    <p class="subtitle">Your Contractor Portal — Getting Started Guide</p>
+    <span class="badge">Aset Visions — Photography</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- WELCOME -->
+  <div class="section">
+    <h2><span class="section-number">Hi</span> Hello, Aset!</h2>
+    <p>Welcome to the WhoIsDésir® Media Freelancer Talent Agreement System. This guide will walk you through logging in, reviewing your Statement of Work, and signing your contract.</p>
+
+    <h3>Your Workflow</h3>
+    <div class="flow-diagram">
+      <div class="flow-box highlight">Log In</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">View SOW</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Upload Docs</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Review Contract</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Sign</div>
+    </div>
+
+    <div class="info-box">
+      <div class="label">Your Login Credentials</div>
+      <div class="row"><strong>Portal:</strong> <span style="font-family:monospace;">http://localhost:3000/login</span></div>
+      <div class="row"><strong>Email:</strong> asetvisions@gmail.com</div>
+      <div class="row"><strong>Password:</strong> <em>Provided to you separately by your agency admin</em></div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: LOGIN -->
+  <div class="section">
+    <h2><span class="section-number">1</span> How to Log In</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Open the portal URL</h4>
+        <p>Go to the link your agency admin shared with you, or type this in your browser:</p>
+        <div class="url-box">http://localhost:3000/login</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Enter your email and password</h4>
+        <p>Use the email and password your agency admin gave you. Click <strong>"Sign In"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>You're in!</h4>
+        <p>You'll land on your <strong>Contractor Dashboard</strong> — this is your home base. From here you can view contracts, check your SOW, and upload documents.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Tip:</strong> Bookmark the portal URL for quick access. You can log in from any device — phone, tablet, or computer.
+    </div>
+  </div>
+
+  <!-- SECTION 2: YOUR PORTAL -->
+  <div class="section">
+    <h2><span class="section-number">2</span> Your Portal Overview</h2>
+    <p>Once logged in, you'll see a sidebar on the left with three main sections:</p>
+
+    <div class="portal-nav">
+      <div class="portal-nav-item">
+        <div class="icon">📊</div>
+        <div class="title">Dashboard</div>
+        <div class="desc">Overview of your status, contracts, and onboarding progress</div>
+      </div>
+      <div class="portal-nav-item">
+        <div class="icon">📑</div>
+        <div class="title">My Contracts</div>
+        <div class="desc">View and sign your freelancer talent agreements</div>
+      </div>
+      <div class="portal-nav-item">
+        <div class="icon">📄</div>
+        <div class="title">Onboarding</div>
+        <div class="desc">Upload your tax forms, insurance, and licensing documents</div>
+      </div>
+    </div>
+
+    <h3>Dashboard Stats</h3>
+    <ul>
+      <li><strong>Active Contracts</strong> — Contracts that are signed and in effect</li>
+      <li><strong>Pending Signatures</strong> — Contracts waiting for you to sign</li>
+      <li><strong>Statements of Work</strong> — Your SOWs and their current status</li>
+      <li><strong>Documents Needed</strong> — Shows if you still need to upload paperwork</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 3: VIEW SOW -->
+  <div class="section">
+    <h2><span class="section-number">3</span> Viewing Your Statement of Work (SOW)</h2>
+    <p>Your SOW defines your rate, payment schedule, and deliverables. Once your agency admin creates it, you'll see it on your dashboard.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Go to your Dashboard</h4>
+        <p>Click <strong>Dashboard</strong> in the left sidebar</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Scroll to "My Statements of Work"</h4>
+        <p>You'll see a list of your SOWs with the following details:</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Review the SOW details</h4>
+        <p>Each SOW shows:<br>
+        • <strong>Rate Type</strong> — How you're compensated (hourly, full day, project, etc.)<br>
+        • <strong>Rate</strong> — Your agreed dollar amount<br>
+        • <strong>Start Date</strong> — When the engagement begins<br>
+        • <strong>Payment Schedule</strong> — How often you'll be paid (weekly, biweekly, monthly, net 15, net 30)<br>
+        • <strong>Status</strong> — Draft, Approved, Active, or Completed</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="label">SOW Statuses Explained</div>
+      <div class="row"><strong>Draft</strong> — Your agency admin is still preparing this. Not final yet.</div>
+      <div class="row"><strong>Approved</strong> — The agency has approved the SOW. Your contract will be generated next.</div>
+      <div class="row"><strong>Active</strong> — The SOW is in effect and work is underway.</div>
+      <div class="row"><strong>Completed</strong> — The engagement has ended.</div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Wait for SOW Approval</h4>
+        <p>Once your agency approves the SOW, a contract will be assembled for you to review and sign. You'll see a notification on your dashboard when it's ready.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: ONBOARDING DOCS -->
+  <div class="section">
+    <h2><span class="section-number">4</span> Uploading Your Documents</h2>
+    <p>Before your contract can be finalized, you need to upload required documentation.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Click "Onboarding" in the sidebar</h4>
+        <p>Navigate to <strong>/contractor/onboarding</strong></p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Upload your Tax Form (Required)</h4>
+        <p>Select <strong>W-9</strong> (if you're a U.S. resident) or <strong>W-8BEN</strong> (if international). Click the upload area and select your completed file. Accepted formats: PDF, JPG, PNG.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Upload Insurance Proof (if applicable)</h4>
+        <p>Required if you do on-location photography. Upload your general liability insurance certificate.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Upload Licensing Proof (if applicable)</h4>
+        <p>Required for specialized work (drone photography, etc.). Upload your relevant licenses.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Tip:</strong> Once all required documents are uploaded, you'll see a green confirmation banner. Your agency admin will review them and your contract will be generated.
+    </div>
+  </div>
+
+  <!-- SECTION 5: VIEW & SIGN CONTRACT -->
+  <div class="section">
+    <h2><span class="section-number">5</span> Reviewing & Signing Your Contract</h2>
+    <p>After your SOW is approved and your documents are uploaded, your agency assembles the contract. You'll see it in your portal.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Click "My Contracts" in the sidebar</h4>
+        <p>Navigate to <strong>/contractor/contracts</strong></p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Select the contract from the left panel</h4>
+        <p>Click on the contract entry to load the full preview on the right.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Read the full agreement</h4>
+        <p>The contract contains:<br>
+        • <strong>Master Agreement</strong> — Standard legal clauses (IP rights, confidentiality, indemnity, etc.)<br>
+        • <strong>Your Information</strong> — Name, business, role, jurisdiction<br>
+        • <strong>Statement of Work</strong> — Your rate, schedule, and deliverables<br>
+        • <strong>Role-Specific Addendum</strong> — Photography-specific terms (equipment, licensing, usage rights)</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>Important:</strong> Read the entire contract carefully before signing. This is a legally binding agreement. If you have questions, ask your agency admin before signing.
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Draw your signature</h4>
+        <p>Scroll to <strong>"Your Signature"</strong> at the bottom. Use your mouse or finger to draw your signature in the box.<br><br>
+        • Click <strong>"Clear"</strong> if you want to redo it<br>
+        • Click <strong>"Sign"</strong> when you're satisfied</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Done!</h4>
+        <p>Once both you and the agency have signed, the contract status changes to <strong>"Active"</strong>. Your agreement is now fully executed.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Need a copy?</strong> Click the <strong>"Download"</strong> button on the contract preview to save an HTML copy of your signed agreement.
+    </div>
+  </div>
+
+  <!-- SECTION 6: CHECKLIST -->
+  <div class="section">
+    <h2><span class="section-number">6</span> Your Onboarding Checklist</h2>
+    <p>Complete these steps to get started:</p>
+
+    <ul class="checklist">
+      <li class="done">Log in to the contractor portal</li>
+      <li>Upload your W-9 (or W-8BEN if international)</li>
+      <li>Upload insurance proof (if doing on-location work)</li>
+      <li>Review your Statement of Work on the dashboard</li>
+      <li>Wait for your agency to approve the SOW</li>
+      <li>Review the assembled contract in "My Contracts"</li>
+      <li>Sign the contract</li>
+      <li>Download a copy for your records</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 7: HELP -->
+  <div class="section">
+    <h2><span class="section-number">7</span> Need Help?</h2>
+    <p>If you have any issues with the portal or questions about your agreement:</p>
+    <ul>
+      <li><strong>Login issues?</strong> Contact your agency admin to reset your password</li>
+      <li><strong>Contract questions?</strong> Ask your agency admin before signing</li>
+      <li><strong>Document upload issues?</strong> Make files are PDF, JPG, or PNG and under 10MB</li>
+      <li><strong>General questions?</strong> Reach out to your agency contact directly</li>
+    </ul>
+
+    <div class="info-box">
+      <div class="label">Your Agency</div>
+      <div class="row"><strong>WhoIsDésir® Media</strong></div>
+      <div class="row">Florida, United States</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>WhoIsDésir® Media — Contractor Portal Guide</p>
+  <p>Prepared for Aset Visions — Photography</p>
+</div>
+
+</body>
+</html>
