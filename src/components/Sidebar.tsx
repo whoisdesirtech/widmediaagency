@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/addenda', label: 'Addenda Library', icon: '📚' },
   { href: '/contracts', label: 'Assembled Contracts', icon: '📑' },
   { href: '/settings', label: 'Settings', icon: '⚙️' },
+  { href: '/training', label: 'Training', icon: '📖' },
 ];
 
 export default function Sidebar() {
