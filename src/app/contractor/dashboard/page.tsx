@@ -32,6 +32,7 @@ export default function ContractorDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [contractor, setContractor] = useState<ContractorData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingDeliverable, setUpdatingDeliverable] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -48,6 +49,28 @@ export default function ContractorDashboard() {
       setLoading(false);
     }
   }, []);
+
+  const handleDeliverableStatus = async (sowId: string, deliverables: any[], index: number, newStatus: string) => {
+    setUpdatingDeliverable(`${sowId}-${index}`);
+    const updated = deliverables.map((d: any, i: number) => {
+      const text = typeof d === 'string' ? d : d.text;
+      const status = typeof d === 'object' ? d.status : 'pending';
+      if (i === index) return { text, status: newStatus };
+      return { text, status };
+    });
+    try {
+      await fetch('/api/sows', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: sowId, deliverables: JSON.stringify(updated) }),
+      });
+      setContractor((c: any) => ({
+        ...c,
+        sows: c.sows.map((s: any) => s.id === sowId ? { ...s, deliverables: JSON.stringify(updated) } : s),
+      }));
+    } catch {}
+    setUpdatingDeliverable(null);
+  };
 
   if (loading) return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
@@ -200,8 +223,47 @@ export default function ContractorDashboard() {
                         <StatusBadge status={sow.status} />
                       </div>
                       {deliverables.length > 0 && (
-                        <div className="mt-2 text-xs text-muted">
-                          <span className="font-semibold">Deliverables:</span> {deliverables.join(', ')}
+                        <div className="mt-3 space-y-2">
+                          <div className="text-xs font-semibold text-dark-800">Deliverables:</div>
+                          {deliverables.map((d: any, i: number) => {
+                            const text = typeof d === 'string' ? d : d.text;
+                            const status = typeof d === 'object' ? d.status : 'pending';
+                            const isUpdating = updatingDeliverable === `${sow.id}-${i}`;
+                            return (
+                              <div key={i} className="flex items-center gap-2 text-xs">
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                                  status === 'approved' ? 'bg-emerald-100 text-emerald-600' :
+                                  status === 'denied' ? 'bg-red-100 text-red-600' :
+                                  'bg-muted-lighter text-muted'
+                                }`}>
+                                  {status === 'approved' ? '✓' : status === 'denied' ? '✕' : '○'}
+                                </span>
+                                <span className={`${status === 'denied' ? 'line-through text-muted' : 'text-dark-800'}`}>{text}</span>
+                                {sow.status !== 'completed' && sow.status !== 'cancelled' && (
+                                  <div className="flex gap-1 ml-auto">
+                                    <button
+                                      disabled={isUpdating || status === 'approved'}
+                                      onClick={() => handleDeliverableStatus(sow.id, deliverables, i, 'approved')}
+                                      className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                                        status === 'approved'
+                                          ? 'bg-emerald-100 text-emerald-600'
+                                          : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                                      }`}
+                                    >Approve</button>
+                                    <button
+                                      disabled={isUpdating || status === 'denied'}
+                                      onClick={() => handleDeliverableStatus(sow.id, deliverables, i, 'denied')}
+                                      className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                                        status === 'denied'
+                                          ? 'bg-red-100 text-red-600'
+                                          : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                      }`}
+                                    >Deny</button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                       {sow.status === 'draft' && (

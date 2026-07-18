@@ -65,7 +65,7 @@ function SOWBuilderForm() {
         body: JSON.stringify({
           ...form,
           rate: parseFloat(form.rate),
-          deliverables: JSON.stringify(form.deliverables.filter(d => d.trim())),
+          deliverables: JSON.stringify(form.deliverables.filter(d => d.trim()).map(d => ({ text: d.trim(), status: 'pending' }))),
         }),
       });
       const data = await res.json();

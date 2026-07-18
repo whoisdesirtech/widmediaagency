@@ -17,6 +17,10 @@ export default function ContractorDetailPage() {
   const [contractorEmail, setContractorEmail] = useState('');
   const [resetResult, setResetResult] = useState<any>(null);
   const [resetting, setResetting] = useState(false);
+  const [editingSow, setEditingSow] = useState<any>(null);
+  const [editDeliverables, setEditDeliverables] = useState<string[]>([]);
+  const [editRate, setEditRate] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     fetch(`/api/contractors/${id}`)
@@ -62,6 +66,38 @@ export default function ContractorDetailPage() {
       if (res.ok) setResetResult(data);
     } catch {}
     setResetting(false);
+  };
+
+  const openEditSow = (sow: any) => {
+    const deliverables = JSON.parse(sow.deliverables || '[]');
+    setEditDeliverables(deliverables.map((d: any) => typeof d === 'string' ? d : d.text));
+    setEditRate(String(sow.rate));
+    setEditingSow(sow);
+  };
+
+  const saveEditSow = async () => {
+    if (!editingSow) return;
+    setEditSaving(true);
+    try {
+      const res = await fetch('/api/sows', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingSow.id,
+          rate: parseFloat(editRate),
+          deliverables: JSON.stringify(editDeliverables.filter(d => d.trim()).map(d => ({ text: d.trim(), status: 'pending' }))),
+        }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setContractor((c: any) => ({
+          ...c,
+          sows: c.sows.map((s: any) => s.id === updated.id ? updated : s),
+        }));
+        setEditingSow(null);
+      }
+    } catch {}
+    setEditSaving(false);
   };
 
   if (loading) return <div className="flex min-h-screen bg-[#F8F9FC]"><Sidebar /><main className="flex-1 ml-64 p-8"><div className="text-muted">Loading...</div></main></div>;
@@ -221,6 +257,12 @@ export default function ContractorDetailPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <StatusBadge status={sow.status} />
+                      <button
+                        onClick={() => openEditSow(sow)}
+                        className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-xs font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
+                      >
+                        ✏️ Edit
+                      </button>
                       {sow.status === 'draft' && (
                         <button
                           onClick={async () => {
@@ -265,6 +307,63 @@ export default function ContractorDetailPage() {
           )}
         </div>
       </main>
+
+      {editingSow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-muted-lighter">
+              <div className="flex items-center justify-between">
+                <h3 className="font-heading font-bold text-dark-800 text-lg">Edit Statement of Work</h3>
+                <button onClick={() => setEditingSow(null)} className="text-muted hover:text-dark-800 text-lg">✕</button>
+              </div>
+            </div>
+            <div className="p-6 space-y-5">
+              <div>
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Rate ($)</label>
+                <input
+                  type="number" step="0.01"
+                  value={editRate}
+                  onChange={e => setEditRate(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Deliverables</label>
+                <div className="space-y-2">
+                  {editDeliverables.map((d, i) => (
+                    <div key={i} className="flex gap-2">
+                      <input
+                        type="text" value={d}
+                        onChange={e => {
+                          const next = [...editDeliverables];
+                          next[i] = e.target.value;
+                          setEditDeliverables(next);
+                        }}
+                        className="flex-1 px-3 py-2 rounded-lg border-2 border-muted-lighter bg-white text-dark-800 text-sm"
+                        placeholder={`Deliverable ${i + 1}`}
+                      />
+                      <button
+                        onClick={() => setEditDeliverables(editDeliverables.filter((_, idx) => idx !== i))}
+                        className="px-2 text-red-400 hover:text-red-600 text-sm"
+                      >✕</button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setEditDeliverables([...editDeliverables, ''])}
+                  className="mt-2 text-miami-pink text-xs font-semibold hover:underline"
+                >+ Add Deliverable</button>
+              </div>
+            </div>
+            <div className="p-6 border-t border-muted-lighter flex gap-3">
+              <button onClick={saveEditSow} disabled={editSaving} className="btn-primary disabled:opacity-50">
+                {editSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button onClick={() => setEditingSow(null)} className="btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

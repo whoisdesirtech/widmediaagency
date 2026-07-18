@@ -32,20 +32,35 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const { id, status } = await req.json();
+    const body = await req.json();
+    const { id, status, deliverables, rate, rateType, paymentSchedule, startDate, endDate, specialEquipment, software } = body;
 
-    if (!id || !status) {
-      return NextResponse.json({ error: 'Missing id or status' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
 
-    const allowedStatuses = ['draft', 'approved', 'active', 'completed', 'cancelled'];
-    if (!allowedStatuses.includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    const updateData: any = {};
+
+    if (status) {
+      const allowedStatuses = ['draft', 'approved', 'active', 'completed', 'cancelled'];
+      if (!allowedStatuses.includes(status)) {
+        return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+      }
+      updateData.status = status;
     }
+
+    if (deliverables !== undefined) updateData.deliverables = deliverables;
+    if (rate !== undefined) updateData.rate = parseFloat(rate);
+    if (rateType !== undefined) updateData.rateType = rateType;
+    if (paymentSchedule !== undefined) updateData.paymentSchedule = paymentSchedule;
+    if (startDate !== undefined) updateData.startDate = startDate;
+    if (endDate !== undefined) updateData.endDate = endDate || null;
+    if (specialEquipment !== undefined) updateData.specialEquipment = specialEquipment;
+    if (software !== undefined) updateData.software = software;
 
     const sow = await prisma.sOW.update({
       where: { id },
-      data: { status },
+      data: updateData,
     });
 
     return NextResponse.json(sow);

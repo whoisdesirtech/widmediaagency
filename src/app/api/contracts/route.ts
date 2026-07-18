@@ -31,7 +31,10 @@ function buildMergedContent(masterClauses: any[], contractor: any, sow: any, add
     if (sow.specialEquipment) content += `Special Equipment: ${sow.specialEquipment}\n`;
     if (sow.software) content += `Software: ${sow.software}\n`;
     content += `\nDeliverables:\n`;
-    deliverables.forEach((d: string, i: number) => { content += `  ${i + 1}. ${d}\n`; });
+    deliverables.forEach((d: any, i: number) => {
+      const text = typeof d === 'string' ? d : d.text;
+      content += `  ${i + 1}. ${text}\n`;
+    });
     content += '\n';
   }
 
