@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    if (sow && sow.status !== 'approved') {
+    if (sow && !['approved', 'active'].includes(sow.status)) {
       return NextResponse.json({ error: 'SOW must be approved before assembling contract. Current status: ' + sow.status }, { status: 400 });
     }
 
