@@ -68,6 +68,14 @@ export default function ContractorContractsPage() {
     } catch {}
   };
 
+  const hasContractorSigned = (contract: any) => {
+    return contract.signatures?.some((s: any) => s.signerRole === 'contractor');
+  };
+
+  const hasAgencySigned = (contract: any) => {
+    return contract.signatures?.some((s: any) => s.signerRole === 'agency');
+  };
+
   const handleExportHTML = (contract: any) => {
     const content = contract.mergedContent || 'No content assembled';
     const html = `
@@ -171,14 +179,28 @@ export default function ContractorContractsPage() {
                     <h3 className="font-heading font-bold text-dark-800 text-sm mb-4">Your Signature</h3>
                     {selectedContract.status === 'active' ? (
                       <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm font-semibold text-center">
-                        ✓ This contract has been fully signed and is active.
+                        ✓ This contract has been fully signed by both parties and is active.
+                      </div>
+                    ) : hasContractorSigned(selectedContract) ? (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm font-semibold text-center">
+                        ✓ You have signed this contract. {hasAgencySigned(selectedContract) ? 'Both parties have signed — the contract is now active.' : 'Waiting for the agency representative to sign.'}
                       </div>
                     ) : (
-                      <SignaturePad
-                        onSign={(data) => handleSign(selectedContract.id, data)}
-                        signerName={user?.name || 'Contractor'}
-                        signerRole="contractor"
-                      />
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${hasAgencySigned(selectedContract) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                            {hasAgencySigned(selectedContract) ? '✓' : '○'} Agency
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                            ○ You
+                          </div>
+                        </div>
+                        <SignaturePad
+                          onSign={(data) => handleSign(selectedContract.id, data)}
+                          signerName={user?.name || 'Contractor'}
+                          signerRole="contractor"
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

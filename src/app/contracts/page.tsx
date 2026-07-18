@@ -199,18 +199,40 @@ export default function ContractsPage() {
                         {signError}
                       </div>
                     )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <SignaturePad
-                        onSign={(data) => handleSign(selectedContract.id, 'agency', 'Agency Admin', data)}
-                        signerName="Agency Representative"
-                        signerRole="agency"
-                      />
-                      <SignaturePad
-                        onSign={(data) => handleSign(selectedContract.id, 'contractor', selectedContract.contractor?.name || 'Contractor', data)}
-                        signerName={selectedContract.contractor?.name || 'Contractor'}
-                        signerRole="contractor"
-                      />
-                    </div>
+                    {selectedContract.status === 'active' ? (
+                      <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm font-semibold text-center">
+                        ✓ This contract has been fully signed by both parties and is active.
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-4">
+                          {(() => {
+                            const agencySigned = selectedContract.signatures?.some((s: any) => s.signerRole === 'agency');
+                            const contractorSigned = selectedContract.signatures?.some((s: any) => s.signerRole === 'contractor');
+                            return (
+                              <>
+                                <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${agencySigned ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                                  {agencySigned ? '✓' : '○'} Agency
+                                </div>
+                                <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${contractorSigned ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                                  {contractorSigned ? '✓' : '○'} Contractor
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                        <SignaturePad
+                          onSign={(data) => handleSign(selectedContract.id, 'agency', 'Agency Admin', data)}
+                          signerName="Agency Representative"
+                          signerRole="agency"
+                        />
+                        {!selectedContract.signatures?.some((s: any) => s.signerRole === 'contractor') && (
+                          <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-xs">
+                            The contractor will sign from their own portal. Once both parties sign, the contract becomes active.
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
