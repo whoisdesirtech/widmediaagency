@@ -10,6 +10,10 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotResult, setForgotResult] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +45,28 @@ export default function LoginPage() {
       setError('Connection error. Please try again.');
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotResult('');
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setForgotResult(`New password for ${data.name}: ${data.newPassword}`);
+      } else {
+        setForgotResult(data.error || 'Failed to reset password');
+      }
+    } catch {
+      setForgotResult('Connection error');
+    }
+    setForgotLoading(false);
   };
 
   return (
@@ -110,6 +136,41 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setShowForgot(!showForgot)}
+              className="text-xs text-muted hover:text-dark-800 transition-colors"
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          {showForgot && (
+            <form onSubmit={handleForgotPassword} className="mt-4 pt-4 border-t border-muted-lighter space-y-3">
+              <p className="text-xs text-muted">Enter your email to reset your password.</p>
+              <input
+                type="email"
+                value={forgotEmail}
+                onChange={e => setForgotEmail(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
+                placeholder="your@email.com"
+                required
+              />
+              <button
+                type="submit"
+                disabled={forgotLoading}
+                className="btn-secondary w-full justify-center text-sm disabled:opacity-50"
+              >
+                {forgotLoading ? 'Resetting...' : 'Reset Password'}
+              </button>
+              {forgotResult && (
+                <div className={`px-3 py-2 rounded-lg text-xs font-semibold ${forgotResult.startsWith('New password') ? 'bg-blue-50 border border-blue-200 text-blue-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                  {forgotResult}
+                </div>
+              )}
+            </form>
+          )}
 
         </div>
       </div>

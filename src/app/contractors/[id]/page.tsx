@@ -15,6 +15,8 @@ export default function ContractorDetailPage() {
   const [loginCredentials, setLoginCredentials] = useState<any>(null);
   const [generatingLogin, setGeneratingLogin] = useState(false);
   const [contractorEmail, setContractorEmail] = useState('');
+  const [resetResult, setResetResult] = useState<any>(null);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     fetch(`/api/contractors/${id}`)
@@ -44,6 +46,22 @@ export default function ContractorDetailPage() {
       if (res.ok) setLoginCredentials(data);
     } catch {}
     setGeneratingLogin(false);
+  };
+
+  const handleResetPassword = async () => {
+    if (!contractorEmail) return;
+    setResetting(true);
+    setResetResult(null);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: contractorEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) setResetResult(data);
+    } catch {}
+    setResetting(false);
   };
 
   if (loading) return <div className="flex min-h-screen bg-[#F8F9FC]"><Sidebar /><main className="flex-1 ml-64 p-8"><div className="text-muted">Loading...</div></main></div>;
@@ -127,6 +145,16 @@ export default function ContractorDetailPage() {
                     <p className="text-[0.65rem] text-muted mt-2">Share these credentials with the contractor. They can log in at /login.</p>
                   </div>
                 )}
+                {resetResult && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl mb-3">
+                    <div className="text-xs font-bold text-blue-700 mb-2">Password Reset — {resetResult.name}</div>
+                    <div className="space-y-1 text-xs">
+                      <div><span className="text-muted">Email:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.email}</span></div>
+                      <div><span className="text-muted">New Password:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.newPassword}</span></div>
+                    </div>
+                    <p className="text-[0.65rem] text-muted mt-2">Share this new password securely with the contractor.</p>
+                  </div>
+                )}
                 <div>
                   <label className="block text-xs font-semibold text-muted mb-1">Contractor Email</label>
                   <input
@@ -144,6 +172,15 @@ export default function ContractorDetailPage() {
                 >
                   {generatingLogin ? 'Generating...' : loginCredentials ? '🔄 Reset Password' : '🔑 Generate Contractor Login'}
                 </button>
+                {contractorEmail && (
+                  <button
+                    onClick={handleResetPassword}
+                    disabled={resetting}
+                    className="btn-secondary w-full justify-center text-sm disabled:opacity-50"
+                  >
+                    {resetting ? 'Resetting...' : '🔐 Reset Password for This Email'}
+                  </button>
+                )}
                 <Link href={`/onboarding/${contractor.id}`} className="btn-secondary w-full justify-center text-sm">
                   📄 Contractor Onboarding
                 </Link>
