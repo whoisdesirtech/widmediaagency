@@ -28,7 +28,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(signature, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to save signature' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[SIGNATURE]', error?.message || error);
+    return NextResponse.json({ error: 'Failed to save signature: ' + (error?.message || 'unknown') }, { status: 500 });
   }
 }

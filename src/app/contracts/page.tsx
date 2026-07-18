@@ -15,6 +15,7 @@ export default function ContractsPage() {
   const [loading, setLoading] = useState(true);
   const [assembling, setAssembling] = useState(false);
   const [assembleError, setAssembleError] = useState('');
+  const [signError, setSignError] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -48,17 +49,24 @@ export default function ContractsPage() {
   };
 
   const handleSign = async (contractId: string, signerRole: string, signerName: string, signatureData: string) => {
+    setSignError('');
     try {
       const res = await fetch('/api/signatures', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contractId, signerRole, signerName, signerEmail: 'admin@whodesir.com', signatureData }),
       });
+      const data = await res.json();
       if (res.ok) {
         const updated = await fetch('/api/contracts').then(r => r.json());
         setContracts(updated);
+        setSelectedContract((prev: any) => updated.find((c: any) => c.id === prev?.id) || prev);
+      } else {
+        setSignError(data.error || 'Failed to save signature');
       }
-    } catch {}
+    } catch (e: any) {
+      setSignError('Network error: ' + (e?.message || 'unknown'));
+    }
   };
 
   const handleExportPDF = (contract: any) => {
@@ -186,6 +194,11 @@ export default function ContractsPage() {
 
                   <div className="glass-card p-6">
                     <h3 className="font-heading font-bold text-dark-800 text-sm mb-4">Signatures</h3>
+                    {signError && (
+                      <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-semibold mb-4">
+                        {signError}
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <SignaturePad
                         onSign={(data) => handleSign(selectedContract.id, 'agency', 'Agency Admin', data)}
