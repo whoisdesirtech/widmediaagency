@@ -4,9 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-  { href: '/client/dashboard', label: 'Dashboard', icon: '📊' },
+  { href: '/client/dashboard', label: 'Dashboard', icon: '🏠' },
+  { href: '/client/projects', label: 'Projects', icon: '📁' },
+  { href: '/client/deliverables', label: 'Deliverables', icon: '📸' },
   { href: '/client/media', label: 'Media Gallery', icon: '🖼️' },
-  { href: '/client/training', label: 'Training', icon: '📖' },
+  { href: '/client/messages', label: 'Messages', icon: '💬' },
+  { href: '/client/billing', label: 'Billing', icon: '💳' },
+  { href: '/client/documents', label: 'Documents', icon: '📄' },
+  { href: '/client/account', label: 'Account', icon: '⚙️' },
 ];
 
 export default function ClientSidebar({ user }: { user?: { name: string; email: string } }) {
