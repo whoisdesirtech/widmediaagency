@@ -139,6 +139,7 @@ model Client {
   userId               String?
   status               String    @default("active") // active | inactive
   projects             Project[]
+  folders              FileFolder[]
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 }
@@ -154,6 +155,19 @@ model Project {
   progress      Int      @default(0)
   timeline      String   @default("[]") // JSON array of {label, done} objects
   deliverables  Int      @default(0)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FileFolder {
+  id            String   @id @default(uuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id])
+  name          String
+  icon          String   @default("📁")
+  driveFolderId String?  // Google Drive folder ID for this specific folder
+  driveFolderUrl String? // Fallback shareable URL
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

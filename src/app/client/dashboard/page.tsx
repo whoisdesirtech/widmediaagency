@@ -34,6 +34,14 @@ interface Project {
   deliverables: number;
 }
 
+interface Folder {
+  id: string;
+  name: string;
+  icon: string;
+  driveFolderId: string | null;
+  driveFolderUrl: string | null;
+}
+
 const STATUS_COLORS: Record<string, string> = {
   'planning': 'bg-blue-100 text-blue-700',
   'in-progress': 'bg-amber-100 text-amber-700',
@@ -59,6 +67,7 @@ export default function ClientDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [client, setClient] = useState<ClientData | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,9 +80,11 @@ export default function ClientDashboard() {
       Promise.all([
         fetch(`/api/clients/${u.clientId}`).then(r => r.json()),
         fetch(`/api/projects?clientId=${u.clientId}`).then(r => r.json()),
-      ]).then(([c, p]) => {
+        fetch(`/api/folders?clientId=${u.clientId}`).then(r => r.json()),
+      ]).then(([c, p, f]) => {
         setClient(c);
         setProjects(Array.isArray(p) ? p : []);
+        setFolders(Array.isArray(f) ? f : []);
         setLoading(false);
       }).catch(() => setLoading(false));
     } else {
@@ -222,17 +233,10 @@ export default function ClientDashboard() {
                 <h3 className="font-heading font-bold text-dark-800">Files</h3>
                 <Link href="/client/media" className="text-miami-pink text-xs font-semibold hover:underline">Open Gallery →</Link>
               </div>
-              {client.googleDriveFolderId ? (
+              {folders.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { name: 'Photography', icon: '📸' },
-                    { name: 'Videos', icon: '🎬' },
-                    { name: 'Website Files', icon: '🌐' },
-                    { name: 'Logos', icon: '🎨' },
-                    { name: 'Brand Assets', icon: '✨' },
-                    { name: 'Documents', icon: '📁' },
-                  ].map((folder) => (
-                    <Link key={folder.name} href="/client/media" className="flex items-center gap-3 p-3 rounded-xl border border-muted-lighter hover:bg-white/80 transition-colors">
+                  {folders.map((folder) => (
+                    <Link key={folder.id} href={`/client/media?folder=${folder.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-muted-lighter hover:bg-white/80 transition-colors">
                       <span className="text-lg">{folder.icon}</span>
                       <span className="text-xs font-semibold text-dark-800">{folder.name}</span>
                     </Link>
@@ -240,7 +244,7 @@ export default function ClientDashboard() {
                 </div>
               ) : (
                 <div className="text-center py-6 text-muted text-sm">
-                  No media folder configured. Contact your agency.
+                  No media folders configured yet. Contact your agency.
                 </div>
               )}
             </div>

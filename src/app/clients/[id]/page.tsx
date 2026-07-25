@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import StatusBadge from '@/components/StatusBadge';
 
@@ -184,6 +185,12 @@ export default function ClientDetailPage() {
                 >
                   {client.status === 'active' ? 'Deactivate Client' : 'Activate Client'}
                 </button>
+                <Link
+                  href={`/admin/clients/${client.id}/folders`}
+                  className="btn-secondary w-full justify-center text-sm text-center"
+                >
+                  📂 Manage Folders
+                </Link>
               </div>
             </div>
           </div>
