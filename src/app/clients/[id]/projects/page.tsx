@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
@@ -16,6 +16,12 @@ const TABS = [
   { label: 'Folders', href: '/folders', icon: '📂' },
 ];
 
+interface ProjectImage {
+  url: string;
+  name: string;
+  uploadedAt: string;
+}
+
 interface Project {
   id: string;
   name: string;
@@ -25,6 +31,7 @@ interface Project {
   progress: number;
   timeline: string;
   deliverables: number;
+  images: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -39,6 +46,7 @@ const ICON_OPTIONS = ['📸', '🎬', '🌐', '🎨', '✨', '📱', '📦', '�
 export default function AdminClientProjectsPage() {
   const params = useParams();
   const id = params?.id as string;
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [client, setClient] = useState<any>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +55,8 @@ export default function AdminClientProjectsPage() {
   const [form, setForm] = useState({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0 });
   const [saving, setSaving] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -66,7 +76,7 @@ export default function AdminClientProjectsPage() {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId: id, ...form, timeline: '[]', sortOrder: projects.length }),
+        body: JSON.stringify({ clientId: id, ...form, timeline: '[]', images: '[]', sortOrder: projects.length }),
       });
       if (res.ok) {
         const project = await res.json();
@@ -107,6 +117,48 @@ export default function AdminClientProjectsPage() {
     setEditProject(project);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !selectedProject) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('images', files[i]);
+    }
+    formData.append('projectName', selectedProject.name);
+
+    try {
+      const res = await fetch(`/api/projects/${selectedProject.id}/images`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
+        setSelectedProject(updated);
+      }
+    } catch {}
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDeleteImage = async (imageUrl: string) => {
+    if (!selectedProject || !confirm('Delete this image?')) return;
+    try {
+      const res = await fetch(`/api/projects/${selectedProject.id}/images?url=${encodeURIComponent(imageUrl)}`, { method: 'DELETE' });
+      if (res.ok) {
+        const updated = await res.json();
+        setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
+        setSelectedProject(updated);
+      }
+    } catch {}
+  };
+
+  const getProjectImages = (project: Project): ProjectImage[] => {
+    try { return JSON.parse(project.images || '[]'); } catch { return []; }
+  };
+
   if (loading) return <div className="flex min-h-screen bg-[#F8F9FC]"><Sidebar /><main className="flex-1 ml-64 p-8"><div className="text-muted">Loading...</div></main></div>;
 
   return (
@@ -124,12 +176,11 @@ export default function AdminClientProjectsPage() {
                 <span className="text-dark-800">Projects</span>
               </div>
               <h1 className="font-heading text-2xl font-black text-dark-800">Projects</h1>
-              <p className="text-muted text-sm mt-1">Manage {client?.name}&apos;s projects</p>
+              <p className="text-muted text-sm mt-1">Manage {client?.name}&apos;s projects and images</p>
             </div>
             <button onClick={() => { setForm({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0 }); setShowCreate(true); }} className="btn-primary">+ New Project</button>
           </div>
 
-          {/* Tab Navigation */}
           <div className="flex gap-1 mb-8 border-b border-muted-lighter overflow-x-auto">
             {TABS.map((tab) => {
               const href = `/clients/${id}${tab.href}`;
@@ -153,6 +204,7 @@ export default function AdminClientProjectsPage() {
             <div className="grid grid-cols-1 gap-4">
               {projects.map((project) => {
                 const timeline = JSON.parse(project.timeline || '[]');
+                const images = getProjectImages(project);
                 const isExpanded = selectedProject?.id === project.id;
                 return (
                   <div key={project.id} className="glass-card p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedProject(isExpanded ? null : project)}>
@@ -165,9 +217,8 @@ export default function AdminClientProjectsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[project.status]}`}>
-                          {project.status}
-                        </span>
+                        <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[project.status]}`}>{project.status}</span>
+                        {images.length > 0 && <span className="text-[0.65rem] text-muted">🖼️ {images.length}</span>}
                         <button onClick={(e) => { e.stopPropagation(); openEdit(project); }} className="px-2 py-1 text-xs text-muted hover:text-dark-800">✏️</button>
                         <button onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }} className="px-2 py-1 text-xs text-red-500 hover:text-red-700">🗑️</button>
                       </div>
@@ -181,18 +232,55 @@ export default function AdminClientProjectsPage() {
                     <div className="flex items-center justify-between text-xs text-muted">
                       <span>{project.deliverables} deliverables</span>
                     </div>
-                    {isExpanded && timeline.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-muted-lighter">
-                        <h4 className="font-heading font-bold text-dark-800 text-sm mb-3">Timeline</h4>
-                        <div className="space-y-2">
-                          {timeline.map((step: any, i: number) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step.done ? 'bg-emerald-500 text-white' : 'bg-muted-lighter text-muted'}`}>
-                                {step.done ? '✓' : i + 1}
-                              </div>
-                              <span className={`text-sm ${step.done ? 'text-dark-800 font-semibold' : 'text-muted'}`}>{step.label}</span>
+
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 border-t border-muted-lighter space-y-4" onClick={(e) => e.stopPropagation()}>
+                        {timeline.length > 0 && (
+                          <div>
+                            <h4 className="font-heading font-bold text-dark-800 text-sm mb-3">Timeline</h4>
+                            <div className="space-y-2">
+                              {timeline.map((step: any, i: number) => (
+                                <div key={i} className="flex items-center gap-3">
+                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step.done ? 'bg-emerald-500 text-white' : 'bg-muted-lighter text-muted'}`}>
+                                    {step.done ? '✓' : i + 1}
+                                  </div>
+                                  <span className={`text-sm ${step.done ? 'text-dark-800 font-semibold' : 'text-muted'}`}>{step.label}</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          </div>
+                        )}
+
+                        {/* Image Upload Section */}
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-heading font-bold text-dark-800 text-sm">Project Images</h4>
+                            <div>
+                              <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+                              <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="px-3 py-1.5 bg-miami-pink text-white text-xs font-semibold rounded-lg hover:bg-miami-pink/80 transition-colors disabled:opacity-50">
+                                {uploading ? 'Uploading...' : '+ Upload Images'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {images.length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                              {images.map((img, i) => (
+                                <div key={i} className="relative group rounded-xl overflow-hidden border border-muted-lighter">
+                                  <img src={img.url} alt={img.name} className="w-full h-32 object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setPreviewImage(img.url)} />
+                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                    <p className="text-white text-[0.6rem] truncate">{img.name}</p>
+                                  </div>
+                                  <button onClick={() => handleDeleteImage(img.url)} className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-6 border-2 border-dashed border-muted-lighter rounded-xl">
+                              <div className="text-2xl mb-2">🖼️</div>
+                              <p className="text-xs text-muted">No images yet. Click &quot;Upload Images&quot; to add photos to this project.</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -204,6 +292,15 @@ export default function AdminClientProjectsPage() {
         </div>
       </main>
 
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setPreviewImage(null)}>
+          <img src={previewImage} alt="Preview" className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl" />
+          <button onClick={() => setPreviewImage(null)} className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-sm text-white rounded-full text-lg flex items-center justify-center hover:bg-white/30">✕</button>
+        </div>
+      )}
+
+      {/* Create/Edit Modal */}
       {(showCreate || editProject) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">

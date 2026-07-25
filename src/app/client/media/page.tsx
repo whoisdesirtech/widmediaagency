@@ -11,6 +11,19 @@ interface UserInfo {
   clientId?: string;
 }
 
+interface ProjectImage {
+  url: string;
+  name: string;
+  uploadedAt: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  icon: string;
+  images: string;
+}
+
 interface Folder {
   id: string;
   name: string;
@@ -21,9 +34,13 @@ interface Folder {
 
 function MediaContent() {
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeFolder, setActiveFolder] = useState<Folder | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [view, setView] = useState<'projects' | 'folders'>('projects');
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -31,26 +48,25 @@ function MediaContent() {
     const u = JSON.parse(stored);
     setUser(u);
 
-    const params = new URLSearchParams(window.location.search);
-    const folderId = params.get('folder');
-
     if (u.clientId) {
-      fetch(`/api/folders?clientId=${u.clientId}`)
-        .then(r => r.json())
-        .then(data => {
-          const list = Array.isArray(data) ? data : [];
-          setFolders(list);
-          if (folderId) {
-            const match = list.find((f: Folder) => f.id === folderId);
-            if (match) setActiveFolder(match);
-          }
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
+      Promise.all([
+        fetch(`/api/projects?clientId=${u.clientId}`).then(r => r.json()),
+        fetch(`/api/folders?clientId=${u.clientId}`).then(r => r.json()),
+      ]).then(([p, f]) => {
+        setProjects(Array.isArray(p) ? p : []);
+        setFolders(Array.isArray(f) ? f : []);
+        setLoading(false);
+      }).catch(() => setLoading(false));
     } else {
       setLoading(false);
     }
   }, []);
+
+  const getProjectImages = (project: Project): ProjectImage[] => {
+    try { return JSON.parse(project.images || '[]'); } catch { return []; }
+  };
+
+  const allProjects = projects.filter(p => getProjectImages(p).length > 0);
 
   if (loading) return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
@@ -70,84 +86,155 @@ function MediaContent() {
             </div>
             <div>
               <h1 className="font-heading text-2xl font-black text-dark-800">Media Gallery</h1>
-              <p className="text-muted text-sm">Browse your media files organized by folder</p>
+              <p className="text-muted text-sm">Browse project images and media folders</p>
             </div>
           </div>
 
-          {activeFolder ? (
-            <div>
-              <button
-                onClick={() => setActiveFolder(null)}
-                className="text-miami-pink text-xs font-semibold hover:underline mb-4 inline-flex items-center gap-1"
-              >
-                ← Back to All Folders
-              </button>
+          {/* View Toggle */}
+          <div className="flex gap-2 mb-6">
+            <button onClick={() => { setView('projects'); setActiveProject(null); setActiveFolder(null); }} className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${view === 'projects' ? 'bg-dark text-white' : 'bg-white border border-muted-lighter text-dark-800 hover:bg-muted-lighter/30'}`}>
+              📁 By Project
+            </button>
+            <button onClick={() => { setView('folders'); setActiveProject(null); setActiveFolder(null); }} className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${view === 'folders' ? 'bg-dark text-white' : 'bg-white border border-muted-lighter text-dark-800 hover:bg-muted-lighter/30'}`}>
+              📂 Media Folders
+            </button>
+          </div>
 
+          {/* Active Project Images */}
+          {activeProject ? (
+            <div>
+              <button onClick={() => setActiveProject(null)} className="text-miami-pink text-xs font-semibold hover:underline mb-4 inline-flex items-center gap-1">
+                ← Back to Projects
+              </button>
+              <div className="glass-card p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">{activeProject.icon}</span>
+                  <div>
+                    <h2 className="font-heading font-bold text-dark-800">{activeProject.name}</h2>
+                    <p className="text-xs text-muted">{getProjectImages(activeProject).length} images</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {getProjectImages(activeProject).map((img, i) => (
+                    <div key={i} className="relative group rounded-xl overflow-hidden border border-muted-lighter">
+                      <img src={img.url} alt={img.name} className="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setPreviewImage(img.url)} />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <p className="text-white text-[0.65rem] truncate">{img.name}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : activeFolder ? (
+            <div>
+              <button onClick={() => setActiveFolder(null)} className="text-miami-pink text-xs font-semibold hover:underline mb-4 inline-flex items-center gap-1">
+                ← Back to Folders
+              </button>
               {activeFolder.driveFolderId || activeFolder.driveFolderUrl ? (
                 <div className="glass-card p-8 text-center">
                   <div className="w-20 h-20 rounded-2xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-5xl mx-auto mb-5">
                     {activeFolder.icon}
                   </div>
                   <h3 className="font-heading text-xl font-bold text-dark-800 mb-2">{activeFolder.name}</h3>
-                  <p className="text-muted text-sm mb-6">Click below to open this folder in Google Drive where you can browse, preview, and download all files.</p>
+                  <p className="text-muted text-sm mb-6">Click below to open this folder in Google Drive.</p>
                   <a
-                    href={activeFolder.driveFolderId
-                      ? `https://drive.google.com/drive/folders/${activeFolder.driveFolderId}`
-                      : activeFolder.driveFolderUrl || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={activeFolder.driveFolderId ? `https://drive.google.com/drive/folders/${activeFolder.driveFolderId}` : activeFolder.driveFolderUrl || '#'}
+                    target="_blank" rel="noopener noreferrer"
                     className="btn-primary inline-flex items-center gap-2 text-sm"
                   >
                     Open in Google Drive ↗
                   </a>
-                  <p className="text-[0.65rem] text-muted mt-4">Opens in a new tab. Make sure you&apos;re signed in to your Google account.</p>
                 </div>
               ) : (
                 <div className="glass-card p-12 text-center">
                   <div className="text-4xl mb-4">{activeFolder.icon}</div>
                   <div className="font-heading font-bold text-dark-800 mb-2">No Drive Folder Connected</div>
-                  <div className="text-muted text-sm">Ask your agency admin to link a Google Drive folder to this category.</div>
+                  <div className="text-muted text-sm">Ask your agency admin to link a Google Drive folder.</div>
                 </div>
               )}
             </div>
           ) : (
             <div>
-              {folders.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {folders.map((folder) => (
-                    <button
-                      key={folder.id}
-                      onClick={() => setActiveFolder(folder)}
-                      className="glass-card p-6 text-left hover:shadow-md transition-all group"
-                    >
-                      <div className="flex items-center gap-4 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                          {folder.icon}
-                        </div>
-                        <div>
-                          <h3 className="font-heading font-bold text-dark-800">{folder.name}</h3>
-                          <p className="text-xs text-muted">
-                            {folder.driveFolderId ? '✓ Connected' : '⚠ Not connected'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-end text-miami-pink text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                        Open folder →
-                      </div>
-                    </button>
-                  ))}
-                </div>
+              {view === 'projects' ? (
+                allProjects.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {allProjects.map((project) => {
+                      const images = getProjectImages(project);
+                      return (
+                        <button key={project.id} onClick={() => setActiveProject(project)} className="glass-card p-6 text-left hover:shadow-md transition-all group">
+                          <div className="flex items-center gap-4 mb-3">
+                            <div className="w-12 h-12 rounded-xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                              {project.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-heading font-bold text-dark-800">{project.name}</h3>
+                              <p className="text-xs text-muted">{images.length} images</p>
+                            </div>
+                          </div>
+                          {images.length > 0 && (
+                            <div className="grid grid-cols-3 gap-1.5 mt-3">
+                              {images.slice(0, 3).map((img, i) => (
+                                <div key={i} className="rounded-lg overflow-hidden aspect-square">
+                                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex items-center justify-end text-miami-pink text-xs font-semibold mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            View images →
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="glass-card p-12 text-center">
+                    <div className="text-4xl mb-4">🖼️</div>
+                    <div className="font-heading font-bold text-dark-800 mb-2">No Project Images Yet</div>
+                    <div className="text-muted text-sm">Your agency will upload images to your projects soon.</div>
+                  </div>
+                )
               ) : (
-                <div className="glass-card p-12 text-center">
-                  <div className="text-4xl mb-4">📂</div>
-                  <div className="font-heading font-bold text-dark-800 mb-2">No Folders Yet</div>
-                  <div className="text-muted text-sm">Your agency admin will set up media folders for your account.</div>
-                </div>
+                folders.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {folders.map((folder) => (
+                      <button key={folder.id} onClick={() => setActiveFolder(folder)} className="glass-card p-6 text-left hover:shadow-md transition-all group">
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className="w-12 h-12 rounded-xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            {folder.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-heading font-bold text-dark-800">{folder.name}</h3>
+                            <p className="text-xs text-muted">{folder.driveFolderId ? '✓ Connected' : '⚠ Not connected'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-end text-miami-pink text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                          Open folder →
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="glass-card p-12 text-center">
+                    <div className="text-4xl mb-4">📂</div>
+                    <div className="font-heading font-bold text-dark-800 mb-2">No Folders Yet</div>
+                    <div className="text-muted text-sm">Your agency will set up media folders for your account.</div>
+                  </div>
+                )
               )}
             </div>
           )}
         </div>
       </main>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setPreviewImage(null)}>
+          <img src={previewImage} alt="Preview" className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl" />
+          <button onClick={() => setPreviewImage(null)} className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-sm text-white rounded-full text-lg flex items-center justify-center hover:bg-white/30">✕</button>
+        </div>
+      )}
     </div>
   );
 }
