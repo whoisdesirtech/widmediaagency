@@ -98,7 +98,7 @@ function MediaContent() {
                         href={`https://drive.google.com/drive/folders/${activeFolder.driveFolderId}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn-secondary text-xs"
+                        className="btn-primary text-xs"
                       >
                         Open in Google Drive ↗
                       </a>
@@ -106,10 +106,11 @@ function MediaContent() {
                   </div>
                   <div className="p-2">
                     <iframe
-                      src={`https://drive.google.com/embeddedfolderview?id=${activeFolder.driveFolderId}#list`}
+                      src={`https://drive.google.com/drive/folders/${activeFolder.driveFolderId}?usp=sharing`}
                       className="w-full border-0 rounded-lg"
                       style={{ height: '800px' }}
                       title={activeFolder.name}
+                      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                     />
                   </div>
                 </div>
