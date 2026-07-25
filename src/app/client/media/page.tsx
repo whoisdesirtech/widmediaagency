@@ -83,50 +83,24 @@ function MediaContent() {
                 ← Back to All Folders
               </button>
 
-              {activeFolder.driveFolderId ? (
-                <div className="glass-card overflow-hidden">
-                  <div className="p-5 border-b border-muted-lighter">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{activeFolder.icon}</span>
-                        <div>
-                          <h3 className="font-heading font-bold text-dark-800">{activeFolder.name}</h3>
-                          <p className="text-muted text-xs mt-0.5">Browse, preview, and download files</p>
-                        </div>
-                      </div>
-                      <a
-                        href={`https://drive.google.com/drive/folders/${activeFolder.driveFolderId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-primary text-xs"
-                      >
-                        Open in Google Drive ↗
-                      </a>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <iframe
-                      src={`https://drive.google.com/drive/folders/${activeFolder.driveFolderId}?usp=sharing`}
-                      className="w-full border-0 rounded-lg"
-                      style={{ height: '800px' }}
-                      title={activeFolder.name}
-                      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                    />
-                  </div>
-                </div>
-              ) : activeFolder.driveFolderUrl ? (
+              {activeFolder.driveFolderId || activeFolder.driveFolderUrl ? (
                 <div className="glass-card p-8 text-center">
-                  <div className="text-4xl mb-4">{activeFolder.icon}</div>
-                  <div className="font-heading font-bold text-dark-800 mb-2">{activeFolder.name}</div>
-                  <div className="text-muted text-sm mb-6">Click below to access this folder in Google Drive.</div>
+                  <div className="w-20 h-20 rounded-2xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-5xl mx-auto mb-5">
+                    {activeFolder.icon}
+                  </div>
+                  <h3 className="font-heading text-xl font-bold text-dark-800 mb-2">{activeFolder.name}</h3>
+                  <p className="text-muted text-sm mb-6">Click below to open this folder in Google Drive where you can browse, preview, and download all files.</p>
                   <a
-                    href={activeFolder.driveFolderUrl}
+                    href={activeFolder.driveFolderId
+                      ? `https://drive.google.com/drive/folders/${activeFolder.driveFolderId}`
+                      : activeFolder.driveFolderUrl || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary inline-flex justify-center text-sm"
+                    className="btn-primary inline-flex items-center gap-2 text-sm"
                   >
-                    Open Folder ↗
+                    Open in Google Drive ↗
                   </a>
+                  <p className="text-[0.65rem] text-muted mt-4">Opens in a new tab. Make sure you&apos;re signed in to your Google account.</p>
                 </div>
               ) : (
                 <div className="glass-card p-12 text-center">
