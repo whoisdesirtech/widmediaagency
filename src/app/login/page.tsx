@@ -36,7 +36,9 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('user', JSON.stringify(data.user));
-      if (data.user.role === 'contractor') {
+      if (data.user.role === 'client') {
+        router.push('/client/dashboard');
+      } else if (data.user.role === 'contractor') {
         router.push('/contractor/dashboard');
       } else {
         router.push('/dashboard');

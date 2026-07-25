@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      user: { id: user.id, email: user.email, name: user.name, role: user.role, contractorId: user.contractorId || undefined },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role, contractorId: user.contractorId || undefined, clientId: user.clientId || undefined },
     });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

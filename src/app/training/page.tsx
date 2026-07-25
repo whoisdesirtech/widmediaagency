@@ -34,6 +34,16 @@ export default function AdminTrainingPage() {
                 <HtmlRenderer src="/vendor-phases.html" />
               </div>
             </section>
+
+            <section>
+              <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">3</span>
+                Client Portal Guide
+              </h2>
+              <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
+                <HtmlRenderer src="/client-training.html" />
+              </div>
+            </section>
           </div>
         </div>
       </main>

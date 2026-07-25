@@ -19,17 +19,19 @@ model Agency {
   users                User[]
   masterAgreements     MasterAgreement[]
   contractors          Contractor[]
+  clients              Client[]
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String    @id @default(uuid())
+  email        String    @unique
   passwordHash String
   name         String
-  role         String   @default("contractor") // admin | staff | contractor
+  role         String    @default("contractor") // admin | staff | contractor | client
   agencyId     String?
-  agency       Agency?  @relation(fields: [agencyId], references: [id])
+  agency       Agency?   @relation(fields: [agencyId], references: [id])
   contractorId String?
+  clientId     String?
   createdAt    DateTime @default(now())
 }
 
@@ -122,4 +124,20 @@ model Signature {
   signerEmail  String
   signatureData String           // base64 signature image
   signedAt     DateTime          @default(now())
+}
+
+model Client {
+  id                   String    @id @default(uuid())
+  name                 String
+  businessName         String?
+  email                String    @unique
+  phone                String?
+  googleDriveFolderId  String?
+  googleDriveFolderUrl String?
+  agencyId             String
+  agency               Agency    @relation(fields: [agencyId], references: [id])
+  userId               String?
+  status               String    @default("active") // active | inactive
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
