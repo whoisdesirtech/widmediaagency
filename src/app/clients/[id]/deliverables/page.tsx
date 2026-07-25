@@ -44,17 +44,20 @@ export default function AdminClientDeliverablesPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editItem, setEditItem] = useState<Deliverable | null>(null);
-  const [form, setForm] = useState({ name: '', type: 'document', status: 'pending', dueDate: '', description: '' });
+  const [form, setForm] = useState({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' });
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [contractors, setContractors] = useState<any[]>([]);
 
   useEffect(() => {
     Promise.all([
       fetch(`/api/clients/${id}`).then(r => r.json()),
       fetch(`/api/deliverables?clientId=${id}`).then(r => r.json()),
-    ]).then(([c, d]) => {
+      fetch(`/api/contractors`).then(r => r.json()),
+    ]).then(([c, d, ct]) => {
       setClient(c);
       setDeliverables(Array.isArray(d) ? d : []);
+      setContractors(Array.isArray(ct) ? ct : []);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [id]);
@@ -72,7 +75,7 @@ export default function AdminClientDeliverablesPage() {
         const item = await res.json();
         setDeliverables(prev => [...prev, item]);
         setShowCreate(false);
-        setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '' });
+        setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' });
       }
     } catch {}
     setSaving(false);
@@ -103,7 +106,7 @@ export default function AdminClientDeliverablesPage() {
   };
 
   const openEdit = (item: Deliverable) => {
-    setForm({ name: item.name, type: item.type, status: item.status, dueDate: item.dueDate || '', description: item.description });
+    setForm({ name: item.name, type: item.type, status: item.status, dueDate: item.dueDate || '', description: item.description, contractorId: (item as any).contractorId || '' });
     setEditItem(item);
   };
 
@@ -128,7 +131,7 @@ export default function AdminClientDeliverablesPage() {
               <h1 className="font-heading text-2xl font-black text-dark-800">Deliverables</h1>
               <p className="text-muted text-sm mt-1">Manage deliverables for {client?.name}</p>
             </div>
-            <button onClick={() => { setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '' }); setShowCreate(true); }} className="btn-primary">+ Add Deliverable</button>
+            <button onClick={() => { setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' }); setShowCreate(true); }} className="btn-primary">+ Add Deliverable</button>
           </div>
 
           <div className="flex gap-1 mb-8 border-b border-muted-lighter overflow-x-auto">
@@ -228,6 +231,15 @@ export default function AdminClientDeliverablesPage() {
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Due Date</label>
                 <input type="text" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" placeholder="e.g. Jul 28, 2026" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Assign Contractor</label>
+                <select value={form.contractorId} onChange={e => setForm(f => ({ ...f, contractorId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
+                  <option value="">None</option>
+                  {contractors.map((c: any) => (
+                    <option key={c.id} value={c.id}>{c.name} — {c.role}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="p-6 border-t border-muted-lighter flex gap-3">

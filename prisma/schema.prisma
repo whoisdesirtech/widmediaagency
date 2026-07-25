@@ -151,6 +151,7 @@ model Project {
   id            String   @id @default(uuid())
   clientId      String
   client        Client   @relation(fields: [clientId], references: [id])
+  contractorId  String?
   name          String
   description   String   @default("")
   icon          String   @default("📁")
@@ -182,6 +183,7 @@ model Deliverable {
   clientId      String
   client        Client   @relation(fields: [clientId], references: [id])
   projectId     String?
+  contractorId  String?
   name          String
   type          String   @default("document") // image | video | document | design
   status        String   @default("pending") // pending | in-progress | pending-approval | approved | changes-requested

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { clientId, projectId, name, type, status, dueDate, description, sortOrder } = body;
+    const { clientId, projectId, contractorId, name, type, status, dueDate, description, sortOrder } = body;
 
     if (!clientId || !name) {
       return NextResponse.json({ error: 'Client ID and name are required' }, { status: 400 });
@@ -14,6 +14,7 @@ export async function POST(req: Request) {
       data: {
         clientId,
         projectId: projectId || null,
+        contractorId: contractorId || null,
         name,
         type: type || 'document',
         status: status || 'pending',
@@ -33,13 +34,14 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get('clientId');
+    const contractorId = searchParams.get('contractorId');
 
-    if (!clientId) {
-      return NextResponse.json({ error: 'clientId is required' }, { status: 400 });
-    }
+    const where: any = {};
+    if (clientId) where.clientId = clientId;
+    if (contractorId) where.contractorId = contractorId;
 
     const deliverables = await prisma.deliverable.findMany({
-      where: { clientId },
+      where,
       orderBy: { sortOrder: 'asc' },
     });
     return NextResponse.json(deliverables);

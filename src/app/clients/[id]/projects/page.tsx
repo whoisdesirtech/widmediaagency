@@ -52,19 +52,22 @@ export default function AdminClientProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0 });
+  const [form, setForm] = useState({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0, contractorId: '' });
   const [saving, setSaving] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [uploading, setUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [contractors, setContractors] = useState<any[]>([]);
 
   useEffect(() => {
     Promise.all([
       fetch(`/api/clients/${id}`).then(r => r.json()),
       fetch(`/api/projects?clientId=${id}`).then(r => r.json()),
-    ]).then(([c, p]) => {
+      fetch(`/api/contractors`).then(r => r.json()),
+    ]).then(([c, p, ct]) => {
       setClient(c);
       setProjects(Array.isArray(p) ? p : []);
+      setContractors(Array.isArray(ct) ? ct : []);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [id]);
@@ -82,7 +85,7 @@ export default function AdminClientProjectsPage() {
         const project = await res.json();
         setProjects(prev => [...prev, project]);
         setShowCreate(false);
-        setForm({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0 });
+        setForm({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0, contractorId: '' });
       }
     } catch {}
     setSaving(false);
@@ -113,7 +116,7 @@ export default function AdminClientProjectsPage() {
   };
 
   const openEdit = (project: Project) => {
-    setForm({ name: project.name, description: project.description, icon: project.icon, status: project.status, progress: project.progress, deliverables: project.deliverables });
+    setForm({ name: project.name, description: project.description, icon: project.icon, status: project.status, progress: project.progress, deliverables: project.deliverables, contractorId: (project as any).contractorId || '' });
     setEditProject(project);
   };
 
@@ -178,7 +181,7 @@ export default function AdminClientProjectsPage() {
               <h1 className="font-heading text-2xl font-black text-dark-800">Projects</h1>
               <p className="text-muted text-sm mt-1">Manage {client?.name}&apos;s projects and images</p>
             </div>
-            <button onClick={() => { setForm({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0 }); setShowCreate(true); }} className="btn-primary">+ New Project</button>
+            <button onClick={() => { setForm({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0, contractorId: '' }); setShowCreate(true); }} className="btn-primary">+ New Project</button>
           </div>
 
           <div className="flex gap-1 mb-8 border-b border-muted-lighter overflow-x-auto">
@@ -347,6 +350,15 @@ export default function AdminClientProjectsPage() {
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Deliverables Count</label>
                 <input type="number" min="0" value={form.deliverables} onChange={e => setForm(f => ({ ...f, deliverables: parseInt(e.target.value) || 0 }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Assign Contractor</label>
+                <select value={form.contractorId} onChange={e => setForm(f => ({ ...f, contractorId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
+                  <option value="">None</option>
+                  {contractors.map((c: any) => (
+                    <option key={c.id} value={c.id}>{c.name} — {c.role}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="p-6 border-t border-muted-lighter flex gap-3">
