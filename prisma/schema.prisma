@@ -140,6 +140,9 @@ model Client {
   status               String    @default("active") // active | inactive
   projects             Project[]
   folders              FileFolder[]
+  deliverables         Deliverable[]
+  invoices             Invoice[]
+  documents            Document[]
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 }
@@ -169,6 +172,49 @@ model FileFolder {
   driveFolderId String?  // Google Drive folder ID for this specific folder
   driveFolderUrl String? // Fallback shareable URL
   sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Deliverable {
+  id            String   @id @default(uuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id])
+  projectId     String?
+  name          String
+  type          String   @default("document") // image | video | document | design
+  status        String   @default("pending") // pending | in-progress | pending-approval | approved | changes-requested
+  dueDate       String?
+  description   String   @default("")
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id])
+  invoiceNumber String
+  description   String
+  project       String?
+  amount        Float
+  status        String   @default("pending") // paid | pending | upcoming | overdue
+  dueDate       String?
+  paidDate      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Document {
+  id            String   @id @default(uuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id])
+  name          String
+  type          String   @default("document") // contract | nda | proposal | change-order | document
+  status        String   @default("available") // signed | pending | available
+  fileUrl       String?
+  date          String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
