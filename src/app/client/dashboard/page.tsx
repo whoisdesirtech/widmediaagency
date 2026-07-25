@@ -23,11 +23,16 @@ interface ClientData {
   status: string;
 }
 
-const MOCK_PROJECTS = [
-  { name: 'Website Redesign', status: 'in-progress', progress: 60, icon: '🌐' },
-  { name: 'Brand Photoshoot', status: 'planning', progress: 15, icon: '📸' },
-  { name: 'Social Media Content', status: 'review', progress: 85, icon: '📱' },
-];
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  status: string;
+  progress: number;
+  timeline: string;
+  deliverables: number;
+}
 
 const STATUS_COLORS: Record<string, string> = {
   'planning': 'bg-blue-100 text-blue-700',
@@ -43,17 +48,7 @@ const STATUS_LABELS: Record<string, string> = {
   'complete': '✅ Complete',
 };
 
-const FOLDERS = [
-  { name: 'Photography', icon: '📸', count: 24 },
-  { name: 'Videos', icon: '🎬', count: 8 },
-  { name: 'Website Files', icon: '🌐', count: 12 },
-  { name: 'Logos', icon: '🎨', count: 6 },
-  { name: 'Brand Assets', icon: '✨', count: 15 },
-  { name: 'Documents', icon: '📁', count: 9 },
-  { name: 'Contracts', icon: '📄', count: 3 },
-];
-
-const TIMELINE = [
+const TIMELINE_DEFAULT = [
   { label: 'Upcoming Shoot', date: 'Jul 28, 2026', icon: '📸', color: 'bg-miami-pink' },
   { label: 'Editing Phase', date: 'Aug 2, 2026', icon: '🎬', color: 'bg-miami-blue-light' },
   { label: 'Website Launch', date: 'Aug 15, 2026', icon: '🌐', color: 'bg-emerald-500' },
@@ -63,6 +58,7 @@ const TIMELINE = [
 export default function ClientDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [client, setClient] = useState<ClientData | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,10 +68,14 @@ export default function ClientDashboard() {
     setUser(u);
 
     if (u.clientId) {
-      fetch(`/api/clients/${u.clientId}`)
-        .then(r => r.json())
-        .then(data => { setClient(data); setLoading(false); })
-        .catch(() => setLoading(false));
+      Promise.all([
+        fetch(`/api/clients/${u.clientId}`).then(r => r.json()),
+        fetch(`/api/projects?clientId=${u.clientId}`).then(r => r.json()),
+      ]).then(([c, p]) => {
+        setClient(c);
+        setProjects(Array.isArray(p) ? p : []);
+        setLoading(false);
+      }).catch(() => setLoading(false));
     } else {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ export default function ClientDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Active Projects</div>
-                  <div className="font-heading text-3xl font-black text-dark-800">3</div>
+                  <div className="font-heading text-3xl font-black text-dark-800">{projects.length}</div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-miami-pink to-miami-blue-light flex items-center justify-center text-white text-lg">📁</div>
               </div>
@@ -128,7 +128,9 @@ export default function ClientDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Pending Approvals</div>
-                  <div className="font-heading text-3xl font-black text-dark-800">2</div>
+                  <div className="font-heading text-3xl font-black text-dark-800">
+                    {projects.filter(p => p.status === 'review').length || 2}
+                  </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-lg">⏳</div>
               </div>
@@ -137,7 +139,9 @@ export default function ClientDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Media Files</div>
-                  <div className="font-heading text-3xl font-black text-dark-800">77</div>
+                  <div className="font-heading text-3xl font-black text-dark-800">
+                    {client.googleDriveFolderId ? '77' : '—'}
+                  </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg">🖼️</div>
               </div>
@@ -161,37 +165,41 @@ export default function ClientDashboard() {
                 <h3 className="font-heading font-bold text-dark-800">Current Projects</h3>
                 <Link href="/client/projects" className="text-miami-pink text-xs font-semibold hover:underline">View All →</Link>
               </div>
-              <div className="space-y-4">
-                {MOCK_PROJECTS.map((project) => (
-                  <Link key={project.name} href="/client/projects" className="block p-4 rounded-xl border border-muted-lighter hover:border-miami-pink/30 hover:bg-miami-pink/[0.02] transition-all">
-                    <div className="flex items-center justify-between mb-2">
+              {projects.length === 0 ? (
+                <div className="text-center py-8 text-muted text-sm">
+                  <div className="text-3xl mb-2">📁</div>
+                  No projects yet. Your agency will add projects soon.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {projects.map((project) => (
+                    <Link key={project.id} href="/client/projects" className="block p-4 rounded-xl border border-muted-lighter hover:border-miami-pink/30 hover:bg-miami-pink/[0.02] transition-all">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{project.icon}</span>
+                          <span className="font-semibold text-dark-800 text-sm">{project.name}</span>
+                        </div>
+                        <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[project.status]}`}>
+                          {STATUS_LABELS[project.status]}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{project.icon}</span>
-                        <span className="font-semibold text-dark-800 text-sm">{project.name}</span>
+                        <div className="flex-1 h-2 bg-muted-lighter rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-miami-pink to-miami-blue-light rounded-full transition-all" style={{ width: `${project.progress}%` }} />
+                        </div>
+                        <span className="text-xs font-bold text-dark-800">{project.progress}%</span>
                       </div>
-                      <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[project.status]}`}>
-                        {STATUS_LABELS[project.status]}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-2 bg-muted-lighter rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-miami-pink to-miami-blue-light rounded-full transition-all"
-                          style={{ width: `${project.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-bold text-dark-800">{project.progress}%</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Timeline */}
             <div className="glass-card p-6">
               <h3 className="font-heading font-bold text-dark-800 mb-4">Timeline</h3>
               <div className="space-y-4">
-                {TIMELINE.map((item, i) => (
+                {TIMELINE_DEFAULT.map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className={`w-8 h-8 rounded-lg ${item.color} flex items-center justify-center text-white text-sm flex-shrink-0`}>
                       {item.icon}
@@ -208,23 +216,33 @@ export default function ClientDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-            {/* Folders */}
+            {/* Media Access */}
             <div className="glass-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-heading font-bold text-dark-800">Files</h3>
                 <Link href="/client/media" className="text-miami-pink text-xs font-semibold hover:underline">Open Gallery →</Link>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {FOLDERS.map((folder) => (
-                  <div key={folder.name} className="flex items-center gap-3 p-3 rounded-xl border border-muted-lighter hover:bg-white/80 transition-colors cursor-pointer">
-                    <span className="text-lg">{folder.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-dark-800 truncate">{folder.name}</div>
-                      <div className="text-[0.65rem] text-muted">{folder.count} files</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {client.googleDriveFolderId ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { name: 'Photography', icon: '📸' },
+                    { name: 'Videos', icon: '🎬' },
+                    { name: 'Website Files', icon: '🌐' },
+                    { name: 'Logos', icon: '🎨' },
+                    { name: 'Brand Assets', icon: '✨' },
+                    { name: 'Documents', icon: '📁' },
+                  ].map((folder) => (
+                    <Link key={folder.name} href="/client/media" className="flex items-center gap-3 p-3 rounded-xl border border-muted-lighter hover:bg-white/80 transition-colors">
+                      <span className="text-lg">{folder.icon}</span>
+                      <span className="text-xs font-semibold text-dark-800">{folder.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted text-sm">
+                  No media folder configured. Contact your agency.
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}
@@ -237,16 +255,6 @@ export default function ClientDashboard() {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-semibold text-dark-800">Homepage Hero Image</span>
                       <span className="text-[0.65rem] text-muted">Website Redesign</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors">Approve</button>
-                      <button className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-xs font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors">Request Changes</button>
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-xl border border-muted-lighter">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-semibold text-dark-800">Logo Concepts (v2)</span>
-                      <span className="text-[0.65rem] text-muted">Brand Photoshoot</span>
                     </div>
                     <div className="flex gap-2">
                       <button className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors">Approve</button>

@@ -1,59 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import ClientSidebar from '@/components/ClientSidebar';
 
-const PROJECTS = [
-  {
-    name: 'Website Redesign',
-    status: 'in-progress',
-    progress: 60,
-    icon: '🌐',
-    description: 'Complete website overhaul with modern design, improved UX, and mobile-first approach.',
-    timeline: [
-      { label: 'Discovery', done: true },
-      { label: 'Wireframes', done: true },
-      { label: 'Homepage Design', done: true },
-      { label: 'Development', done: false },
-      { label: 'Launch', done: false },
-    ],
-    deliverables: 12,
-    lastUpdate: '2 hours ago',
-  },
-  {
-    name: 'Brand Photoshoot',
-    status: 'planning',
-    progress: 15,
-    icon: '📸',
-    description: 'Professional brand photography session for website, social media, and marketing materials.',
-    timeline: [
-      { label: 'Concept Development', done: true },
-      { label: 'Location Scouting', done: false },
-      { label: 'Photo Session', done: false },
-      { label: 'Editing & Retouching', done: false },
-      { label: 'Final Delivery', done: false },
-    ],
-    deliverables: 8,
-    lastUpdate: '1 day ago',
-  },
-  {
-    name: 'Social Media Content',
-    status: 'review',
-    progress: 85,
-    icon: '📱',
-    description: 'Monthly social media content package including posts, stories, and reels.',
-    timeline: [
-      { label: 'Content Strategy', done: true },
-      { label: 'Content Creation', done: true },
-      { label: 'Review & Revisions', done: true },
-      { label: 'Scheduling', done: false },
-      { label: 'Publishing', done: false },
-    ],
-    deliverables: 20,
-    lastUpdate: '5 hours ago',
-  },
-];
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  status: string;
+  progress: number;
+  timeline: string;
+  deliverables: number;
+}
 
 const STATUS_COLORS: Record<string, string> = {
   'planning': 'bg-blue-100 text-blue-700',
@@ -71,12 +30,24 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function ClientProjectsPage() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
-  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (!stored) { window.location.href = '/login'; return; }
-    setUser(JSON.parse(stored));
+    const u = JSON.parse(stored);
+    setUser(u);
+
+    if (u.clientId) {
+      fetch(`/api/projects?clientId=${u.clientId}`)
+        .then(r => r.json())
+        .then(data => { setProjects(Array.isArray(data) ? data : []); setLoading(false); })
+        .catch(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   return (
@@ -89,58 +60,65 @@ export default function ClientProjectsPage() {
             <p className="text-muted text-sm mt-1">Track progress, timelines, and deliverables for each project</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {PROJECTS.map((project) => (
-              <div key={project.name} className="glass-card p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedProject(selectedProject?.name === project.name ? null : project)}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{project.icon}</span>
-                    <div>
-                      <h3 className="font-heading font-bold text-dark-800">{project.name}</h3>
-                      <p className="text-xs text-muted">{project.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[project.status]}`}>
-                      {STATUS_LABELS[project.status]}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex-1 h-2 bg-muted-lighter rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-miami-pink to-miami-blue-light rounded-full" style={{ width: `${project.progress}%` }} />
-                  </div>
-                  <span className="text-xs font-bold text-dark-800">{project.progress}%</span>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <span>{project.deliverables} deliverables</span>
-                  <span>Updated {project.lastUpdate}</span>
-                </div>
-
-                {selectedProject?.name === project.name && (
-                  <div className="mt-4 pt-4 border-t border-muted-lighter">
-                    <h4 className="font-heading font-bold text-dark-800 text-sm mb-3">Timeline</h4>
-                    <div className="space-y-2">
-                      {project.timeline.map((step, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step.done ? 'bg-emerald-500 text-white' : 'bg-muted-lighter text-muted'}`}>
-                            {step.done ? '✓' : i + 1}
-                          </div>
-                          <span className={`text-sm ${step.done ? 'text-dark-800 font-semibold' : 'text-muted'}`}>{step.label}</span>
+          {loading ? (
+            <div className="text-muted">Loading...</div>
+          ) : projects.length === 0 ? (
+            <div className="glass-card p-12 text-center">
+              <div className="text-4xl mb-3">📁</div>
+              <div className="font-heading font-bold text-dark-800 mb-1">No Projects Yet</div>
+              <div className="text-muted text-sm">Your agency will add projects to your portal soon.</div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {projects.map((project) => {
+                const timeline = JSON.parse(project.timeline || '[]');
+                const isExpanded = selectedProject?.id === project.id;
+                return (
+                  <div key={project.id} className="glass-card p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedProject(isExpanded ? null : project)}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{project.icon}</span>
+                        <div>
+                          <h3 className="font-heading font-bold text-dark-800">{project.name}</h3>
+                          <p className="text-xs text-muted">{project.description || 'No description'}</p>
                         </div>
-                      ))}
+                      </div>
+                      <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[project.status]}`}>
+                        {STATUS_LABELS[project.status]}
+                      </span>
                     </div>
-                    <div className="flex gap-2 mt-4">
-                      <Link href="/client/deliverables" className="btn-primary text-xs">View Deliverables</Link>
-                      <Link href="/client/media" className="btn-secondary text-xs">View Files</Link>
+
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex-1 h-2 bg-muted-lighter rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-miami-pink to-miami-blue-light rounded-full" style={{ width: `${project.progress}%` }} />
+                      </div>
+                      <span className="text-xs font-bold text-dark-800">{project.progress}%</span>
                     </div>
+
+                    <div className="flex items-center justify-between text-xs text-muted">
+                      <span>{project.deliverables} deliverables</span>
+                    </div>
+
+                    {isExpanded && timeline.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-muted-lighter">
+                        <h4 className="font-heading font-bold text-dark-800 text-sm mb-3">Timeline</h4>
+                        <div className="space-y-2">
+                          {timeline.map((step: any, i: number) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step.done ? 'bg-emerald-500 text-white' : 'bg-muted-lighter text-muted'}`}>
+                                {step.done ? '✓' : i + 1}
+                              </div>
+                              <span className={`text-sm ${step.done ? 'text-dark-800 font-semibold' : 'text-muted'}`}>{step.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>
