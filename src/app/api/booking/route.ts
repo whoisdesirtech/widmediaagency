@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
 
-const ORGANIZER_EMAIL = 'vroland@northmiamifl.gov';
+const ORGANIZER_EMAIL = 'digitalvurv@gmail.com';
 
 function validate(data: Record<string, unknown>): string | null {
   if (!data.name || typeof data.name !== 'string' || !data.name.trim()) return 'Name is required';

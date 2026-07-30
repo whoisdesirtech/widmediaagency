@@ -140,8 +140,8 @@ function Hero() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center py-32">
         <div className="mb-8">
-          <div className="w-28 h-28 sm:w-36 sm:h-36 mx-auto rounded-full bg-dark-800 border-2 border-miami-pink/30 overflow-hidden aspect-square flex items-center justify-center">
-            <span className="text-muted text-xs text-center p-2">[HEADSHOT]</span>
+          <div className="w-28 h-28 sm:w-36 sm:h-36 mx-auto rounded-full border-2 border-miami-pink/30 overflow-hidden aspect-square">
+            <img src="/speaker-headshot.jpg" alt="Désir Fils" className="w-full h-full object-cover" />
           </div>
         </div>
 
@@ -159,7 +159,7 @@ function Hero() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="mailto:vroland@northmiamifl.gov?subject=Speaker%20Inquiry%20%E2%80%93%20D%C3%A9sir%20Fils&body=Hi%20Vroland%2C%0A%0AI%27m%20D%C3%A9sir%20Fils%2C%20an%20AI%20engineer%20and%20entrepreneur%20in%20Miami.%20I%20came%20across%20the%20AI%20%26%20Marketing%20Summit%20(Thursday%2C%20August%206%2C%202026%2C%2010%20AM%E2%80%932%20PM%2C%20Joe%20Celestin%20Center%2C%20Miami%2C%20FL)%20and%20would%20love%20to%20attend%20and%20explore%20speaking.%0A%0AI%20build%20AI%20tools%20for%20media%2C%20marketing%2C%20and%20small%20business%20operations%20%E2%80%94%20founder%20of%20Magnitax%C2%AE%20and%20the%20WhoIsD%C3%A9sir%C2%AE%20Media%20Agency.%20My%20headline%20talk%20features%20the%20Creative%20Hub%20AI%20demo.%0A%0AIf%20this%20year%27s%20lineup%20is%20set%2C%20I%27d%20welcome%20consideration%20for%20a%20future%20event.%0A%0ABest%2C%0AD%C3%A9sir%20Fils"
+            href="mailto:digitalvurv@gmail.com?subject=Speaker%20Inquiry%20%E2%80%93%20D%C3%A9sir%20Fils&body=Hi%20Vroland%2C%0A%0AI%27m%20D%C3%A9sir%20Fils%2C%20an%20AI%20engineer%20and%20entrepreneur%20in%20Miami.%20I%20came%20across%20the%20AI%20%26%20Marketing%20Summit%20(Thursday%2C%20August%206%2C%202026%2C%2010%20AM%E2%80%932%20PM%2C%20Joe%20Celestin%20Center%2C%20Miami%2C%20FL)%20and%20would%20love%20to%20attend%20and%20explore%20speaking.%0A%0AI%20build%20AI%20tools%20for%20media%2C%20marketing%2C%20and%20small%20business%20operations%20%E2%80%94%20founder%20of%20Magnitax%C2%AE%20and%20the%20WhoIsD%C3%A9sir%C2%AE%20Media%20Agency.%20My%20headline%20talk%20features%20the%20Creative%20Hub%20AI%20demo.%0A%0AIf%20this%20year%27s%20lineup%20is%20set%2C%20I%27d%20welcome%20consideration%20for%20a%20future%20event.%0A%0ABest%2C%0AD%C3%A9sir%20Fils"
             className="inline-flex items-center px-8 py-4 text-base font-heading font-bold text-white gradient-bg rounded-full hover:shadow-glow-pink transition-all min-h-[52px]"
           >
             Inquire About Speaking
@@ -212,11 +212,8 @@ function About() {
             </div>
           </div>
           <div className="relative">
-            <div className="aspect-[4/3] bg-dark-800 rounded-3xl border border-white/5 overflow-hidden flex items-center justify-center">
-              <div className="text-center p-4">
-                <p className="text-muted text-sm mb-2">[LOGO — WhoIsDésir®]</p>
-                <p className="text-muted/50 text-xs">Replace with brand asset from whoisdesir.com</p>
-              </div>
+            <div className="aspect-[4/3] bg-dark-800 rounded-3xl border border-white/5 overflow-hidden flex items-center justify-center p-8">
+              <img src="/speaker-logo.png" alt="WhoIsDésir® Logo" className="w-full h-full object-contain" />
             </div>
           </div>
         </div>
@@ -275,24 +272,17 @@ function PastTalks() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-16">
-          <div className="aspect-video bg-dark-800 rounded-3xl border border-white/5 overflow-hidden flex items-center justify-center">
-            <div className="text-center p-4">
-              <svg className="w-12 h-12 mx-auto text-muted/50 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-muted/60 text-sm">[TALK VIDEO — PLACEHOLDER]</p>
-              <p className="text-muted/40 text-xs mt-1">Replace with YouTube/Vimeo embed</p>
-            </div>
+          <div className="aspect-video bg-dark-800 rounded-3xl border border-white/5 overflow-hidden">
+            <iframe
+              src="https://www.youtube.com/embed/XXhvNM6MDUU"
+              title="Désir Fils Talk Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
           </div>
-          <div className="aspect-video bg-dark-800 rounded-3xl border border-white/5 overflow-hidden flex items-center justify-center">
-            <div className="text-center p-4">
-              <svg className="w-12 h-12 mx-auto text-muted/50 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-muted/60 text-sm">[EVENT PHOTO — PLACEHOLDER]</p>
-              <p className="text-muted/40 text-xs mt-1">Replace with event photography</p>
-            </div>
+          <div className="aspect-video bg-dark-800 rounded-3xl border border-white/5 overflow-hidden">
+            <img src="/speaker-event-photo.png" alt="Event photo" className="w-full h-full object-cover" />
           </div>
         </div>
 
@@ -420,8 +410,8 @@ function Contact() {
           </p>
           <p className="text-xs text-muted/50 mt-3">
             Or email directly:{' '}
-            <a href="mailto:vroland@northmiamifl.gov" className="text-miami-pink hover:text-miami-pink-soft underline">
-              vroland@northmiamifl.gov
+            <a href="mailto:digitalvurv@gmail.com" className="text-miami-pink hover:text-miami-pink-soft underline">
+              digitalvurv@gmail.com
             </a>
           </p>
         </div>
@@ -548,7 +538,7 @@ function Footer() {
             <a href="https://whoisdesir.com/about" target="_blank" rel="noopener noreferrer" className="text-xs text-muted hover:text-miami-pink transition-colors">
               About
             </a>
-            <a href="mailto:vroland@northmiamifl.gov" className="text-xs text-muted hover:text-miami-pink transition-colors">
+            <a href="mailto:digitalvurv@gmail.com" className="text-xs text-muted hover:text-miami-pink transition-colors">
               Contact
             </a>
           </div>
