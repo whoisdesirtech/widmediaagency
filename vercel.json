@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx prisma generate && (test -n \"$DATABASE_URL\" && npx prisma db push --accept-data-loss || true) && npx next build",
+  "buildCommand": "npx prisma generate && npx next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "npm install",
