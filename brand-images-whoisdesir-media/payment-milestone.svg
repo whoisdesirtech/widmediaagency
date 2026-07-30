@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0A0D1A"/>
+      <stop offset="50%" style="stop-color:#12152A"/>
+      <stop offset="100%" style="stop-color:#1a1040"/>
+    </linearGradient>
+    <linearGradient id="check3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ED145A"/>
+      <stop offset="100%" style="stop-color:#18D8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg3)"/>
+  <circle cx="700" cy="60" r="150" fill="#ED145A" opacity="0.06"/>
+  <circle cx="100" cy="400" r="125" fill="#18D8F0" opacity="0.06"/>
+  <text x="60" y="50" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="url(#grad3)">PAYMENT MILESTONES</text>
+  <text x="60" y="85" font-family="Arial,sans-serif" font-size="22" font-weight="900" fill="white">1804 Haitian Pizza × WhoIsDésir®</text>
+  <line x1="88" y1="130" x2="88" y2="380" stroke="url(#grad3)" stroke-width="2" opacity="0.3"/>
+  <circle cx="88" cy="160" r="18" fill="url(#check3)"/>
+  <text x="88" y="166" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="white">✓</text>
+  <text x="120" y="155" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="white">$75 Deposit — Received</text>
+  <rect x="370" y="140" width="60" height="22" rx="11" fill="rgba(16,185,129,0.15)"/>
+  <text x="400" y="156" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#4ADE80">Paid</text>
+  <text x="120" y="175" font-family="Arial,sans-serif" font-size="12" fill="rgba(255,255,255,0.4)">Booking confirmed — date and production team secured</text>
+  <text x="120" y="205" font-family="Arial,sans-serif" font-size="26" font-weight="800" fill="white">$75</text>
+  <text x="175" y="205" font-family="Arial,sans-serif" font-size="13" fill="rgba(255,255,255,0.3)">of $150</text>
+  <circle cx="88" cy="290" r="18" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+  <text x="88" y="296" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="rgba(255,255,255,0.3)">2</text>
+  <text x="120" y="285" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="white">$75 Balance — Due July 15</text>
+  <rect x="400" y="270" width="70" height="22" rx="11" fill="rgba(255,255,255,0.05)"/>
+  <text x="435" y="286" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="rgba(255,255,255,0.3)">Pending</text>
+  <text x="120" y="305" font-family="Arial,sans-serif" font-size="12" fill="rgba(255,255,255,0.4)">Due 3 business days before the event</text>
+  <text x="120" y="335" font-family="Arial,sans-serif" font-size="26" font-weight="800" fill="white">$75</text>
+  <text x="175" y="335" font-family="Arial,sans-serif" font-size="13" fill="rgba(255,255,255,0.3)">remaining</text>
+  <text x="60" y="420" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="rgba(255,255,255,0.25)">WhoIsDésir® Media — Grand Opening &amp; FIFA World Cup Showcase — July 18, 2026</text>
+</svg>
