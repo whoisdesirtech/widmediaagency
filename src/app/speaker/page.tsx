@@ -159,7 +159,7 @@ function Hero() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="mailto:digitalvurv@gmail.com?subject=Speaker%20Inquiry%20%E2%80%93%20D%C3%A9sir%20Fils&body=Hi%20Vroland%2C%0A%0AI%27m%20D%C3%A9sir%20Fils%2C%20an%20AI%20engineer%20and%20entrepreneur%20in%20Miami.%20I%20came%20across%20the%20AI%20%26%20Marketing%20Summit%20(Thursday%2C%20August%206%2C%202026%2C%2010%20AM%E2%80%932%20PM%2C%20Joe%20Celestin%20Center%2C%20Miami%2C%20FL)%20and%20would%20love%20to%20attend%20and%20explore%20speaking.%0A%0AI%20build%20AI%20tools%20for%20media%2C%20marketing%2C%20and%20small%20business%20operations%20%E2%80%94%20founder%20of%20Magnitax%C2%AE%20and%20the%20WhoIsD%C3%A9sir%C2%AE%20Media%20Agency.%20My%20headline%20talk%20features%20the%20Creative%20Hub%20AI%20demo.%0A%0AIf%20this%20year%27s%20lineup%20is%20set%2C%20I%27d%20welcome%20consideration%20for%20a%20future%20event.%0A%0ABest%2C%0AD%C3%A9sir%20Fils"
+            href="mailto:digitalvurv@gmail.com?subject=Speaking+Inquiry&body=Hi+D%C3%A9sir%2C%0A%0AI+came+across+your+speaker+page+and+would+like+to+explore+having+you+speak+at+our+event.%0A%0A%5BEvent+name%2C+date%2C+location%5D%0A%5BAudience+%2F+expected+attendance%5D%0A%5BTalk+topic+you%27d+like%5D%0A%0ABest%2C%0A%5BYour+Name%5D%0A%5BOrganization%5D"
             className="inline-flex items-center px-8 py-4 text-base font-heading font-bold text-white gradient-bg rounded-full hover:shadow-glow-pink transition-all min-h-[52px]"
           >
             Inquire About Speaking
