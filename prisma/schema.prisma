@@ -234,3 +234,14 @@ model BookingInquiry {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model PluginDownloadLead {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String
+  city      String
+  plugin    String   @default("amazon-associates-snippets")
+  version   String   @default("1.1.0")
+  createdAt DateTime @default(now())
+}
