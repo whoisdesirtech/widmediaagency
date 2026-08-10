@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         email: body.email.trim().toLowerCase(),
         city: body.city.trim(),
         plugin: body.plugin || 'amazon-associates-snippets',
-        version: body.version || '1.1.0',
+        version: body.version || '1.2.0',
       },
     });
 
