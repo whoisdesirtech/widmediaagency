@@ -44,7 +44,7 @@ export async function GET(req: Request) {
 
     const projects = await prisma.project.findMany({
       where,
-      include: { client: { select: { name: true, email: true } } },
+      include: { client: { select: { id: true, name: true, email: true } } },
       orderBy: { sortOrder: 'asc' },
     });
     return NextResponse.json(projects);

@@ -27,7 +27,15 @@ interface Project {
   timeline: string;
   deliverables: number;
   images: string;
-  client: { name: string; email: string };
+  client: { id: string; name: string; email: string };
+}
+
+interface DriveFolder {
+  id: string;
+  name: string;
+  icon: string;
+  driveFolderId: string | null;
+  driveFolderUrl: string | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -50,6 +58,11 @@ export default function ContractorProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [foldersByProject, setFoldersByProject] = useState<Record<string, DriveFolder[]>>({});
+  const [selectedFolderByProject, setSelectedFolderByProject] = useState<Record<string, string>>({});
+  const [filesByProject, setFilesByProject] = useState<Record<string, File[]>>({});
+  const [uploadingProject, setUploadingProject] = useState<string | null>(null);
+  const [uploadMessage, setUploadMessage] = useState<Record<string, { type: 'success' | 'error'; text: string }>>({});
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -69,6 +82,52 @@ export default function ContractorProjectsPage() {
 
   const getProjectImages = (project: Project): ProjectImage[] => {
     try { return JSON.parse(project.images || '[]'); } catch { return []; }
+  };
+
+  const loadFolders = async (project: Project) => {
+    if (!project.client?.id || foldersByProject[project.id]) return;
+    try {
+      const res = await fetch(`/api/folders?clientId=${project.client.id}`);
+      const data = await res.json();
+      const folders = Array.isArray(data) ? data.filter((f: DriveFolder) => f.driveFolderId || f.driveFolderUrl) : [];
+      setFoldersByProject(prev => ({ ...prev, [project.id]: folders }));
+      if (folders.length > 0 && !selectedFolderByProject[project.id]) {
+        const preferred = folders.find((f: DriveFolder) => /photo|image/i.test(f.name)) || folders[0];
+        setSelectedFolderByProject(prev => ({ ...prev, [project.id]: preferred.driveFolderId || preferred.driveFolderUrl || preferred.id }));
+      }
+    } catch {}
+  };
+
+  const handleDriveUpload = async (project: Project) => {
+    const files = filesByProject[project.id] || [];
+    const folderValue = selectedFolderByProject[project.id];
+    if (files.length === 0) {
+      setUploadMessage(prev => ({ ...prev, [project.id]: { type: 'error', text: 'Select at least one photo to upload.' } }));
+      return;
+    }
+    if (!folderValue) {
+      setUploadMessage(prev => ({ ...prev, [project.id]: { type: 'error', text: 'No Google Drive folder is linked to this project yet. Ask the agency to link one.' } }));
+      return;
+    }
+
+    setUploadingProject(project.id);
+    setUploadMessage(prev => ({ ...prev, [project.id]: { type: 'success', text: `Uploading ${files.length} file${files.length > 1 ? 's' : ''}…` } }));
+    try {
+      const formData = new FormData();
+      formData.append('folderId', folderValue);
+      files.forEach(file => formData.append('files', file));
+      const res = await fetch('/api/drive/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.files)) {
+        setUploadMessage(prev => ({ ...prev, [project.id]: { type: 'success', text: `✅ ${data.files.length} photo${data.files.length > 1 ? 's' : ''} uploaded to Google Drive — shared with the client.` } }));
+        setFilesByProject(prev => ({ ...prev, [project.id]: [] }));
+      } else {
+        setUploadMessage(prev => ({ ...prev, [project.id]: { type: 'error', text: data.error || 'Upload failed. Try again.' } }));
+      }
+    } catch {
+      setUploadMessage(prev => ({ ...prev, [project.id]: { type: 'error', text: 'Connection error during upload. Try again.' } }));
+    }
+    setUploadingProject(null);
   };
 
   return (
@@ -96,7 +155,7 @@ export default function ContractorProjectsPage() {
                 const images = getProjectImages(project);
                 const isExpanded = selectedProject?.id === project.id;
                 return (
-                  <div key={project.id} className="glass-card p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedProject(isExpanded ? null : project)}>
+                  <div key={project.id} className="glass-card p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => { const isExpanded = selectedProject?.id === project.id; setSelectedProject(isExpanded ? null : project); if (!isExpanded) loadFolders(project); }}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{project.icon}</span>
@@ -159,6 +218,58 @@ export default function ContractorProjectsPage() {
                             </div>
                           </div>
                         )}
+
+                        <div className="pt-4 border-t border-muted-lighter">
+                          <h4 className="font-heading font-bold text-dark-800 text-sm mb-3">📤 Deliver Photos to Client Drive</h4>
+                          {foldersByProject[project.id] && foldersByProject[project.id].length > 0 ? (
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Google Drive folder</label>
+                                <select
+                                  value={selectedFolderByProject[project.id] || ''}
+                                  onChange={e => setSelectedFolderByProject(prev => ({ ...prev, [project.id]: e.target.value }))}
+                                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
+                                >
+                                  {foldersByProject[project.id].map(folder => (
+                                    <option key={folder.id} value={folder.driveFolderId || folder.driveFolderUrl || folder.id}>
+                                      {folder.icon} {folder.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <p className="text-[0.65rem] text-muted mt-1">Uploads go straight to this folder, which is shared with the client.</p>
+                              </div>
+                              <div>
+                                <input
+                                  type="file"
+                                  multiple
+                                  accept="image/*"
+                                  disabled={uploadingProject === project.id}
+                                  onChange={e => setFilesByProject(prev => ({ ...prev, [project.id]: Array.from(e.target.files || []) }))}
+                                  className="block w-full text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-miami-pink file:text-white hover:file:bg-miami-pink/80"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  onClick={() => handleDriveUpload(project)}
+                                  disabled={uploadingProject === project.id}
+                                  className="px-4 py-2 bg-miami-pink text-white text-xs font-semibold rounded-lg hover:bg-miami-pink/80 transition-colors disabled:opacity-50"
+                                >
+                                  {uploadingProject === project.id ? 'Uploading…' : 'Upload Photos to Drive'}
+                                </button>
+                                {filesByProject[project.id]?.length > 0 && (
+                                  <span className="text-xs text-muted">{filesByProject[project.id].length} file{filesByProject[project.id].length > 1 ? 's' : ''} selected</span>
+                                )}
+                              </div>
+                              {uploadMessage[project.id] && (
+                                <div className={`px-4 py-3 rounded-xl text-xs font-semibold ${uploadMessage[project.id].type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                                  {uploadMessage[project.id].text}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted">No shared Google Drive folder is linked to this project&apos;s client yet. Ask the agency admin to link one.</p>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
