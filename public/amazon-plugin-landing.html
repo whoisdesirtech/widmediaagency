@@ -4,39 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazon Associates PHP Snippets - WordPress Plugin & Documentation</title>
-    <meta name="description" content="Supercharge your Amazon affiliate earnings with Amazon PA-API 5.0 integration, live product cards, instant shortcodes, and customizable PHP snippets for WordPress.">
-    <!-- Google Fonts -->
+    <meta name="description" content="Supercharge your Amazon affiliate earnings with Amazon Creators API integration, live product cards, instant shortcodes, and customizable PHP snippets for WordPress.">
+    <link rel="icon" type="image/jpeg" href="amazon-associates-snippets/assets/logo.jpg">
+    <link rel="apple-touch-icon" href="amazon-associates-snippets/assets/logo.jpg">
+    <meta property="og:image" content="amazon-associates-snippets/assets/wordmark.jpg">
+    <meta property="og:title" content="Amazon Associates PHP Snippets v1.5.0 — WhoIsDésir® Media Agency">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* Brand Theme: Elementor x Anthropic Fusion (brand-kit-amazon) */
         :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --accent-amazon: #FF9900;
-            --accent-yellow: #FFD814;
-            --accent-yellow-hover: #F7CA00;
-            --accent-blue: #38bdf8;
-            --accent-green: #22c55e;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-primary: #F9F6F0;       /* Anthropic Warm Sand */
+            --bg-dark: #191919;          /* Anthropic Charcoal */
+            --bg-surface: #ffffff;
+            --bg-card-hover: #FDFAF3;
+
+            --color-magenta: #E52C5E;    /* Elementor Rose */
+            --color-magenta-dark: #C6254E;
+            --color-terracotta: #D17B58; /* Anthropic Clay */
+            --color-slate: #334155;
+            --border-color: rgba(25, 25, 25, 0.08);
+
+            --text-dark: #191919;
+            --text-light: #F9F6F0;
+            --text-muted: #6b7280;
+
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
             --radius-lg: 16px;
-            --radius-md: 10px;
+            --radius-md: 8px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            line-height: 1.6;
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-dark);
+            line-height: 1.65;
             overflow-x: hidden;
         }
 
@@ -49,9 +59,9 @@
             width: 100vw;
             height: 100vh;
             pointer-events: none;
-            background: 
-                radial-gradient(circle at 20% 20%, rgba(255, 153, 0, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 60%, rgba(56, 189, 248, 0.12) 0%, transparent 40%);
+            background:
+                radial-gradient(circle at 18% 15%, rgba(229, 44, 94, 0.08) 0%, transparent 42%),
+                radial-gradient(circle at 82% 65%, rgba(209, 123, 88, 0.10) 0%, transparent 42%);
             z-index: 0;
         }
 
@@ -78,22 +88,23 @@
             gap: 12px;
             font-size: 20px;
             font-weight: 800;
-            color: var(--text-main);
+            color: var(--text-dark);
             text-decoration: none;
         }
 
         .logo-icon {
             width: 38px;
             height: 38px;
-            background: linear-gradient(135deg, var(--accent-amazon), var(--accent-yellow));
+            background: linear-gradient(135deg, var(--color-magenta), var(--color-terracotta));
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #000;
+            color: #fff;
             font-size: 20px;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(229, 44, 94, 0.25);
+            overflow: hidden;
         }
 
         .nav-links {
@@ -105,29 +116,30 @@
         .nav-links a {
             color: var(--text-muted);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 15px;
             transition: color 0.2s;
         }
 
-        .nav-links a:hover {
-            color: var(--text-main);
-        }
+        .nav-links a:hover { color: var(--text-dark); }
 
         .btn-header {
-            background: linear-gradient(180deg, var(--accent-yellow) 0%, var(--accent-yellow-hover) 100%);
-            color: #000;
+            background: var(--color-magenta);
+            color: #fff;
             font-weight: 700;
             padding: 10px 20px;
             border-radius: var(--radius-md);
             text-decoration: none;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(255, 216, 20, 0.25);
+            box-shadow: 0 4px 14px rgba(229, 44, 94, 0.25);
             cursor: pointer;
+            border: none;
         }
 
         .btn-header:hover {
+            background: var(--color-magenta-dark);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 216, 20, 0.4);
+            box-shadow: 0 6px 20px rgba(229, 44, 94, 0.35);
         }
 
         /* Hero Section */
@@ -144,31 +156,36 @@
                 grid-template-columns: 1fr;
                 text-align: center;
             }
+
+            .hero-cta { justify-content: center; }
         }
 
         .badge-version {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 153, 0, 0.15);
-            border: 1px solid rgba(255, 153, 0, 0.3);
-            color: var(--accent-amazon);
+            background: rgba(209, 123, 88, 0.12);
+            border: 1px solid rgba(209, 123, 88, 0.35);
+            color: #B36040;
             font-size: 13px;
             font-weight: 600;
+            letter-spacing: 0.02em;
             padding: 6px 14px;
             border-radius: 30px;
             margin-bottom: 24px;
         }
 
         .hero h1 {
+            font-family: var(--font-heading);
             font-size: 48px;
             font-weight: 800;
             line-height: 1.15;
+            letter-spacing: -0.01em;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-dark);
         }
+
+        .hero h1 .highlight { color: var(--color-magenta); }
 
         .hero p {
             font-size: 18px;
@@ -177,6 +194,8 @@
             max-width: 540px;
         }
 
+        .hero p strong { color: var(--text-dark); }
+
         .hero-cta {
             display: flex;
             align-items: center;
@@ -184,15 +203,9 @@
             flex-wrap: wrap;
         }
 
-        @media (max-width: 968px) {
-            .hero-cta {
-                justify-content: center;
-            }
-        }
-
         .btn-primary {
-            background: linear-gradient(180deg, var(--accent-yellow) 0%, var(--accent-yellow-hover) 100%);
-            color: #000;
+            background: var(--color-magenta);
+            color: #fff;
             font-size: 16px;
             font-weight: 700;
             padding: 14px 28px;
@@ -202,19 +215,21 @@
             align-items: center;
             gap: 10px;
             transition: all 0.25s ease;
-            box-shadow: 0 4px 18px rgba(255, 216, 20, 0.3);
+            box-shadow: 0 4px 18px rgba(229, 44, 94, 0.28);
             cursor: pointer;
+            border: none;
         }
 
         .btn-primary:hover {
+            background: var(--color-magenta-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(255, 216, 20, 0.45);
+            box-shadow: 0 8px 24px rgba(229, 44, 94, 0.4);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
+            background: var(--bg-surface);
+            border: 1px solid var(--color-slate);
+            color: var(--text-dark);
             font-size: 16px;
             font-weight: 600;
             padding: 14px 28px;
@@ -227,17 +242,18 @@
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--color-magenta);
+            color: var(--color-magenta);
         }
 
         /* Hero Preview Card Mockup */
         .hero-preview {
-            background: #ffffff;
-            color: #0f172a;
+            background: var(--bg-surface);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 50px rgba(25, 25, 25, 0.12);
             position: relative;
             transform: perspective(1000px) rotateY(-4deg) rotateX(2deg);
             transition: transform 0.4s ease;
@@ -305,7 +321,7 @@
 
         .demo-ftc {
             font-size: 10px;
-            color: #94a3b8;
+            color: var(--text-muted);
             margin-top: 8px;
             font-style: italic;
         }
@@ -317,8 +333,10 @@
         }
 
         .section-title h2 {
-            font-size: 36px;
-            font-weight: 800;
+            font-family: var(--font-heading);
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
             margin-bottom: 12px;
         }
 
@@ -335,7 +353,7 @@
         }
 
         .feature-card {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 32px;
@@ -343,7 +361,7 @@
         }
 
         .feature-card:hover {
-            border-color: var(--accent-amazon);
+            border-color: var(--color-magenta);
             transform: translateY(-4px);
             background: var(--bg-card-hover);
         }
@@ -351,8 +369,8 @@
         .feature-icon {
             width: 48px;
             height: 48px;
-            background: rgba(255, 153, 0, 0.12);
-            color: var(--accent-amazon);
+            background: rgba(229, 44, 94, 0.1);
+            color: var(--color-magenta);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -362,7 +380,8 @@
         }
 
         .feature-card h3 {
-            font-size: 20px;
+            font-family: var(--font-heading);
+            font-size: 21px;
             font-weight: 700;
             margin-bottom: 12px;
         }
@@ -370,12 +389,12 @@
         .feature-card p {
             color: var(--text-muted);
             font-size: 15px;
-            line-height: 1.6;
+            line-height: 1.65;
         }
 
         /* Interactive Generator Section */
         .generator-section {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 40px;
@@ -396,29 +415,36 @@
         }
 
         .gen-controls input {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
+            background: var(--bg-primary);
+            border: 1px solid rgba(25, 25, 25, 0.15);
+            color: var(--text-dark);
             padding: 10px 16px;
             border-radius: var(--radius-md);
             font-size: 15px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             width: 220px;
         }
 
+        .gen-controls input:focus {
+            outline: none;
+            border-color: var(--color-magenta);
+        }
+
         .gen-controls button {
-            background: var(--accent-amazon);
-            color: #000;
+            background: var(--color-magenta);
+            color: #fff;
             font-weight: 700;
             padding: 10px 20px;
             border-radius: var(--radius-md);
             border: none;
             cursor: pointer;
-            transition: opacity 0.2s;
+            box-shadow: 0 4px 14px rgba(229, 44, 94, 0.28);
+            transition: all 0.2s ease;
         }
 
         .gen-controls button:hover {
-            opacity: 0.9;
+            background: var(--color-magenta-dark);
+            transform: translateY(-2px);
         }
 
         .code-block-wrapper {
@@ -429,20 +455,20 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #090d16;
+            background: var(--bg-dark);
             padding: 10px 16px;
             border-radius: 8px 8px 0 0;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(249, 246, 240, 0.12);
             border-bottom: none;
             font-size: 13px;
-            color: var(--text-muted);
+            color: rgba(249, 246, 240, 0.7);
             font-weight: 600;
         }
 
         .btn-copy {
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-light);
             padding: 4px 10px;
             border-radius: 4px;
             font-size: 12px;
@@ -451,20 +477,20 @@
         }
 
         .btn-copy:hover {
-            background: var(--accent-blue);
-            color: #000;
+            background: var(--color-magenta);
+            color: #fff;
             font-weight: 700;
         }
 
         pre {
-            background: #090d16;
-            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            border: 1px solid rgba(249, 246, 240, 0.12);
             border-radius: 0 0 8px 8px;
             padding: 16px;
             overflow-x: auto;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 14px;
-            color: var(--accent-blue);
+            color: var(--text-light);
         }
 
         /* Installation Steps */
@@ -476,29 +502,34 @@
         }
 
         .step-card {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: 32px;
             position: relative;
+            transition: all 0.25s ease;
         }
 
+        .step-card:hover { border-color: var(--color-terracotta); }
+
         .step-number {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--accent-amazon);
-            margin-bottom: 8px;
+            font-size: 30px;
+            font-weight: 600;
+            color: var(--color-magenta);
+            margin-bottom: 12px;
+            font-family: var(--font-mono);
         }
 
         .step-card h4 {
-            font-size: 18px;
+            font-family: var(--font-heading);
+            font-size: 21px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .step-card p {
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 15px;
         }
 
         /* Lead Capture Modal Overlay */
@@ -508,7 +539,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(15, 23, 42, 0.88);
+            background: rgba(25, 25, 25, 0.7);
             backdrop-filter: blur(8px);
             display: none;
             align-items: center;
@@ -522,15 +553,15 @@
         }
 
         .modal-card {
-            background: #1e293b;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             max-width: 480px;
             width: 100%;
             padding: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 25px 50px -12px rgba(25, 25, 25, 0.35);
             position: relative;
-            color: #f8fafc;
+            color: var(--text-dark);
         }
 
         .modal-close {
@@ -539,13 +570,13 @@
             right: 20px;
             background: none;
             border: none;
-            color: #94a3b8;
+            color: var(--text-muted);
             font-size: 24px;
             cursor: pointer;
         }
 
         .modal-close:hover {
-            color: #fff;
+            color: var(--text-dark);
         }
 
         .modal-header {
@@ -554,14 +585,15 @@
         }
 
         .modal-header h3 {
-            font-size: 22px;
-            font-weight: 800;
+            font-family: var(--font-heading);
+            font-size: 24px;
+            font-weight: 700;
             margin-bottom: 6px;
         }
 
         .modal-header p {
             font-size: 14px;
-            color: #94a3b8;
+            color: var(--text-muted);
         }
 
         .form-row {
@@ -578,16 +610,16 @@
             display: block;
             font-size: 13px;
             font-weight: 600;
-            color: #cbd5e1;
+            color: var(--text-dark);
             margin-bottom: 6px;
         }
 
         .form-group input {
             width: 100%;
-            background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid rgba(25, 25, 25, 0.15);
+            color: var(--text-dark);
+            padding: 12px 14px;
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
@@ -595,27 +627,32 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--accent-amazon);
+            border-color: var(--color-magenta);
         }
 
         .btn-submit-lead {
             width: 100%;
-            background: linear-gradient(180deg, var(--accent-yellow) 0%, var(--accent-yellow-hover) 100%);
-            color: #000;
-            font-weight: 800;
+            background: var(--color-magenta);
+            color: #fff;
+            font-weight: 700;
             font-size: 15px;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
             margin-top: 10px;
-            box-shadow: 0 4px 14px rgba(255, 216, 20, 0.3);
+            box-shadow: 0 4px 14px rgba(229, 44, 94, 0.28);
             transition: all 0.2s ease;
         }
 
         .btn-submit-lead:hover {
+            background: var(--color-magenta-dark);
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(255, 216, 20, 0.45);
+            box-shadow: 0 6px 18px rgba(229, 44, 94, 0.4);
+        }
+
+        @media (max-width: 640px) {
+            .form-row { grid-template-columns: 1fr; }
         }
 
         /* Footer */
@@ -628,9 +665,11 @@
         }
 
         footer a {
-            color: var(--accent-amazon);
+            color: var(--color-magenta);
             text-decoration: none;
         }
+
+        footer a:hover { color: var(--color-magenta-dark); }
     </style>
 </head>
 <body>
@@ -641,13 +680,16 @@
         <!-- Navigation -->
         <nav>
             <a href="#" class="logo-brand">
-                <div class="logo-icon">a</div>
+                <div class="logo-icon">
+                    <img src="amazon-associates-snippets/assets/logo.jpg" alt="Amazon Associates PHP Snippets Logo" width="38" height="38" style="border-radius:10px;display:block;">
+                </div>
                 <span>Amazon Associates PHP Snippets</span>
             </a>
             <div class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#generator">Code Generator</a>
                 <a href="#installation">Installation</a>
+                <a href="amazon-affiliate-program.html">Affiliates</a>
                 <button type="button" class="btn-header trigger-download">Download .ZIP</button>
             </div>
         </nav>
@@ -656,18 +698,18 @@
         <section class="hero">
             <div>
                 <div class="badge-version">
-                    <span>⚡ Version 1.2.0 (Released Aug 9, 2026)</span>
+                    <span>⚡ Version 1.5.0 (Released Aug 11, 2026)</span>
                     <span>•</span>
-                    <span>PA-API 5.0 Powered</span>
+                    <span>Creators API v2 & v3 Powered</span>
                 </div>
-                <h1>Monetize Your WordPress Site with Amazon Associates</h1>
+                <h1>Monetize Your WordPress Site with <span class="highlight">Amazon Associates</span></h1>
                 <p>A lightweight, high-performance WordPress plugin & PHP snippet toolkit. Render beautiful product cards, CTA buttons, and shortcodes with AWS SigV4 security and automatic caching.</p>
                 <div class="hero-cta">
                     <button type="button" class="btn-primary trigger-download">
                         <span>Download Plugin (.ZIP)</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
-                    <a href="#generator" class="btn-secondary">Explore Snippets Generator</a>
+                    <a href="amazon-affiliate-program.html" class="btn-secondary">Join the Affiliate Program</a>
                 </div>
             </div>
 
@@ -791,7 +833,7 @@
                 <div class="step-card">
                     <div class="step-number">01</div>
                     <h4>Download Plugin</h4>
-                    <p>Click <a href="#" class="trigger-download" style="color: var(--accent-amazon);">Download .ZIP</a> to get the compressed plugin file.</p>
+                    <p>Click <a href="#" class="trigger-download" style="color: var(--color-magenta);">Download .ZIP</a> to get the compressed plugin file.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">02</div>
@@ -817,7 +859,7 @@
                 <button type="button" class="modal-close" id="modal-close-btn">&times;</button>
                 <div class="modal-header">
                     <h3>Download Plugin (.ZIP)</h3>
-                    <p>Enter your details below for instant access to <strong>Amazon Associates PHP Snippets v1.2.0</strong>.</p>
+                    <p>Enter your details below for instant access to <strong>Amazon Associates PHP Snippets v1.5.0</strong>.</p>
                 </div>
 
                 <form id="lead-download-form">
@@ -849,7 +891,7 @@
 
         <!-- Footer -->
         <footer>
-            <p>Amazon Associates PHP Snippets Plugin &bull; Developed by <strong>WhoIsDésir® Media Agency</strong> &bull; Developer Contact: <a href="mailto:digitalvurv@gmail.com" style="color: var(--accent-blue); text-decoration: none;">digitalvurv@gmail.com</a></p>
+            <p>Amazon Associates PHP Snippets Plugin &bull; Developed by <strong>WhoIsDésir® Media Agency</strong> &bull; Developer Contact: <a href="mailto:digitalvurv@gmail.com" style="color: var(--color-magenta); text-decoration: none;">digitalvurv@gmail.com</a></p>
         </footer>
     </div>
 
@@ -914,7 +956,7 @@
                 email: document.getElementById('lead-email').value.trim(),
                 city: document.getElementById('lead-city').value.trim(),
                 plugin: 'amazon-associates-snippets',
-                version: '1.2.0'
+                version: '1.5.0'
             };
 
             // POST lead to server (saved to PostgreSQL database)
