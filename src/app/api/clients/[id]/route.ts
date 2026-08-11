@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -16,9 +17,15 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
     const body = await req.json();
+    const data: any = { ...body };
+    if ('googleDriveFolderId' in data || 'googleDriveFolderUrl' in data) {
+      const cleanId = normalizeDriveId(data.googleDriveFolderId || data.googleDriveFolderUrl);
+      if (cleanId !== null) data.googleDriveFolderId = cleanId;
+      data.googleDriveFolderUrl = data.googleDriveFolderUrl ? (driveFolderUrl(data.googleDriveFolderUrl) || data.googleDriveFolderUrl.trim()) : (cleanId ? driveFolderUrl(cleanId) : null);
+    }
     const client = await prisma.client.update({
       where: { id: params.id },
-      data: body,
+      data,
     });
     return NextResponse.json(client);
   } catch (error) {

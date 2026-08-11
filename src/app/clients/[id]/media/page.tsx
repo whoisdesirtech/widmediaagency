@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import { normalizeDriveId } from '@/lib/drive';
 
 const TABS = [
   { label: 'Overview', href: '', icon: '🏢' },
@@ -92,7 +93,7 @@ export default function AdminClientMediaPage() {
   };
 
   const openEdit = (folder: Folder) => {
-    setForm({ name: folder.name, icon: folder.icon, driveFolderId: folder.driveFolderId || '', driveFolderUrl: folder.driveFolderUrl || '' });
+    setForm({ name: folder.name, icon: folder.icon, driveFolderId: normalizeDriveId(folder.driveFolderId || folder.driveFolderUrl) || '', driveFolderUrl: folder.driveFolderUrl || '' });
     setEditFolder(folder);
   };
 
@@ -188,7 +189,7 @@ export default function AdminClientMediaPage() {
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Google Drive Folder ID</label>
                 <input type="text" value={form.driveFolderId} onChange={e => setForm(f => ({ ...f, driveFolderId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-mono" placeholder="e.g. 1aBcDeFgHiJkLmNoPqRsTuVwXyZ" />
-                <p className="text-[0.65rem] text-muted mt-1">From: drive.google.com/drive/folders/<strong>FOLDER_ID</strong></p>
+                <p className="text-[0.65rem] text-muted mt-1">Paste the folder ID <em>or</em> full link — we clean it automatically.</p>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Shareable URL (fallback)</label>

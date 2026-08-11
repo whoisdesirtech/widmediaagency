@@ -5,6 +5,7 @@ import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import StatusBadge from '@/components/StatusBadge';
+import { normalizeDriveId } from '@/lib/drive';
 
 const TABS = [
   { label: 'Overview', href: '', icon: '🏢' },
@@ -171,7 +172,7 @@ export default function ClientDetailPage() {
                 {client.googleDriveFolderId && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted">Folder ID</span>
-                    <span className="font-mono text-xs text-dark-800 truncate max-w-[200px]">{client.googleDriveFolderId}</span>
+                    <span className="font-mono text-xs text-dark-800 truncate max-w-[200px]">{normalizeDriveId(client.googleDriveFolderId)}</span>
                   </div>
                 )}
               </div>

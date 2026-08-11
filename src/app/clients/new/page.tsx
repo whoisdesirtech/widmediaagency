@@ -104,7 +104,7 @@ export default function NewClientPage() {
                       placeholder="e.g. 1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
                     />
                     <p className="text-[0.65rem] text-muted mt-1">
-                      Found in the folder URL: drive.google.com/drive/folders/<strong>FOLDER_ID</strong>
+                      Paste the folder ID or full link — e.g. drive.google.com/drive/folders/<strong>FOLDER_ID</strong> — we clean it automatically.
                     </p>
                   </div>
 

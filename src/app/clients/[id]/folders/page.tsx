@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import { normalizeDriveId } from '@/lib/drive';
 
 interface Folder {
   id: string;
@@ -83,7 +84,7 @@ export default function AdminClientFoldersPage() {
   };
 
   const openEdit = (folder: Folder) => {
-    setForm({ name: folder.name, icon: folder.icon, driveFolderId: folder.driveFolderId || '', driveFolderUrl: folder.driveFolderUrl || '' });
+    setForm({ name: folder.name, icon: folder.icon, driveFolderId: normalizeDriveId(folder.driveFolderId || folder.driveFolderUrl) || '', driveFolderUrl: folder.driveFolderUrl || '' });
     setEditFolder(folder);
   };
 
@@ -150,9 +151,17 @@ export default function AdminClientFoldersPage() {
             <h3 className="font-heading font-bold text-dark-800 text-sm mb-3">How Google Drive Folders Work</h3>
             <div className="text-xs text-muted space-y-2">
               <p>1. Create a folder in your Google Drive for this client</p>
-              <p>2. Right-click the folder → <strong>Share</strong> → <strong>General access</strong> → <strong>Anyone with the link</strong></p>
-              <p>3. Copy the folder ID from the URL: <code className="bg-muted-lighter px-1.5 py-0.5 rounded text-dark-800">drive.google.com/drive/folders/<strong>FOLDER_ID</strong></code></p>
-              <p>4. Paste the folder ID above. The client will see this folder in their Media Gallery with an embedded Google Drive viewer.</p>
+              <p>2. Right-click the folder → <strong>Share</strong> → <strong>General access</strong> → <strong>Anyone with the link</strong> (Viewer for clients to view; Editor if a vendor needs to upload)</p>
+              <p>3. Copy the folder link or ID from the URL: <code className="bg-muted-lighter px-1.5 py-0.5 rounded text-dark-800">drive.google.com/drive/folders/<strong>FOLDER_ID</strong></code></p>
+              <p>4. Paste the folder link or ID above. IDs and query strings are cleaned automatically.</p>
+            </div>
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-[0.65rem] text-amber-800 font-semibold mb-1">⚠️ Videos not opening?</p>
+              <p className="text-[0.65rem] text-amber-700">
+                Make sure the folder (and each video file) is shared with <strong>&quot;Anyone with the link&quot;</strong> and set to
+                <strong> Viewer</strong>. If access is restricted to specific people, clients will be asked to sign in and may be blocked.
+                Allow files to finish processing in Drive before sharing.
+              </p>
             </div>
           </div>
         </div>
@@ -204,7 +213,7 @@ export default function AdminClientFoldersPage() {
                   placeholder="e.g. 1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
                 />
                 <p className="text-[0.65rem] text-muted mt-1">
-                  From: drive.google.com/drive/folders/<strong>FOLDER_ID</strong>
+                  Paste the folder ID <em>or</em> full link — e.g. drive.google.com/drive/folders/<strong>FOLDER_ID</strong> — we clean it automatically.
                 </p>
               </div>
               <div>

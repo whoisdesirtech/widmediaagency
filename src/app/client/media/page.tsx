@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ClientSidebar from '@/components/ClientSidebar';
+import { driveFolderUrl, driveFolderEmbedUrl } from '@/lib/drive';
 
 interface UserInfo {
   id: string;
@@ -33,6 +35,7 @@ interface Folder {
 }
 
 function MediaContent() {
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<UserInfo | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -53,14 +56,22 @@ function MediaContent() {
         fetch(`/api/projects?clientId=${u.clientId}`).then(r => r.json()),
         fetch(`/api/folders?clientId=${u.clientId}`).then(r => r.json()),
       ]).then(([p, f]) => {
-        setProjects(Array.isArray(p) ? p : []);
-        setFolders(Array.isArray(f) ? f : []);
+        const projectsData = Array.isArray(p) ? p : [];
+        const foldersData = Array.isArray(f) ? f : [];
+        setProjects(projectsData);
+        setFolders(foldersData);
+        const folderParam = searchParams.get('folder');
+        const requested = folderParam ? foldersData.find((x: Folder) => x.id === folderParam) : null;
+        if (requested) {
+          setActiveFolder(requested);
+          setView('folders');
+        }
         setLoading(false);
       }).catch(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
 
   const getProjectImages = (project: Project): ProjectImage[] => {
     try { return JSON.parse(project.images || '[]'); } catch { return []; }
@@ -131,22 +142,44 @@ function MediaContent() {
               <button onClick={() => setActiveFolder(null)} className="text-miami-pink text-xs font-semibold hover:underline mb-4 inline-flex items-center gap-1">
                 ← Back to Folders
               </button>
-              {activeFolder.driveFolderId || activeFolder.driveFolderUrl ? (
-                <div className="glass-card p-8 text-center">
-                  <div className="w-20 h-20 rounded-2xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-5xl mx-auto mb-5">
-                    {activeFolder.icon}
+              {(activeFolder.driveFolderId || activeFolder.driveFolderUrl) ? (() => {
+                const cleanUrl = driveFolderUrl(activeFolder.driveFolderId || activeFolder.driveFolderUrl);
+                const embedUrl = driveFolderEmbedUrl(activeFolder.driveFolderId || activeFolder.driveFolderUrl);
+                return (
+                  <div className="glass-card p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-2xl bg-miami-pink/5 border border-miami-pink/10 flex items-center justify-center text-3xl">
+                        {activeFolder.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-heading text-xl font-bold text-dark-800">{activeFolder.name}</h3>
+                        <p className="text-muted text-sm">Browse and preview files directly here.</p>
+                      </div>
+                    </div>
+                    {embedUrl && (
+                      <iframe
+                        src={embedUrl}
+                        title={`${activeFolder.name} — Google Drive`}
+                        className="w-full h-[480px] rounded-xl border border-muted-lighter bg-white"
+                        loading="lazy"
+                      />
+                    )}
+                    <p className="text-xs text-muted mt-4 mb-4">
+                      If the preview above asks for access, your agency may need to share the folder with
+                      &quot;Anyone with the link&quot;. You can also open it directly in Google Drive:
+                    </p>
+                    {cleanUrl && (
+                      <a
+                        href={cleanUrl}
+                        target="_blank" rel="noopener noreferrer"
+                        className="btn-primary inline-flex items-center gap-2 text-sm"
+                      >
+                        Open in Google Drive ↗
+                      </a>
+                    )}
                   </div>
-                  <h3 className="font-heading text-xl font-bold text-dark-800 mb-2">{activeFolder.name}</h3>
-                  <p className="text-muted text-sm mb-6">Click below to open this folder in Google Drive.</p>
-                  <a
-                    href={activeFolder.driveFolderId ? `https://drive.google.com/drive/folders/${activeFolder.driveFolderId}` : activeFolder.driveFolderUrl || '#'}
-                    target="_blank" rel="noopener noreferrer"
-                    className="btn-primary inline-flex items-center gap-2 text-sm"
-                  >
-                    Open in Google Drive ↗
-                  </a>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div className="glass-card p-12 text-center">
                   <div className="text-4xl mb-4">{activeFolder.icon}</div>
                   <div className="font-heading font-bold text-dark-800 mb-2">No Drive Folder Connected</div>

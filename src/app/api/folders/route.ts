@@ -1,22 +1,26 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { clientId, name, icon, driveFolderId, driveFolderUrl, sortOrder } = body;
+    const { clientId, name, icon, driveFolderId, driveFolderUrl: rawFolderUrl, sortOrder } = body;
 
     if (!clientId || !name) {
       return NextResponse.json({ error: 'Client ID and name are required' }, { status: 400 });
     }
+
+    const cleanId = normalizeDriveId(driveFolderId || rawFolderUrl);
+    const cleanUrl = rawFolderUrl ? (driveFolderUrl(rawFolderUrl) || rawFolderUrl.trim()) : (cleanId ? driveFolderUrl(cleanId) : null);
 
     const folder = await prisma.fileFolder.create({
       data: {
         clientId,
         name,
         icon: icon || '📁',
-        driveFolderId: driveFolderId || null,
-        driveFolderUrl: driveFolderUrl || null,
+        driveFolderId: cleanId,
+        driveFolderUrl: cleanUrl,
         sortOrder: sortOrder || 0,
       },
     });

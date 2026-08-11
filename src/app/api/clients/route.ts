@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +10,9 @@ export async function POST(req: Request) {
     if (!name || !email) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
+
+    const cleanFolderId = normalizeDriveId(googleDriveFolderId || googleDriveFolderUrl);
+    const cleanFolderUrl = googleDriveFolderUrl ? (driveFolderUrl(googleDriveFolderUrl) || googleDriveFolderUrl.trim()) : (cleanFolderId ? driveFolderUrl(cleanFolderId) : null);
 
     let agency = await prisma.agency.findFirst();
     if (!agency) {
@@ -23,8 +27,8 @@ export async function POST(req: Request) {
         businessName: businessName || null,
         email,
         phone: phone || null,
-        googleDriveFolderId: googleDriveFolderId || null,
-        googleDriveFolderUrl: googleDriveFolderUrl || null,
+        googleDriveFolderId: cleanFolderId,
+        googleDriveFolderUrl: cleanFolderUrl,
         agencyId: agency.id,
       },
     });
