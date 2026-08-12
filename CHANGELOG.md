@@ -10,8 +10,9 @@ is the source of truth; every meaningful change should bump it and add an entry 
 
 First tracked release. Captures all work since the project began (2026-07-17).
 
-> Note: before 1.0.0, the Amazon plugin landing pages were versioned ad-hoc in commit
-> messages (v1.1.0, v1.2.0, v1.5.0). That work is included under this release.
+> Scope: the Amazon Associates plugin and its landing pages are a **separate project**
+> and are tracked outside this repository. This changelog covers the WhoIsDésir Media
+> agency platform only.
 
 ### Added
 
@@ -42,18 +43,12 @@ First tracked release. Captures all work since the project began (2026-07-17).
 #### Marketing & landing pages
 - Publicis-inspired landing page (services, platform, how-it-works).
 - **Désir Fils keynote speaker page** at `/speaker` with a booking API route.
-- **Amazon Associates** PHP snippets landing page + plugin zip download.
-- **OAuth 2.0 access token** authentication support in the plugin and admin UI.
-- Amazon `amazon_comparison` shortcode with responsive grid CSS.
-- Lead-gated Amazon plugin downloads (`PluginDownloadLead` model + `/api/plugin-lead`).
 - GTM Strategy executive HTML landing page.
-- v1.5.0 rebrand of the Amazon plugin landing pages.
 
 ### Changed
 - Brand identity assets added: headshot, logo, YouTube video, event photo
   (brand assets copied into `public/` for Vercel compatibility).
 - Speaker inquiries pointed to Désir with proper greeting.
-- Landing/plugin brand colors and copy updated to the WhoIsDésir look.
 
 ### Fixed
 - Removed secret references from `vercel.json`.
@@ -71,7 +66,6 @@ First tracked release. Captures all work since the project began (2026-07-17).
 
 ## [Unreleased]
 
-- Amazon plugin landing page v1.5.1 refinements (in progress, not yet committed).
 - Client dashboard media count (`77`) still hardcoded — planned WD-107.
 
 [1.0.0]: https://github.com/whoisdesirtech/widmediaagency/releases/tag/v1.0.0
