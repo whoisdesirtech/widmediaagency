@@ -1,4 +1,5 @@
 import { google, type drive_v3 } from 'googleapis';
+import { Readable } from 'node:stream';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
@@ -42,9 +43,10 @@ export async function uploadFileToFolder(params: {
     },
     media: {
       mimeType: params.mimeType,
-      body: params.buffer,
+      body: Readable.from([params.buffer]),
     },
     fields: 'id,name,webViewLink',
+    supportsAllDrives: true,
   });
 
   if (!res.data.id) throw new Error('Upload failed: no file id returned');
@@ -67,6 +69,7 @@ export async function createSubfolder(params: { parentId: string; name: string }
       parents: [params.parentId],
     },
     fields: 'id,name',
+    supportsAllDrives: true,
   });
 
   if (!res.data.id) throw new Error('Folder creation failed');
@@ -91,6 +94,8 @@ export async function listFolderFiles(params: { folderId: string }): Promise<Dri
     orderBy: 'createdTime desc',
     pageSize: 200,
     fields: 'files(id,name,mimeType,webViewLink,size)',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   return (res.data.files || []).map((f) => ({

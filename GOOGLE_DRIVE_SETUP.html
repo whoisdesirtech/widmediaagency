@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhoIsDésir Media — Google Drive Integration Setup (Client Onboarding)</title>
+  <style>
+    :root {
+      --bg: #F9F6F0;
+      --surface: #ffffff;
+      --ink: #191919;
+      --muted: #6b7280;
+      --border: rgba(25, 25, 25, 0.10);
+      --magenta: #E52C5E;
+      --magenta-dark: #C6254E;
+      --blue: #2E7CF6;
+      --green: #0E9F6E;
+      --amber: #B45309;
+      --red: #C0392B;
+      --code-bg: #F2EFE9;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #191919 0%, #2a2a2a 100%);
+      color: #fff;
+      padding: 48px 24px 40px;
+    }
+
+    header .wrap { max-width: 880px; margin: 0 auto; }
+
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 15px; letter-spacing: .02em;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      padding: 8px 16px; border-radius: 999px;
+    }
+    .brand b { color: #FF8AA6; }
+
+    header h1 { font-size: 34px; font-weight: 900; margin-top: 18px; line-height: 1.2; }
+    header p { color: rgba(255,255,255,.72); margin-top: 10px; max-width: 640px; font-size: 16px; }
+
+    main { max-width: 880px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    .notice {
+      background: #EAF4FF; border: 1px solid #BBDDFF; color: #1a4d8f;
+      border-radius: var(--radius); padding: 16px 20px; margin-bottom: 28px; font-size: 15px;
+    }
+
+    .step {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.03);
+    }
+
+    .step-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .step-num {
+      width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px;
+      background: var(--magenta); color: #fff; font-weight: 900; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-head h2 { font-size: 20px; font-weight: 800; }
+
+    .step-sub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+
+    h3 { font-size: 15px; font-weight: 700; margin: 20px 0 8px; }
+
+    ul, ol { padding-left: 22px; margin: 8px 0; }
+    li { margin: 6px 0; }
+
+    code, .mono {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+    code { background: var(--code-bg); padding: 2px 6px; border-radius: 5px; }
+
+    pre {
+      background: #1f1f1f; color: #e8e8e8; padding: 16px 18px; border-radius: 10px;
+      overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 10px 0;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    .envtable { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+    .envtable th, .envtable td { text-align: left; padding: 10px 12px; border: 1px solid var(--border); }
+    .envtable th { background: var(--code-bg); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .envtable .mono { font-size: 12.5px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--magenta); color: #fff; font-weight: 700; font-size: 14px;
+      padding: 10px 18px; border-radius: 9px; text-decoration: none; margin-top: 12px;
+    }
+    .btn:hover { background: var(--magenta-dark); }
+    .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--code-bg); }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 12px; }
+    .mini-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; background: #fdfbf7; }
+    .mini-card b { display: block; font-size: 13px; margin-bottom: 4px; }
+    .mini-card p { font-size: 12.5px; color: var(--muted); }
+
+    .warn { background: #FFF8E6; border: 1px solid #F2D49B; color: var(--amber); border-radius: 10px; padding: 14px 16px; margin-top: 14px; font-size: 14px; }
+    .err { background: #FDF1EE; border: 1px solid #F3C2B8; color: var(--red); border-radius: 10px; padding: 14px 16px; margin-top: 14px; font-size: 14px; }
+    .ok { background: #EDF8F2; border: 1px solid #BFE6D3; color: var(--green); border-radius: 10px; padding: 14px 16px; margin-top: 14px; font-size: 14px; }
+
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li { padding: 10px 0 10px 34px; position: relative; border-bottom: 1px dashed var(--border); }
+    .checklist li::before {
+      content: "☐"; position: absolute; left: 4px; top: 9px;
+      font-size: 17px; color: var(--magenta); font-weight: 700;
+    }
+
+    footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px; border-top: 1px solid var(--border); }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 26px; }
+      .step { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">WhoIsDésir<sup>®</sup> Media &nbsp;·&nbsp; <b>Client Drive Onboarding</b></div>
+    <h1>Google Drive Integration Setup</h1>
+    <p>Enable secure vendor-to-client photo/video delivery through the client's shared Google Drive folder — for this client and every client after. Follow Steps 1–5 once per client project.</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="notice">
+    <b>How it works.</b> The app uploads photos using a <b>service account</b> (a machine identity) from a Google Cloud project. The service account acts like a member of your Drive, but it can only write into a <b>shared drive</b> — it has no storage quota in a personal "My Drive", so client folders must live inside a shared drive and the shared drive itself is shared with the service account once. Any upload the app makes is then instantly visible to everyone the folders are shared with (client, vendor, and you). <b>One service account + one shared drive can serve all clients.</b>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="step">
+    <div class="step-head">
+      <div class="step-num">1</div>
+      <h2>Google Cloud project + service account + key</h2>
+    </div>
+    <p class="step-sub">The service account is your "upload robot." The key file is its ID badge — keep it private.</p>
+
+    <h3>1a. Pick the Google Cloud project</h3>
+    <ul>
+      <li>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> and sign in with the agency Google account.</li>
+      <li>If you already have a project used for the agency (e.g. <code>vibe-coding-whoisdesir</code>), select it in the top project picker and use it.</li>
+      <li>Otherwise create one: project picker → <b>New Project</b> → name it e.g. <code>whoisdesir-media</code> → Create.</li>
+      <li>Note the <b>Project ID</b> (you'll see it in the header / URLs). Keep it handy for Steps 1b and 2.</li>
+    </ul>
+
+    <h3>1b. Create the service account</h3>
+    <ol>
+      <li>Open <b>IAM &amp; Admin → Service Accounts</b>:
+        <a class="mono" href="https://console.cloud.google.com/iam-admin/serviceaccounts?project=PROJECT_ID" target="_blank" rel="noopener">console.cloud.google.com/iam-admin/serviceaccounts</a>
+        (replace <code>PROJECT_ID</code>).
+      </li>
+      <li>Click <b>+ Create service account</b>.</li>
+      <li>Name: <code>widmedia-drive-upload</code> (or similar). Click <b>Create and Continue</b>.</li>
+      <li>Grant it a role — <b>none needed</b> for Drive (permissions come from folder sharing). Just click <b>Done</b>.</li>
+    </ol>
+
+    <h3>1c. Download the JSON key</h3>
+    <ol>
+      <li>In the service account list, click the <code>widmedia-drive-upload</code> account.</li>
+      <li>Go to the <b>Keys</b> tab → <b>Add Key</b> → <b>Create new key</b> → choose <b>JSON</b> → <b>Create</b>.</li>
+      <li>A file like <code>widmedia-drive-upload-XXXX.json</code> downloads automatically. <b>Save it in a safe, private place.</b> You will never see the private key again once the file is closed.</li>
+      <li>Open the file and copy two values (the <b>client_email</b> and the <b>private_key</b>):</li>
+    </ol>
+    <pre><code>{
+  "type": "service_account",
+  "project_id": "PROJECT_ID",
+  "client_email": "widmedia-drive-upload@PROJECT_ID.iam.gserviceaccount.com",   ← copy this
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIB...\n-----END PRIVATE KEY-----\n"   ← copy this
+}</code></pre>
+
+    <div class="warn"><b>Getting a "fresh key" for an existing service account:</b> open the service account → <b>Keys</b> tab → <b>Add Key</b> → <b>Create new key</b> → <b>JSON</b>. This regenerates a new private key (old ones are invalidated when deleted). This fixes the <code>invalid_grant: Invalid JWT Signature</code> error.</div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step">
+    <div class="step-head">
+      <div class="step-num">2</div>
+      <h2>Enable the Google Drive API</h2>
+    </div>
+    <p class="step-sub">Turns on the Google Drive API for this project. Required once per project.</p>
+    <ol>
+      <li>Open the Drive API page for your project:
+        <a class="mono" href="https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project=PROJECT_ID" target="_blank" rel="noopener">console.developers.google.com/apis/api/drive.googleapis.com/overview</a>
+        (replace <code>PROJECT_ID</code>).
+      </li>
+      <li>Click <b>Enable</b>.</li>
+      <li>Wait 1–2 minutes for it to propagate.</li>
+    </ol>
+    <div class="err"><b>If you see:</b> <code>Google Drive API has not been used in project ... before or it is disabled</code> — that means this step wasn't done (or was done in the wrong project). Enable it and retry.</div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step">
+    <div class="step-head">
+      <div class="step-num">3</div>
+      <h2>Create a shared drive and put client folders inside it</h2>
+    </div>
+    <p class="step-sub">Service accounts can't upload into a personal "My Drive" — they can only write into a <b>shared drive</b>. Do this once for the agency; then every client folder lives inside it.</p>
+    <h3>3a. Create the shared drive (once)</h3>
+    <ol>
+      <li>In Google Drive (agency account) → left sidebar → <b>Shared drives</b> → <b>+ New</b>.</li>
+      <li>Name it e.g. <b>WhoisDesir Media</b> → <b>Create</b>.</li>
+    </ol>
+    <h3>3b. Put each client folder inside the shared drive</h3>
+    <ol>
+      <li>Create new client folders <b>inside</b> the shared drive (e.g. <code>/Shared drives/WhoisDesir Media/&lt;Client Name&gt;/Photography</code>).</li>
+      <li>If a folder already exists in My Drive: right-click → <b>Organize → Move</b> → pick the shared drive. The folder keeps its ID, so all existing links keep working.</li>
+    </ol>
+    <h3>3c. Share the shared drive with the service account</h3>
+    <ol>
+      <li>Open the shared drive → <b>Share</b> (top right).</li>
+      <li>In <b>Add people and groups</b>, paste the service account email:
+        <code>widmedia-drive-upload@PROJECT_ID.iam.gserviceaccount.com</code>
+      </li>
+      <li>Set permission to <b>Content manager</b> → <b>Send</b>. Membership applies to every folder inside the shared drive.</li>
+    </ol>
+    <div class="card-grid">
+      <div class="mini-card"><b>Viewer</b><p>Clients can open and play photos/videos — solves the "can't open the video" issue.</p></div>
+      <div class="mini-card"><b>Content manager</b><p>Give the service account this role on the <b>shared drive</b> so the app can upload everywhere inside it.</p></div>
+      <div class="mini-card"><b>Restricted</b><p>Avoid — forces sign-in and blocks embedded previews.</p></div>
+    </div>
+    <p class="step-sub" style="margin-top:14px;">Also set each client folder's <b>General access → Anyone with the link → Viewer</b> so clients and vendors can open files without signing in.</p>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step">
+    <div class="step-head">
+      <div class="step-num">4</div>
+      <h2>Add the credentials to the app</h2>
+    </div>
+    <p class="step-sub">Put the two values from Step 1c into the environment so the upload API can authenticate.</p>
+
+    <h3>4a. Local development (.env)</h3>
+    <p>In the project root <code>.env</code> file:</p>
+    <pre><code>GOOGLE_SERVICE_ACCOUNT_EMAIL="widmedia-drive-upload@PROJECT_ID.iam.gserviceaccount.com"
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIB...\n-----END PRIVATE KEY-----\n"</code></pre>
+    <ul>
+      <li>Keep the key on a <b>single line</b> with line breaks written as <code>\n</code>.</li>
+      <li><code>.env</code> is git-ignored — never commit it.</li>
+      <li>Restart the dev server after editing.</li>
+    </ul>
+
+    <h3>4b. Production (Vercel)</h3>
+    <ol>
+      <li>Open the project in <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a> → <b>Settings</b> → <b>Environment Variables</b>.</li>
+      <li>Add the same two variables for the <b>Production</b> environment (and Preview/Development if needed):</li>
+    </ol>
+    <table class="envtable">
+      <tr><th>Name</th><th>Value</th></tr>
+      <tr><td class="mono">GOOGLE_SERVICE_ACCOUNT_EMAIL</td><td>service account email (client_email)</td></tr>
+      <tr><td class="mono">GOOGLE_PRIVATE_KEY</td><td>private key, single line with <code>\n</code> escapes</td></tr>
+    </table>
+    <ol start="3">
+      <li>Click <b>Save</b>, then redeploy (or push to trigger an auto-deploy).</li>
+    </ol>
+
+    <div class="ok"><b>Tip:</b> Storing the full JSON is supported too — set <code>GOOGLE_APPLICATION_CREDENTIALS_JSON</code> to the entire contents of the key file instead.</div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step">
+    <div class="step-head">
+      <div class="step-num">5</div>
+      <h2>Verify the upload</h2>
+    </div>
+    <p class="step-sub">Confirm end-to-end that photos reach the client's shared folder.</p>
+    <ol>
+      <li>Log in as a <b>vendor (contractor)</b> → open the project → <b>Deliver Photos to Client Drive</b>.</li>
+      <li>Pick the linked Google Drive folder, select a few photos, click <b>Upload Photos to Drive</b>.</li>
+      <li>Expected: a green confirmation with the file count.</li>
+      <li>Open the folder in Google Drive and confirm the files are there, then log in as the <b>client</b> and confirm they can open them in the Media Gallery.</li>
+    </ol>
+
+    <h3>Troubleshooting</h3>
+    <div class="err"><b>503 — "Google Drive is not configured yet."</b><br>The env vars are missing (Step 4).</div>
+    <div class="err"><b>403 / permission error on upload.</b><br>The folder isn't inside a shared drive the service account belongs to (Step 3).</div>
+    <div class="err"><b>"Service Accounts do not have storage quota."</b><br>The target folder is in My Drive, not a shared drive. Move it into the shared drive (Step 3b).</div>
+    <div class="err"><b>The folder listing is empty after moving.</b><br>App API calls use <code>supportsAllDrives</code> — if it's still empty, re-check that the shared drive is shared with the service account.</div>
+    <div class="err"><b>invalid_grant: Invalid JWT Signature.</b><br>The private key is stale or mis-escaped. Regenerate it (Step 1c) and re-copy it as a single line with <code>\n</code>.</div>
+    <div class="err"><b>Drive API disabled error.</b><br>Enable the API in the correct project (Step 2) and wait 1–2 minutes.</div>
+    <div class="err"><b>Client can't open a video.</b><br>Folder must be <b>Anyone with the link → Viewer</b>, and the video must finish processing in Drive before sharing.</div>
+  </section>
+
+  <!-- PER-CLIENT CHECKLIST -->
+  <section class="step">
+    <div class="step-head">
+      <div class="step-num">✓</div>
+      <h2>Per-client checklist (run once per new client)</h2>
+    </div>
+    <ul class="checklist">
+      <li>Create the client's media folder(s) <b>inside the shared drive</b> (e.g. Photography, Videos).</li>
+      <li>Share the <b>shared drive</b> with the service account as <b>Content manager</b> (once per shared drive).</li>
+      <li>Set each folder's <b>General access → Anyone with the link → Viewer</b> so clients can preview without signing in.</li>
+      <li>In the admin portal: Clients → Media Gallery/Folders → link each folder's ID or URL.</li>
+      <li>Assign the project to a vendor (contractor) so they see it and the upload section.</li>
+      <li>Have the vendor upload a test photo; confirm it appears in Drive and in the client portal.</li>
+    </ul>
+    <p style="margin-top:16px; color:var(--muted); font-size:14px;">Remember: the service account and Google Cloud setup (Steps 1–2) are done <b>once</b> for the agency. Every new client only needs Steps 3–5.</p>
+  </section>
+
+  <a class="btn" href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener">Open Service Accounts →</a>
+  <a class="btn ghost" href="https://vercel.com" target="_blank" rel="noopener">Open Vercel →</a>
+
+</main>
+
+<footer>WhoIsDésir® Media · Internal integration guide · Keep the service account key private.</footer>
+
+</body>
+</html>

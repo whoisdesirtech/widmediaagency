@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import MediaTile from '@/components/MediaTile';
 
 const TABS = [
   { label: 'Overview', href: '', icon: '🏢' },
@@ -20,6 +21,7 @@ interface ProjectImage {
   url: string;
   name: string;
   uploadedAt: string;
+  kind?: 'image' | 'folder' | 'file';
 }
 
 interface Project {
@@ -270,8 +272,8 @@ export default function AdminClientProjectsPage() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               {images.map((img, i) => (
                                 <div key={i} className="relative group rounded-xl overflow-hidden border border-muted-lighter">
-                                  <img src={img.url} alt={img.name} className="w-full h-32 object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setPreviewImage(img.url)} />
-                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                  <MediaTile img={img} className="h-32" onClick={() => setPreviewImage(img.url)} />
+                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 pointer-events-none">
                                     <p className="text-white text-[0.6rem] truncate">{img.name}</p>
                                   </div>
                                   <button onClick={() => handleDeleteImage(img.url)} className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>

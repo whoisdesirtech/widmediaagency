@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ClientSidebar from '@/components/ClientSidebar';
+import MediaTile from '@/components/MediaTile';
 
 interface ProjectImage {
   url: string;
   name: string;
   uploadedAt: string;
+  kind?: 'image' | 'folder' | 'file';
 }
 
 interface Project {
@@ -148,8 +150,8 @@ export default function ClientProjectsPage() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               {images.slice(0, 8).map((img, i) => (
                                 <div key={i} className="relative group rounded-xl overflow-hidden border border-muted-lighter">
-                                  <img src={img.url} alt={img.name} className="w-full h-32 object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setPreviewImage(img.url)} />
-                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                  <MediaTile img={img} className="h-32" onClick={() => setPreviewImage(img.url)} />
+                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 pointer-events-none">
                                     <p className="text-white text-[0.6rem] truncate">{img.name}</p>
                                   </div>
                                 </div>
