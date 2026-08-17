@@ -28,6 +28,16 @@ export default function AdminTrainingPage() {
             <section>
               <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">2</span>
+                Google Drive Setup (Admin)
+              </h2>
+              <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
+                <HtmlRenderer src="/admin-drive-setup.html" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">3</span>
                 Vendor Portal Guide
               </h2>
               <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">

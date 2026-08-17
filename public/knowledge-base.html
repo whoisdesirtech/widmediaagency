@@ -460,7 +460,7 @@
       <div class="category-icon purple">📁</div>
       <div>
         <div class="category-title">Google Drive Integration</div>
-        <div class="category-desc">How vendor uploads and client media galleries work</div>
+        <div class="category-desc">How vendors upload and clients access files via Google Drive</div>
       </div>
     </div>
 
@@ -472,30 +472,127 @@
         <span class="lesson-chevron">▾</span>
       </div>
       <div class="lesson-body">
-        <p>The platform uses Google Drive to store and share project files between vendors, clients, and admins.</p>
+        <p>The platform uses a Google Service Account to upload and read files from Google Drive. Here's how each role interacts with it:</p>
         <ul>
-          <li><strong>Admins</strong> create a Shared Drive and link client folders to the platform</li>
-          <li><strong>Vendors</strong> upload photos directly to the client's Drive folder</li>
-          <li><strong>Clients</strong> browse their Media Gallery to view uploaded files</li>
+          <li><strong>Admins</strong> create a Shared Drive, create client folders, share them with the service account, and link the folder ID to the client record</li>
+          <li><strong>Vendors</strong> select a client's folder from a dropdown on the project page and upload photos/videos directly to Google Drive</li>
+          <li><strong>Clients</strong> browse their Media Gallery to view files, or click "Open in Google Drive" to download</li>
         </ul>
-        <div class="warning"><strong>Important:</strong> Client folders must be in a <strong>Shared Drive</strong> (not My Drive). Service accounts cannot upload to personal Drive folders.</div>
+        <div class="warning"><strong>Important:</strong> Client folders MUST be in a <strong>Shared Drive</strong> (not "My Drive"). Service accounts cannot upload to personal Drive folders — you'll get a storage quota error.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-14a">
+      <div class="lesson-header" onclick="toggleLesson('lesson-14a')">
+        <div class="lesson-num">14a</div>
+        <div class="lesson-title">Admin: Setting Up Google Drive for a Client</div>
+        <span class="lesson-tag tag-client">Admin</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Follow these steps to enable Google Drive delivery for a client. This must be done before vendors can upload files.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Create a Shared Drive</strong> in Google Drive (if you haven't already). Name it something like "WhoIsDesir Media — Client Files". Shared Drives are required — personal "My Drive" folders won't work.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Create a folder for the client</strong> inside the Shared Drive. Name it after the client or project (e.g., "Start Social — World Cup"). Optionally create sub-folders like "Photography", "Video", "Final Deliverables".</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Share the folder with the service account:</strong> Right-click the folder → Share → add <code>widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</code> → set to <strong>Editor</strong> → Send.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Copy the Folder ID</strong> from the URL. Open the folder → the URL is <code>https://drive.google.com/drive/folders/FOLDER_ID_HERE</code>. Copy the ID portion.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-text"><strong>Link it in the admin portal:</strong> Go to Clients → click the client → Edit Client → scroll to "Google Drive Media Folder" → paste the Folder ID and the full URL → Save.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-text"><strong>Verify:</strong> The client's Overview card should now show "✓ Linked" for Media Folder. Vendors can now upload to this client's Drive.</div>
+        </div>
+        <div class="tip"><strong>For multiple folders</strong> (Photography, Video, etc.): Go to the client's "Folders" or "Media Gallery" tab → create named folders with their own Drive folder IDs. Vendors can then pick the specific sub-folder when uploading.</div>
       </div>
     </div>
 
     <div class="lesson" id="lesson-15">
       <div class="lesson-header" onclick="toggleLesson('lesson-15')">
         <div class="lesson-num">15</div>
-        <div class="lesson-title">Troubleshooting Drive Uploads</div>
+        <div class="lesson-title">Vendor: Uploading Photos & Videos to Client's Google Drive</div>
         <span class="lesson-tag tag-vendor">Vendor</span>
         <span class="lesson-chevron">▾</span>
       </div>
       <div class="lesson-body">
-        <p>If you see errors when uploading to Google Drive:</p>
+        <p>Once your agency admin has linked a Google Drive folder to the client, you can upload deliverables directly from the platform.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Go to Projects</strong> in your sidebar → click into the project you're working on.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Select the Drive folder:</strong> Use the dropdown to pick which client folder to upload to (e.g., "Photography", "Video").</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Upload files:</strong> Click the upload button and select your photos or videos. Accepted: JPG, JPEG, PNG, WEBP, GIF (images), MP4, MOV, AVI (videos). Max 15MB per image, 100MB per file.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Files go directly to Google Drive</strong> — the client can see them in their Media Gallery immediately.</div>
+        </div>
+        <div class="info"><strong>Don't see the folder dropdown?</strong> Your admin hasn't linked a Google Drive folder to this client yet. Ask them to set it up (see the admin setup lesson above).</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-16">
+      <div class="lesson-header" onclick="toggleLesson('lesson-16')">
+        <div class="lesson-num">16</div>
+        <div class="lesson-title">Client: Accessing & Downloading Files from Google Drive</div>
+        <span class="lesson-tag tag-client">Client</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>When vendors upload files to your Google Drive, you can access them through your Media Gallery.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Log in</strong> to the client portal → click <strong>"Media Gallery"</strong> in the sidebar.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Browse folders:</strong> You'll see the folders your admin created (e.g., "Photography", "Video"). Click a folder to open it.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>View files:</strong> Images and files are displayed in an embedded Google Drive view. Click any file to preview it.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Download files:</strong> Click the <strong>"Open in Google Drive"</strong> button to open the folder directly in Google Drive, where you can download individual files or entire folders.</div>
+        </div>
+        <div class="info"><strong>Empty gallery?</strong> Your admin may not have linked a Google Drive folder yet. Ask them to set it up. Once linked, any files vendors upload will appear here automatically.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-17">
+      <div class="lesson-header" onclick="toggleLesson('lesson-17')">
+        <div class="lesson-num">17</div>
+        <div class="lesson-title">Troubleshooting Google Drive Issues</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>If you encounter issues with Google Drive uploads or access:</p>
         <ul>
-          <li><strong>"Service Accounts do not have storage quota"</strong> — The folder is in My Drive, not a Shared Drive. Ask your admin to move it.</li>
-          <li><strong>403 / Permission error</strong> — The Shared Drive hasn't been shared with the service account. Ask your admin to add it.</li>
-          <li><strong>503 error</strong> — Google Drive is temporarily unavailable. Try again later.</li>
-          <li><strong>Option doesn't appear</strong> — Your admin hasn't linked a Google Drive folder to this client yet.</li>
+          <li><strong>"Service Accounts do not have storage quota"</strong> — The folder is in someone's "My Drive", not a Shared Drive. Ask your admin to move it to a Shared Drive.</li>
+          <li><strong>403 / Permission denied</strong> — The service account hasn't been shared on the folder. Ask your admin to add <code>widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</code> as Editor.</li>
+          <li><strong>503 error</strong> — Google Drive API is temporarily unavailable. Wait a few minutes and try again.</li>
+          <li><strong>"Drive not configured"</strong> — The Google Drive credentials aren't set in the platform. Ask your admin to check the Vercel environment variables.</li>
+          <li><strong>Folder dropdown doesn't appear</strong> — No Google Drive folders are linked to this client. Ask your admin to link one.</li>
+          <li><strong>Client gallery is empty</strong> — Either no files have been uploaded yet, or the Folder ID is wrong. Ask your admin to verify the setup.</li>
         </ul>
       </div>
     </div>
@@ -511,9 +608,9 @@
       </div>
     </div>
 
-    <div class="lesson" id="lesson-16">
-      <div class="lesson-header" onclick="toggleLesson('lesson-16')">
-        <div class="lesson-num">16</div>
+    <div class="lesson" id="lesson-18">
+      <div class="lesson-header" onclick="toggleLesson('lesson-18')">
+        <div class="lesson-num">18</div>
         <div class="lesson-title">I can't log in — what should I do?</div>
         <span class="lesson-tag tag-both">Everyone</span>
         <span class="lesson-chevron">▾</span>
@@ -527,26 +624,26 @@
       </div>
     </div>
 
-    <div class="lesson" id="lesson-17">
-      <div class="lesson-header" onclick="toggleLesson('lesson-17')">
-        <div class="lesson-num">17</div>
+    <div class="lesson" id="lesson-19">
+      <div class="lesson-header" onclick="toggleLesson('lesson-19')">
+        <div class="lesson-num">19</div>
         <div class="lesson-title">My file upload failed — what do I do?</div>
         <span class="lesson-tag tag-both">Everyone</span>
         <span class="lesson-chevron">▾</span>
       </div>
       <div class="lesson-body">
         <ul>
-          <li><strong>Check file size:</strong> Onboarding docs max 10MB, project images max 15MB</li>
-          <li><strong>Check file type:</strong> Onboarding accepts PDF, JPG, PNG. Project images accept JPG, JPEG, PNG, WEBP, GIF</li>
+          <li><strong>Check file size:</strong> Onboarding docs max 10MB, project images max 15MB, Drive uploads max 100MB</li>
+          <li><strong>Check file type:</strong> Onboarding accepts PDF, JPG, PNG. Project images accept JPG, JPEG, PNG, WEBP, GIF. Drive accepts most common formats.</li>
           <li><strong>Check your connection:</strong> Try again with a stable internet connection</li>
           <li><strong>Google Drive errors:</strong> See the Google Drive troubleshooting lesson above</li>
         </ul>
       </div>
     </div>
 
-    <div class="lesson" id="lesson-18">
-      <div class="lesson-header" onclick="toggleLesson('lesson-18')">
-        <div class="lesson-num">18</div>
+    <div class="lesson" id="lesson-20">
+      <div class="lesson-header" onclick="toggleLesson('lesson-20')">
+        <div class="lesson-num">20</div>
         <div class="lesson-title">How do I get a copy of my signed contract?</div>
         <span class="lesson-tag tag-both">Everyone</span>
         <span class="lesson-chevron">▾</span>
@@ -556,9 +653,9 @@
       </div>
     </div>
 
-    <div class="lesson" id="lesson-19">
-      <div class="lesson-header" onclick="toggleLesson('lesson-19')">
-        <div class="lesson-num">19</div>
+    <div class="lesson" id="lesson-21">
+      <div class="lesson-header" onclick="toggleLesson('lesson-21')">
+        <div class="lesson-num">21</div>
         <div class="lesson-title">Who do I contact for help?</div>
         <span class="lesson-tag tag-both">Everyone</span>
         <span class="lesson-chevron">▾</span>
@@ -567,6 +664,7 @@
         <ul>
           <li><strong>Login issues:</strong> Your agency admin can reset your password</li>
           <li><strong>Contract questions:</strong> Ask your agency admin before signing</li>
+          <li><strong>Google Drive issues:</strong> Ask your agency admin to verify the setup</li>
           <li><strong>Technical issues:</strong> Contact your agency support team directly</li>
           <li><strong>Billing questions:</strong> Reach out to your agency's finance contact</li>
         </ul>
