@@ -89,12 +89,25 @@ export default function ContractorProjectsPage() {
   const loadFolders = async (project: Project) => {
     if (!project.client?.id || foldersByProject[project.id]) return;
     try {
-      const res = await fetch(`/api/folders?clientId=${project.client.id}`);
-      const data = await res.json();
-      const folders = Array.isArray(data) ? data.filter((f: DriveFolder) => f.driveFolderId || f.driveFolderUrl) : [];
-      setFoldersByProject(prev => ({ ...prev, [project.id]: folders }));
-      if (folders.length > 0 && !selectedFolderByProject[project.id]) {
-        const preferred = folders.find((f: DriveFolder) => /photo|image/i.test(f.name)) || folders[0];
+      const [foldersRes, clientRes] = await Promise.all([
+        fetch(`/api/folders?clientId=${project.client.id}`),
+        fetch(`/api/clients/${project.client.id}`),
+      ]);
+      const foldersData = await foldersRes.json();
+      const clientData = await clientRes.json();
+      const subFolders: DriveFolder[] = Array.isArray(foldersData) ? foldersData.filter((f: DriveFolder) => f.driveFolderId || f.driveFolderUrl) : [];
+      if (subFolders.length === 0 && clientData?.googleDriveFolderId) {
+        subFolders.push({
+          id: 'root',
+          name: `${project.client.name} — Main Folder`,
+          icon: '📁',
+          driveFolderId: clientData.googleDriveFolderId,
+          driveFolderUrl: clientData.googleDriveFolderUrl,
+        });
+      }
+      setFoldersByProject(prev => ({ ...prev, [project.id]: subFolders }));
+      if (subFolders.length > 0 && !selectedFolderByProject[project.id]) {
+        const preferred = subFolders.find((f: DriveFolder) => /photo|image/i.test(f.name)) || subFolders[0];
         setSelectedFolderByProject(prev => ({ ...prev, [project.id]: preferred.driveFolderId || preferred.driveFolderUrl || preferred.id }));
       }
     } catch {}

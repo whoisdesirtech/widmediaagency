@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const user = await requireAuth(['admin', 'staff', 'client']);
+    const user = await requireAuth(['admin', 'staff', 'client', 'contractor']);
     if (isNextResponse(user)) return user;
 
     const { searchParams } = new URL(req.url);
@@ -46,6 +46,10 @@ export async function GET(req: Request) {
     if (user.role === 'client') {
       if (clientId && clientId !== user.clientId) return forbiddenResponse();
       clientId = user.clientId;
+    }
+
+    if (user.role === 'contractor') {
+      if (!clientId) return NextResponse.json({ error: 'clientId is required' }, { status: 400 });
     }
 
     if (!clientId) {
