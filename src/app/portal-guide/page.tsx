@@ -188,6 +188,8 @@ export default function PortalGuidePage() {
             <Link href="/portal-guide" className="hover:text-white/40 transition-colors">Portal Guide</Link>
             <span className="mx-3">·</span>
             <Link href="/knowledge-base" className="hover:text-white/40 transition-colors">Knowledge Base</Link>
+            <span className="mx-3">·</span>
+            <Link href="/developer" className="hover:text-white/40 transition-colors">Developer</Link>
           </div>
         </div>
       </footer>
