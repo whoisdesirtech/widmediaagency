@@ -598,9 +598,74 @@
     </div>
   </div>
 
+  <!-- GOOGLE DRIVE -->
+  <div class="section">
+    <h2><span class="section-number">6</span> Linking Google Drive to Clients</h2>
+    <p>Vendors can upload photos directly to a client's Google Drive folder. To enable this, you need to link a Drive folder to each client.</p>
+
+    <h3>Step 1: Create a Shared Drive</h3>
+    <p>Service accounts cannot upload to personal "My Drive" folders. You must use a <strong>Shared Drive</strong>.</p>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Open Google Drive with your agency account</h4>
+        <p>Go to <strong>drive.google.com</strong> and sign in with the agency Google account</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Create a Shared Drive</h4>
+        <p>Click <strong>Shared drives</strong> in the left sidebar → <strong>+ New</strong> → name it (e.g. "WhoIsDésir Media") → <strong>Create</strong></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Share the Shared Drive with the service account</h4>
+        <p>Open the shared drive → <strong>Share</strong> → add <strong>widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</strong> as <strong>Content manager</strong> → Send</p>
+      </div>
+    </div>
+
+    <h3>Step 2: Create Client Folders</h3>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Create a folder for each client inside the Shared Drive</h4>
+        <p>Navigate into the Shared Drive → <strong>New folder</strong> → name it after the client (e.g. "Start Social"). If the folder already exists in My Drive, right-click → <strong>Organize → Move</strong> → pick the Shared Drive.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Copy the folder ID from the URL</h4>
+        <p>Open the client folder. The URL looks like:<br>
+        <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">https://drive.google.com/drive/folders/<strong>1aBcDeFgHiJkLmNoPqRsT</strong></code><br>
+        Copy the bold part — that's the <strong>folder ID</strong>.</p>
+      </div>
+    </div>
+
+    <h3>Step 3: Link in the Admin Portal</h3>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h4>Go to Clients → click the client → edit their profile</h4>
+        <p>Paste the folder ID into the <strong>Google Drive Folder ID</strong> field. Optionally add the full URL in <strong>Google Drive Folder URL</strong>. Click <strong>Save</strong>.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Tip:</strong> Once linked, vendors can use "Deliver Photos to Client Drive" in their portal to upload directly to this folder.
+    </div>
+
+    <div class="warning">
+      <strong>Important:</strong> If you see "Service Accounts do not have storage quota" errors, the folder is in My Drive instead of a Shared Drive. Move it to the Shared Drive.
+    </div>
+  </div>
+
   <!-- CHECKLIST -->
   <div class="section">
-    <h2><span class="section-number">6</span> Admin Quick-Start Checklist</h2>
+    <h2><span class="section-number">7</span> Admin Quick-Start Checklist</h2>
 
     <ul class="checklist">
       <li>Log in and review the Dashboard</li>
