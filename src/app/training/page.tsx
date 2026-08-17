@@ -18,6 +18,26 @@ export default function AdminTrainingPage() {
             <section>
               <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">1</span>
+                Admin Portal Guide
+              </h2>
+              <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
+                <HtmlRenderer src="/admin-training.html" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">2</span>
+                Vendor Portal Guide
+              </h2>
+              <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
+                <HtmlRenderer src="/vendor-training.html" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">3</span>
                 System Training Guide
               </h2>
               <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
@@ -27,7 +47,7 @@ export default function AdminTrainingPage() {
 
             <section>
               <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">2</span>
+                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">4</span>
                 Vendor Onboarding &amp; Payment Phases
               </h2>
               <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
@@ -37,7 +57,7 @@ export default function AdminTrainingPage() {
 
             <section>
               <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">3</span>
+                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">5</span>
                 Client Portal Guide
               </h2>
               <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
