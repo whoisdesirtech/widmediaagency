@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { name, businessName, role, state, country } = body;
 
@@ -28,6 +33,8 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'contractor.create', method: 'POST', path: '/api/contractors', entity: 'Contractor', entityId: contractor.id, metadata: { role } });
+
     return NextResponse.json(contractor, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create contractor' }, { status: 500 });
@@ -36,6 +43,9 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const contractors = await prisma.contractor.findMany({
       include: { sows: true, _count: { select: { sows: true, assembledContracts: true } } },
       orderBy: { createdAt: 'desc' },

@@ -1,0 +1,268 @@
+<style>
+  #report-root { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a202c; background: #ffffff; font-size: 13px; line-height: 1.6; padding: 24px; }
+  #report-root h1 { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; border-bottom: 3px solid #ec4899; padding-bottom: 10px; }
+  #report-root h2 { font-size: 18px; font-weight: 700; color: #0f172a; margin: 28px 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+  #report-root h3 { font-size: 15px; font-weight: 700; color: #be185d; margin: 22px 0 8px 0; }
+  #report-root p { margin: 8px 0; }
+  #report-root ul, #report-root ol { margin: 8px 0; padding-left: 24px; }
+  #report-root li { margin: 4px 0; }
+  #report-root strong { font-weight: 700; color: #111827; }
+  #report-root em { font-style: italic; }
+  #report-root code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 4px; color: #be185d; }
+  #report-root pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.55; margin: 10px 0; white-space: pre-wrap; word-break: break-word; }
+  #report-root pre code { background: transparent; border: none; padding: 0; color: inherit; font-size: 12px; }
+  #report-root hr { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+  #report-root table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  #report-root th { background: #f8fafc; color: #0f172a; font-weight: 700; text-align: left; padding: 8px 10px; border: 1px solid #e2e8f0; }
+  #report-root td { padding: 8px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
+  #report-root tr:nth-child(even) td { background: #fafafa; }
+  #report-root blockquote { border-left: 4px solid #ec4899; background: #fdf2f8; margin: 12px 0; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+  #report-root blockquote p { margin: 6px 0; }
+  #report-root blockquote ol { margin: 6px 0; }
+  #report-root blockquote code { background: #ffffff; border-color: #fbcfe8; }
+  #report-root .meta { font-size: 12px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
+  #report-root .meta code { background: #ffffff; }
+  #report-root .flag { display: inline-block; background: #ec4899; color: #ffffff; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 4px; padding: 2px 6px; vertical-align: middle; }
+</style>
+
+<h1>Phase 14 — AI DISCOVERY &amp; TARGET PROMPTS</h1>
+<p><strong>WhoIsDésir® Media — Product Architecture Program</strong></p>
+<div class="meta">
+  <strong>Date:</strong> 2026-08-12<br>
+  <strong>Repo:</strong> <code>whoisdesir-media</code> · <strong>Companion docs:</strong> <code>PRODUCT_ARCHITECTURE_AUDIT.md</code>, <code>TARGET_ARCHITECTURE.md</code>, <code>AI_AGENT_ARCHITECTURE.md</code>, <code>BUILD_VS_INTEGRATE_MATRIX.md</code>, <code>PROPRIETARY_MOAT.md</code><br>
+  <strong>Verified baseline:</strong> zero AI code in the repo today (no LLM SDKs, no analytics, no agents). All 28 API routes are unauthenticated; NextAuth is dead; <code>/api/auth/reset-password</code> returns new passwords in the HTTP response; <code>/api/signatures</code> can be spoofed by anyone.
+</div>
+
+<h2>PART 1 — AI DISCOVERY (what to build, and why)</h2>
+
+<h3>1.1 Discovery summary</h3>
+<p>AI is not a feature you bolt on; it is the <strong>orchestration layer over your proprietary workflow data</strong> (contracts, SOWs, deliverables, invoices, Drive delivery). LLM models are commodity — <strong>integrate</strong>. Agent orchestration over your data is the moat — <strong>build</strong>.</p>
+
+<table>
+  <thead>
+    <tr><th>Agent</th><th>Capability (first slice)</th><th>ROI</th><th>Depends on</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Contract/Ops</strong> (start here)</td><td>Draft SOW/addenda from a brief using the existing clause library; assemble contracts; chase signatures; flag compliance expiry</td><td>Highest — sits on your strongest feature (contracts/signatures)</td><td>Auth hardening · workflow events</td></tr>
+    <tr><td><strong>Delivery/Task</strong></td><td>Deadline reminders; deliverable-submission chaser; at-risk project alerts</td><td>High — reduces manual ops</td><td>Deliverable state machine</td></tr>
+    <tr><td><strong>Finance</strong></td><td>Invoice drafting from approved deliverables; overdue dunning; revenue per project/contractor</td><td>High — revenue loop</td><td>Stripe · email provider</td></tr>
+    <tr><td><strong>Sales/Inquiry</strong></td><td>Qualify <code>BookingInquiry</code> → book Cal.com slot → draft SOW brief</td><td>Medium</td><td>Cal.com · email</td></tr>
+    <tr><td><strong>ClientSuccess</strong></td><td>Project-status summaries for clients; FAQ answers; media-availability replies</td><td>Medium</td><td>Workflow events</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Hard dependency:</strong> all five agents are pointless and dangerous until every API route is authenticated and tenant-scoped (Prompt 1–3 below are P0, before any AI prompt).</p>
+
+<h3>1.2 AI architecture rules (encode in every prompt)</h3>
+<ol>
+  <li><strong>Agents never touch the DB directly</strong> — they call typed tools that wrap your existing API routes.</li>
+  <li><strong>Human-in-the-loop on writes</strong> — agents create <em>drafts</em> and send notifications; humans approve anything that mutates legal/financial/scope data.</li>
+  <li><strong>Full audit trail</strong> — every tool call logged (who/what/when).</li>
+  <li><strong><code>AIProvider</code> interface</strong> — OpenAI/Anthropic swappable; never hardcode a vendor in components.</li>
+  <li><strong>No prompt injection</strong> — client/contractor-supplied text is untrusted data, never instructions.</li>
+</ol>
+
+<h2>PART 2 — TARGET PROMPTS (copy-paste into your AI coding agent)</h2>
+
+<h3>PROMPT 0 — Context seed (paste first, once per session)</h3>
+<blockquote>
+  <p>You are working in the repo at <code>/Users/jeanfils/Desktop/vibe-coding/Vibe Coding Mastery/whoisdesir-media</code> — a Next.js 14 (App Router) + TypeScript + Prisma/PostgreSQL vertical SaaS for media agencies. Read <code>PRODUCT_ARCHITECTURE_AUDIT.md</code>, <code>TARGET_ARCHITECTURE.md</code>, and <code>AI_AGENT_ARCHITECTURE.md</code> for context. Follow existing code conventions (server components + client components in <code>src/app</code>, API routes in <code>src/app/api/*</code>, shared helpers in <code>src/lib</code>, data in <code>src/data</code>). Do NOT add comments unless asked. After any change, run <code>npm run typecheck</code> and <code>npm run build</code> and fix everything you broke. Do not add new dependencies unless the prompt explicitly allows it.</p>
+</blockquote>
+
+<h3>PROMPT 1 — Sprint 1 · Harden auth + RBAC <span class="flag">P0 — do first</span></h3>
+<blockquote>
+  <p><strong>Goal:</strong> make every API route authenticated and role-checked. Today all 28 routes in <code>src/app/api/**/route.ts</code> are unauthenticated; auth is a client-side <code>localStorage['user']</code> set by <code>/api/auth/login</code>. There is a dead NextAuth setup: <code>src/lib/auth.ts</code> (imported nowhere) and an empty <code>src/app/api/auth/[...nextauth]/</code> directory.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Implement a working server-side session. Either wire up NextAuth 4 CredentialsProvider (reusing <code>src/lib/auth.ts</code> and <code>src/lib/prisma.ts</code>) or introduce a signed HttpOnly cookie session with a <code>requireAuth(roles)</code> helper. Keep the existing <code>User.role</code> values: <code>admin | staff | contractor | client</code>.</li>
+    <li>Add a <code>requireAuth</code>/<code>requireRole</code> guard and apply it to <strong>every</strong> existing API route. Portal mapping: admin/staff → admin, contractor APIs → <code>contractor</code> role bound to the logged-in <code>User.contractorId</code>, client APIs → <code>client</code> role bound to <code>User.clientId</code>. Existing unauthenticated entry points that must stay public: <code>POST /api/auth/login</code> only.</li>
+    <li>Keep the login page flow working but make it call your new session API instead of writing <code>localStorage['user']</code>; derive the logged-in role/name server-side.</li>
+    <li>Do not break existing client components that read the current user — either keep a lightweight client-side user fetch from <code>/api/me</code> or update the components.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> every route returns 401 without a valid session and 403 on wrong role; <code>npm run typecheck</code> passes; <code>npm run build</code> passes; login/logout round-trips in the browser; no <code>localStorage['user']</code> remains as an auth source.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>; manually test login → each portal.</p>
+</blockquote>
+
+<h3>PROMPT 2 — Sprint 1 · Token-based password reset <span class="flag">P0 — critical</span></h3>
+<blockquote>
+  <p><strong>Goal:</strong> fix <code>src/app/api/auth/reset-password/route.ts</code>. Currently it is unauthenticated, resets any user's password, and <strong>returns the new password in the HTTP response</strong> — a full anonymous account-takeover bug. Replace it with a secure flow.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li><code>POST /api/auth/reset-password</code> (public): accept <code>{ email }</code>. Do NOT reveal whether the account exists (return the same message either way) to prevent enumeration. Generate a short-lived reset token, store its hash on the User (add a <code>resetTokenHash</code> + <code>resetTokenExpires</code> field to the <code>User</code> model in <code>prisma/schema.prisma</code>), and send the reset link by email via an <code>EmailProvider</code> helper (see <code>src/lib</code> — if no email provider exists yet, use nodemailer exactly like <code>src/app/api/booking/route.ts</code> and reuse the SMTP env vars).</li>
+    <li><code>POST /api/auth/reset-password/confirm</code> (public): accept <code>{ token, newPassword }</code>, verify token hash + expiry, enforce a minimum password strength (≥ 8 chars, mixed), update <code>passwordHash</code> (bcrypt), invalidate the token, and expire all existing sessions.</li>
+    <li>Never return a password in any response.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> no route returns a password; no account-enumeration via status codes; token expiry enforced; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 3 — Sprint 1 · Secure the signatures endpoint <span class="flag">P0 — critical</span></h3>
+<blockquote>
+  <p><strong>Goal:</strong> fix <code>src/app/api/signatures/route.ts</code>. Today anyone can POST arbitrary <code>{ contractId, signerRole, signerName, signatureData }</code>, no contract or identity verification happens, and the saved signature increments the count that activates a contract.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Require an authenticated session (Prompt 1's <code>requireAuth</code>).</li>
+    <li>Validate: the <code>AssembledContract</code> exists and is in a signable status; <code>signerRole</code> matches the caller (agency/admin-staff for <code>agency</code>, the <code>Contractor</code> bound to the logged-in user for <code>contractor</code>); <code>signerName</code>/<code>signerEmail</code> are taken from the authenticated User, not the request body.</li>
+    <li>Persist extra audit fields: <code>signedByUserId</code>, <code>ip</code> (if feasible), <code>userAgent</code>, and an <code>ISO</code> timestamp; never accept client-supplied timestamps.</li>
+    <li>Add a zod validation schema for the request body.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> unauthenticated → 401; wrong signer role → 403; unknown contract → 404; only the activation-count logic you already have runs after valid dual-party signatures.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 4 — Sprint 2 · Multi-tenancy / <code>agencyId</code> scoping</h3>
+<blockquote>
+  <p><strong>Goal:</strong> enforce tenant isolation. Models already carry <code>agencyId</code> but every query ignores it (e.g., <code>prisma.agency.findFirst()</code> in <code>src/app/api/settings/route.ts</code> and <code>src/app/api/dashboard/route.ts</code>).</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add a tenant context: derive the active <code>agencyId</code> from the authenticated user's <code>agencyId</code> in <code>requireAuth</code> and expose it (e.g., a <code>getAgencyId()</code> helper or request-scoped context) so API routes never guess it.</li>
+    <li>Audit every Prisma query in <code>src/app/api/**</code> and scope reads/writes to the current <code>agencyId</code> (models that have the FK). Backfill the single seed agency so existing data keeps working.</li>
+    <li>Add a <code>where: { agencyId }</code> default by wrapping the Prisma client (<code>src/lib/prisma.ts</code>) with a scoped proxy, or update each route — prefer the wrapping approach to make future routes safe by default.</li>
+    <li>Keep an escape hatch for system-level operations (email verification, password reset) that must not be tenant-scoped.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> a user from agency A cannot read or write agency B rows (verify by test or manual DB check); typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 5 — Sprint 2 · Stripe payments on invoices</h3>
+<blockquote>
+  <p><strong>Goal:</strong> make invoices payable. There is an <code>Invoice</code> model and CRUD (<code>src/app/api/invoices/**</code>) but no payment processing.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add <code>stripe</code> dependency (allowed). Create <code>src/lib/providers/PaymentProvider.ts</code> (interface: <code>createPaymentLink(invoice)</code>, <code>getPaymentStatus(id)</code>, <code>handleWebhook(payload)</code>).</li>
+    <li>On invoice creation/approval, generate a Stripe Payment Link or Checkout Session; store <code>stripePaymentIntentId</code>/<code>stripeCheckoutId</code> on the <code>Invoice</code> model.</li>
+    <li>Add <code>POST /api/webhooks/stripe</code> (public, signature-verified via <code>stripe.webhooks.constructEvent</code>) that marks invoices paid and emits an <code>invoice.paid</code> event.</li>
+    <li>Surface the pay link on the client billing page and admin invoice view; show payment status.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> test-mode payment flow completes end-to-end; webhook signature verified; invoice status transitions unpaid → paid only via verified webhook; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>; manual test in Stripe test mode.</p>
+</blockquote>
+
+<h3>PROMPT 6 — Sprint 2 · Email provider + transactional templates</h3>
+<blockquote>
+  <p><strong>Goal:</strong> replace the two ad-hoc nodemailer call sites with a single provider and send real transactional email.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Create <code>src/lib/providers/EmailProvider.ts</code> with <code>send(to, templateId, vars)</code>; implement with nodemailer now (env <code>SMTP_*</code>) but keep the interface swap-ready for Resend/Postmark.</li>
+    <li>Templates needed: signature-request, contract-signed confirmation, deliverable-approved/denied, deliverable-due reminder, invoice-due, invoice-paid, password-reset link (Prompt 2).</li>
+    <li>Refactor <code>src/app/api/booking/route.ts</code> and <code>src/app/api/plugin-lead/route.ts</code> to use it. Remove the hardcoded <code>digitalvurv@gmail.com</code> recipient — move to env <code>ORGANIZER_EMAIL</code>/<code>OWNER_EMAIL</code> with a default.</li>
+    <li>Never fail a request on email errors; log and continue (matches current best-effort behavior).</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> all send paths go through one provider; no duplicate nodemailer imports outside it; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 7 — Sprint 3 · Contract-to-project automation <span class="flag">workflow engine v1</span></h3>
+<blockquote>
+  <p><strong>Goal:</strong> when a contract becomes active (both parties signed), automatically create the Project + default Deliverables + a Drive folder structure. This is the first piece of the domain workflow engine (the moat).</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add a lightweight event table or in-app event dispatch: when <code>/api/signatures</code> activates a contract, emit <code>contract.signed</code>.</li>
+    <li>Add a handler that, on <code>contract.signed</code>, creates a <code>Project</code> (title, client from contract, timeline defaults) and clones the SOW's deliverable list into <code>Deliverable</code> rows, and creates the per-client Google Drive folders if they don't exist (reuse <code>src/lib/driveService.ts</code>).</li>
+    <li>Idempotent: rerunning the handler must not create duplicates.</li>
+    <li>Log every automation run to a new <code>AutomationLog</code> model (event, target ids, status, error).</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> signing the final signature in the contractor portal creates the project + deliverables + folders in one flow; rerun-safe; visible in the admin projects list; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>; manual dual-sign test.</p>
+</blockquote>
+
+<h3>PROMPT 8 — Sprint 3 · Contract/Ops AI agent <span class="flag">first agent — the flagship</span></h3>
+<blockquote>
+  <p><strong>Goal:</strong> an AI assistant that drafts SOWs/addenda from a short brief using the existing clause library (<code>src/data/clauses.ts</code>, <code>src/data/addenda.ts</code>) and past contracts, then assembles a contract for human approval.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add <code>AIProvider</code> (<code>src/lib/providers/AIProvider.ts</code>) with <code>complete(system, user, opts)</code>; implement with the OpenAI or Anthropic SDK (add the dependency — allowed here); keep it swappable. Use env <code>OPENAI_API_KEY</code>/<code>ANTHROPIC_API_KEY</code>.</li>
+    <li>Create <code>src/app/api/ai/draft-sow/route.ts</code> (authenticated, admin/staff): input <code>{ projectBrief, clientId?, addendumIds? }</code>; the provider assembles a draft SOW (title, scope, deliverables with deliverables array matching the <code>SOW</code> shape) grounded in the clause library text. <strong>Return a draft; do NOT persist.</strong></li>
+    <li>Create <code>src/app/api/ai/assemble-contract/route.ts</code>: takes an approved SOW id + addenda ids, calls the existing assemble logic, and returns a draft <code>AssembledContract</code> in <code>draft</code> status for admin confirmation before it becomes active.</li>
+    <li>Audit log every AI call (<code>AutomationLog</code> or new <code>AiAuditLog</code>): prompt fingerprint, model, latency, outcome. Human approval is required before any write to the SOW/contract tables.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> admin pastes a brief → gets a structured draft SOW in the existing SOW form → approves → contract assembles via existing flow; no DB mutation before approval; audit rows written; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>; manual test with a real API key.</p>
+</blockquote>
+
+<h3>PROMPT 9 — Sprint 3 · Deliverable approval state machine</h3>
+<blockquote>
+  <p><strong>Goal:</strong> formalize deliverable lifecycle and notify the right people on each transition.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add a <code>status</code> enum to <code>Deliverable</code>: <code>pending → submitted → approved | needs_revisions → resubmitted → approved</code> (keep existing approve/deny endpoints working, mapping into these states).</li>
+    <li>Emit events on transitions (<code>deliverable.submitted</code>, <code>deliverable.approved</code>, <code>deliverable.rejected</code>) and send email via <code>EmailProvider</code> (Prompt 6): client/staff on submission, contractor on approval/revision request.</li>
+    <li>Add <code>revisionRequestNote</code> and <code>approvedById</code>/timestamps to the model.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> transitions are enforced (no jumping states), notifications fire, existing approve/deny UI still works; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 10 — Sprint 3 · Cal.com scheduling on inquiries</h3>
+<blockquote>
+  <p><strong>Goal:</strong> let speaker/social inquiries book a real time. Today <code>/api/booking</code> just stores a <code>BookingInquiry</code> and emails best-effort.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add <code>cal.com</code> SDK (dependency allowed) with <code>src/lib/providers/CalendarProvider.ts</code> (<code>createBooking</code>, <code>getAvailability</code>).</li>
+    <li>In the booking flow: after an inquiry is saved, check availability and return one or more suggested slots to the client; on selection create the booking and store <code>calBookingUid</code> + <code>scheduledAt</code> on <code>BookingInquiry</code>.</li>
+    <li>Keep the fallback behavior when Cal.com env vars are unset (form-only, current behavior).</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> with env set, an inquiry can book a real slot that appears in your Cal.com calendar; without env, current behavior unchanged; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 11 — Sprint 4 · White-label theming</h3>
+<blockquote>
+  <p><strong>Goal:</strong> per-tenant branding so each agency can put its own logo/colors/domain on the portals.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add a <code>Brand</code> config to the <code>Agency</code> model (JSON: <code>logoUrl</code>, <code>primaryColor</code>, <code>accentColor</code>, <code>font</code>, <code>faviconUrl</code>, <code>portalDomain?</code>) with a settings editor under <code>/settings</code>.</li>
+    <li>Apply brand tokens as CSS variables in the root layout so all portals inherit them; use them in the sidebars, buttons, login page, and client media gallery.</li>
+    <li>Guard the settings editor behind admin role (Prompt 1).</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> changing brand settings in the UI restyles the whole app immediately (no reload of tokens); defaults match current look; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 12 — Sprint 4 · Reporting</h3>
+<blockquote>
+  <p><strong>Goal:</strong> revenue + ops reporting to prove the workflow engine works.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>New <code>src/app/api/reports/overview/route.ts</code> (admin): revenue per project and per contractor (sum of paid invoices, joined to project/contractor), deliverable on-time %, contracts signed/active counts, vendor compliance expiry list.</li>
+    <li>A read-only <code>/reports</code> admin page with the four views (reuse existing UI patterns/sidebar).</li>
+    <li>Only counts from authenticated, tenant-scoped queries (Prompts 1 &amp; 4).</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> numbers match a manual SQL check for the seed data; page renders in admin; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 13 — Maintenance · Dead code &amp; mock pages</h3>
+<blockquote>
+  <p><strong>Goal:</strong> clean up verified dead code and stop presenting mock features as real.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Remove unused deps <code>html2canvas</code>, <code>jspdf</code> from <code>package.json</code> (verified never imported; signature capture uses a raw canvas) and the empty <code>src/app/api/auth/[...nextauth]/</code> directory; keep <code>next-auth</code> only if Prompt 1 chose it, otherwise remove.</li>
+    <li>Replace the hardcoded media count <code>77</code> in <code>src/app/client/dashboard/page.tsx</code> with a real count from the API.</li>
+    <li>Mock pages (<code>src/app/client/messages/page.tsx</code>, billing, documents, deliverables if static): either wire to real APIs/models or add a visible "Coming soon" state — do not ship fake data as real.</li>
+    <li>Delete conflicting root artifacts if unreferenced: <code>dev.db</code>, <code>firebase.json</code>, <code>apphosting.yaml</code>, <code>docker-compose.yml</code>, <code>supabase-init.sql</code> (confirm with owner before deleting — ask if unsure).</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> no unused-deep imports of removed libs; no hardcoded counts; mock pages clearly labeled; typecheck + build pass.</p>
+  <p><strong>Verify:</strong> <code>npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h3>PROMPT 14 — Quality · Tests for the contract/signature pipeline</h3>
+<blockquote>
+  <p><strong>Goal:</strong> add tests around the most important and now-secure flow.</p>
+  <p><strong>Scope:</strong></p>
+  <ol>
+    <li>Add a test runner (allow <code>vitest</code> dependency) and a test script <code>npm test</code>.</li>
+    <li>Unit/integration tests: contract assembly (<code>src/app/api/contracts/assemble/route.ts</code>), signature validation rules from Prompt 3 (wrong role rejected, unknown contract 404, activation on both parties), token-based password reset (Prompt 2) expiry + enumeration-safe behavior, and tenant scoping (Prompt 4) cross-agency 404/403.</li>
+    <li>Mock <code>prisma</code> with a test DB (SQLite or <code>prisma migrate</code> against a test Postgres) — prefer whatever is least disruptive to the existing <code>db:push</code> workflow.</li>
+  </ol>
+  <p><strong>Acceptance criteria:</strong> <code>npm test</code> runs green; the security-critical paths (Prompt 3, 2, 4) have coverage; typecheck + build still pass.</p>
+  <p><strong>Verify:</strong> <code>npm test &amp;&amp; npm run typecheck &amp;&amp; npm run build</code>.</p>
+</blockquote>
+
+<h2>PART 3 — SEQUENCING CHEAT-SHEET</h2>
+<pre>SPRINT 1 (P0 security)    → PROMPTS 1, 2, 3  (+ 13 for cleanup)
+SPRINT 2 (revenue/trust)  → PROMPTS 4, 5, 6
+SPRINT 3 (differentiation)→ PROMPTS 7, 9, 8  (workflow → states → AI flagship)
+                            PROMPT 10 (scheduling, parallel)
+SPRINT 4 (scale)          → PROMPTS 11, 12, 14 (theming, reporting, tests)</pre>
+<p><strong>Rule:</strong> do not start Sprint 2+ until Prompt 1–3 land — every agent/tool call depends on authenticated, tenant-scoped APIs.</p>

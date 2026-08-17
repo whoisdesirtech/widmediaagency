@@ -57,7 +57,7 @@ export default function ContractorDetailPage() {
     setResetting(true);
     setResetResult(null);
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch(`/api/contractors/${id}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: contractorEmail }),
@@ -183,10 +183,10 @@ export default function ContractorDetailPage() {
                 )}
                 {resetResult && (
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl mb-3">
-                    <div className="text-xs font-bold text-blue-700 mb-2">Password Reset — {resetResult.name}</div>
+                    <div className="text-xs font-bold text-blue-700 mb-2">Password Reset</div>
                     <div className="space-y-1 text-xs">
                       <div><span className="text-muted">Email:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.email}</span></div>
-                      <div><span className="text-muted">New Password:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.newPassword}</span></div>
+                      <div><span className="text-muted">New Password:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.password}</span></div>
                     </div>
                     <p className="text-[0.65rem] text-muted mt-2">Share this new password securely with the contractor.</p>
                   </div>

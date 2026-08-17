@@ -2,7 +2,19 @@ import { getServerSession } from 'next-auth';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import { NextResponse } from 'next/server';
 import { prisma } from './prisma';
+import { logAudit } from './audit';
+
+export interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  agencyId: string | null;
+  contractorId: string | null;
+  clientId: string | null;
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,23 +30,58 @@ export const authOptions: NextAuthOptions = {
         if (!user) return null;
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          agencyId: user.agencyId,
+          contractorId: user.contractorId,
+          clientId: user.clientId,
+        };
       },
     }),
   ],
   session: { strategy: 'jwt' },
+  events: {
+    async signIn({ user, isNewUser }) {
+      const u = user as any;
+      if (u?.email) {
+        await logAudit({
+          id: u.id,
+          email: u.email,
+          name: u.name || '',
+          role: u.role || 'unknown',
+          agencyId: u.agencyId ?? null,
+          contractorId: u.contractorId ?? null,
+          clientId: u.clientId ?? null,
+        }, { action: 'auth.signin', entity: 'User', entityId: u.id, metadata: { isNewUser: !!isNewUser } });
+      }
+    },
+    async signOut({ token }) {
+      if (token?.email) {
+        await logAudit(null, { action: 'auth.signout', metadata: { email: token.email as string } });
+      }
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
         token.id = user.id;
+        token.role = (user as any).role;
+        token.agencyId = (user as any).agencyId ?? null;
+        token.contractorId = (user as any).contractorId ?? null;
+        token.clientId = (user as any).clientId ?? null;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
         (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
+        (session.user as any).agencyId = token.agencyId ?? null;
+        (session.user as any).contractorId = token.contractorId ?? null;
+        (session.user as any).clientId = token.clientId ?? null;
       }
       return session;
     },
@@ -47,14 +94,54 @@ export async function getSession() {
   return getServerSession(authOptions);
 }
 
-export async function requireAuth() {
-  const session = await getSession();
-  if (!session?.user) throw new Error('Unauthorized');
-  return session.user;
+export function getSessionUser(session: Awaited<ReturnType<typeof getSession>>): SessionUser | null {
+  if (!session?.user) return null;
+  const u = session.user as any;
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    role: u.role,
+    agencyId: u.agencyId ?? null,
+    contractorId: u.contractorId ?? null,
+    clientId: u.clientId ?? null,
+  };
 }
 
-export async function requireAdmin() {
-  const user = await requireAuth();
-  if ((user as any).role !== 'admin') throw new Error('Forbidden: Admin access required');
+export function unauthorizedResponse(): NextResponse {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+}
+
+export function forbiddenResponse(message = 'Forbidden: insufficient permissions'): NextResponse {
+  return NextResponse.json({ error: message }, { status: 403 });
+}
+
+export async function requireAuth(roles?: string[]): Promise<SessionUser | NextResponse> {
+  const session = await getSession();
+  const user = getSessionUser(session);
+  if (!user) return unauthorizedResponse();
+  if (roles && roles.length > 0 && !roles.includes(user.role)) {
+    return forbiddenResponse();
+  }
   return user;
+}
+
+export async function requireAdmin(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['admin']);
+}
+
+export async function requireAdminOrStaff(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['admin', 'staff']);
+}
+
+export async function requireContractor(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['contractor']);
+}
+
+export async function requireClient(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['client']);
+}
+
+export function isNextResponse(value: any): value is NextResponse {
+  return value instanceof NextResponse;
 }

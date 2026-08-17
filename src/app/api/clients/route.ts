@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
+import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { name, businessName, email, phone, googleDriveFolderId, googleDriveFolderUrl } = body;
 
@@ -33,6 +38,8 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'client.create', method: 'POST', path: '/api/clients', entity: 'Client', entityId: client.id, metadata: { email } });
+
     return NextResponse.json(client, { status: 201 });
   } catch (error: any) {
     if (error?.code === 'P2002') {
@@ -44,6 +51,9 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const clients = await prisma.client.findMany({
       orderBy: { createdAt: 'desc' },
     });

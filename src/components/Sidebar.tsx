@@ -17,14 +17,21 @@ const NAV_ITEMS = [
   { href: '/training', label: 'Training', icon: '📖' },
 ];
 
+const ADMIN_ONLY_ITEMS = [
+  { href: '/admin/audit', label: 'Audit Admin', icon: '🛡️' },
+  { href: '/admin/audit-log', label: 'Audit Log', icon: '🧾' },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; role?: string } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (stored) setUser(JSON.parse(stored));
   }, []);
+
+  const items = user?.role === 'admin' ? [...NAV_ITEMS, ...ADMIN_ONLY_ITEMS] : NAV_ITEMS;
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -46,7 +53,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link

@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function GET() {
   try {
+    const user = await requireAdmin();
+    if (isNextResponse(user)) return user;
+
     let agency = await prisma.agency.findFirst();
     if (!agency) {
       agency = await prisma.agency.create({
@@ -23,6 +28,9 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
+    const user = await requireAdmin();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     let agency = await prisma.agency.findFirst();
     if (!agency) {
@@ -39,6 +47,8 @@ export async function PUT(req: Request) {
         urgentResponseTime: body.urgentResponseTime || agency.urgentResponseTime,
       },
     });
+
+    await logAudit(user, { action: 'settings.update', method: 'PUT', path: '/api/settings' });
 
     return NextResponse.json({ success: true });
   } catch (error) {

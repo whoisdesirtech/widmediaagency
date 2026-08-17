@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { normalizeDriveId } from '@/lib/drive';
 import { uploadFileToFolder, driveConfigured } from '@/lib/driveService';
+import { requireAuth, isNextResponse } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+const MAX_SIZE = 100 * 1024 * 1024;
+
 export async function POST(req: Request) {
   try {
+    const user = await requireAuth(['admin', 'staff', 'contractor']);
+    if (isNextResponse(user)) return user;
+
     if (!driveConfigured()) {
       return NextResponse.json(
         { error: 'Google Drive is not configured yet. Ask your admin to set GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY.' },
@@ -26,6 +32,9 @@ export async function POST(req: Request) {
 
     const uploaded = [];
     for (const file of files) {
+      if (file.size > MAX_SIZE) {
+        return NextResponse.json({ error: 'File too large (max 100MB)' }, { status: 400 });
+      }
       const bytes = await file.arrayBuffer();
       const result = await uploadFileToFolder({
         folderId,

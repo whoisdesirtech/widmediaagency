@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAuth, isNextResponse, forbiddenResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -7,6 +9,27 @@ export async function POST(req: Request) {
 
     if (!contractId || !signerRole || !signerName || !signatureData) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const contract = await prisma.assembledContract.findUnique({ where: { id: contractId } });
+    if (!contract) {
+      return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
+    }
+
+    let signedUser: any = null;
+    if (signerRole === 'agency') {
+      const user = await requireAuth(['admin', 'staff']);
+      if (isNextResponse(user)) return user;
+      signedUser = user;
+    } else if (signerRole === 'contractor') {
+      const user = await requireAuth(['contractor']);
+      if (isNextResponse(user)) return user;
+      if (!user.contractorId || user.contractorId !== contract.contractorId) {
+        return forbiddenResponse('You may only sign your own contracts');
+      }
+      signedUser = user;
+    } else {
+      return NextResponse.json({ error: 'Invalid signer role' }, { status: 400 });
     }
 
     const signature = await prisma.signature.create({
@@ -28,6 +51,8 @@ export async function POST(req: Request) {
         data: { status: 'active' },
       });
     }
+
+    await logAudit(signedUser, { action: 'signature.create', method: 'POST', path: '/api/signatures', entity: 'Signature', entityId: signature.id, metadata: { contractId, signerRole } });
 
     return NextResponse.json(signature, { status: 201 });
   } catch (error: any) {

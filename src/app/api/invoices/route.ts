@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { clientId, invoiceNumber, description, project, amount, status, dueDate, paidDate } = body;
 
@@ -31,6 +35,9 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get('clientId');
 

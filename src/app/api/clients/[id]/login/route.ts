@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 function generatePassword(length = 12) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
@@ -13,6 +15,9 @@ function generatePassword(length = 12) {
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
+    const admin = await requireAdmin();
+    if (isNextResponse(admin)) return admin;
+
     const body = await req.json().catch(() => ({}));
     const customEmail = body?.email;
 
@@ -29,6 +34,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         const updateData: any = { passwordHash: hash };
         if (customEmail) updateData.email = customEmail;
         await prisma.user.update({ where: { id: existingUser.id }, data: updateData });
+        await logAudit(admin, { action: 'client.login.reset', method: 'POST', path: `/api/clients/${params.id}/login`, entity: 'Client', entityId: params.id });
         return NextResponse.json({
           email: customEmail || existingUser.email,
           password: tempPw,
@@ -57,6 +63,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       where: { id: client.id },
       data: { userId: user.id },
     });
+
+    await logAudit(admin, { action: 'client.login.create', method: 'POST', path: `/api/clients/${params.id}/login`, entity: 'Client', entityId: params.id });
 
     return NextResponse.json({
       email,
