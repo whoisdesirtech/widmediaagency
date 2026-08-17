@@ -37,6 +37,7 @@ export default function LandingPage() {
             <a href="#platform" className="text-sm text-white/50 hover:text-white transition-colors">Platform</a>
             <a href="#about" className="text-sm text-white/50 hover:text-white transition-colors">About</a>
             <Link href="/portal-guide" className="text-sm text-white/50 hover:text-white transition-colors">Portal Guide</Link>
+            <Link href="/knowledge-base" className="text-sm text-white/50 hover:text-white transition-colors">Knowledge Base</Link>
           </div>
           <Link href="/login" className="btn-primary text-sm px-5 py-2.5">
             Login
@@ -203,6 +204,8 @@ export default function LandingPage() {
           </div>
           <div className="text-xs text-white/30">
             <Link href="/portal-guide" className="hover:text-white/60 transition-colors">Portal Guide</Link>
+            <span className="mx-2">·</span>
+            <Link href="/knowledge-base" className="hover:text-white/60 transition-colors">Knowledge Base</Link>
           </div>
         </div>
       </footer>

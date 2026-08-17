@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhoIsDésir® Media — Knowledge Base</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ED145A;
+      --blue: #18D8F0;
+      --teal: #22ABC7;
+      --light-pink: #F090C0;
+      --dark: #0A0D1A;
+      --gray-bg: #F8F9FC;
+      --gray-border: #E2E6EF;
+      --gray-text: #8891A5;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--gray-bg); color: #1E2233; line-height: 1.7; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--dark) 0%, #1a1040 50%, #0d2137 100%);
+      padding: 60px 40px; text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before { content: ''; position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(237,20,90,0.15), transparent 70%); top: -100px; right: -100px; border-radius: 50%; }
+    .hero::after { content: ''; position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(24,216,240,0.1), transparent 70%); bottom: -100px; left: -50px; border-radius: 50%; }
+    .hero-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .hero .logo { width: 64px; height: 64px; background: linear-gradient(135deg, var(--pink), var(--blue)); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; color: white; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 24px; margin-bottom: 20px; }
+    .hero h1 { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 36px; color: white; margin-bottom: 8px; }
+    .hero .subtitle { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 24px; }
+    .hero .badge { display: inline-block; background: rgba(24,216,240,0.15); border: 1px solid rgba(24,216,240,0.3); color: var(--blue); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+
+    .nav-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 32px; position: sticky; top: 0; background: var(--gray-bg); padding: 16px 0; z-index: 10; border-bottom: 1px solid var(--gray-border); }
+    .nav-pill { padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid var(--gray-border); background: white; color: var(--dark); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .nav-pill:hover, .nav-pill.active { border-color: var(--pink); background: #FFF5F7; color: var(--pink); }
+
+    .lesson-category { margin-bottom: 40px; }
+    .category-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-border); }
+    .category-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .category-icon.pink { background: linear-gradient(135deg, var(--pink), #ff6b8a); }
+    .category-icon.blue { background: linear-gradient(135deg, var(--blue), #4de8ff); }
+    .category-icon.green { background: linear-gradient(135deg, #10b981, #34d399); }
+    .category-icon.purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .category-icon.orange { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .category-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 18px; color: var(--dark); }
+    .category-desc { font-size: 13px; color: var(--gray-text); }
+
+    .lesson { background: white; border: 1px solid var(--gray-border); border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .lesson-header { padding: 20px 24px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: background 0.2s; }
+    .lesson-header:hover { background: #FAFBFD; }
+    .lesson-num { flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, var(--pink), var(--blue)); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; }
+    .lesson-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; color: var(--dark); flex: 1; }
+    .lesson-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+    .tag-vendor { background: rgba(24,216,240,0.1); color: var(--teal); }
+    .tag-client { background: rgba(237,20,90,0.1); color: var(--pink); }
+    .tag-both { background: rgba(16,185,129,0.1); color: #059669; }
+    .lesson-chevron { color: var(--gray-text); font-size: 18px; transition: transform 0.2s; }
+    .lesson.open .lesson-chevron { transform: rotate(180deg); }
+    .lesson-body { display: none; padding: 0 24px 24px 70px; }
+    .lesson.open .lesson-body { display: block; }
+    .lesson-body p { font-size: 14px; color: #4A5068; margin-bottom: 12px; }
+    .lesson-body ul, .lesson-body ol { padding-left: 20px; margin-bottom: 12px; }
+    .lesson-body li { font-size: 14px; color: #4A5068; margin-bottom: 6px; }
+    .lesson-body strong { color: var(--dark); }
+    .lesson-body .step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-border); }
+    .lesson-body .step:last-child { border-bottom: none; }
+    .lesson-body .step-num { flex-shrink: 0; width: 24px; height: 24px; background: var(--pink); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-top: 2px; }
+    .lesson-body .step-text { font-size: 13px; color: #4A5068; }
+    .lesson-body .step-text strong { color: var(--dark); }
+    .lesson-body .url-box { background: var(--dark); color: var(--blue); padding: 8px 14px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; margin: 10px 0; display: inline-block; }
+    .lesson-body .tip { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #166534; }
+    .lesson-body .warning { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #92400E; }
+    .lesson-body .info { background: #F0F7FF; border: 1px solid rgba(24,216,240,0.2); border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #1e40af; }
+
+    .footer { text-align: center; padding: 40px; color: var(--gray-text); font-size: 12px; }
+    .footer a { color: var(--pink); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .hero { padding: 40px 20px; }
+      .hero h1 { font-size: 24px; }
+      .container { padding: 20px 16px; }
+      .lesson-body { padding-left: 24px; }
+      .nav-pills { gap: 6px; }
+      .nav-pill { padding: 6px 14px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="logo">W</div>
+    <h1>Knowledge Base</h1>
+    <p class="subtitle">WhoIsDésir® Media — Lessons, Guides &amp; How-Tos</p>
+    <span class="badge">Public Access — No Login Required</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="nav-pills">
+    <a href="#getting-started" class="nav-pill active">Getting Started</a>
+    <a href="#vendor-lessons" class="nav-pill">Vendor Lessons</a>
+    <a href="#client-lessons" class="nav-pill">Client Lessons</a>
+    <a href="#google-drive" class="nav-pill">Google Drive</a>
+    <a href="#faq" class="nav-pill">FAQ</a>
+  </div>
+
+  <!-- GETTING STARTED -->
+  <div class="lesson-category" id="getting-started">
+    <div class="category-header">
+      <div class="category-icon pink">🚀</div>
+      <div>
+        <div class="category-title">Getting Started</div>
+        <div class="category-desc">Essential lessons for everyone — vendors, clients, and admins</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-1">
+      <div class="lesson-header" onclick="toggleLesson('lesson-1')">
+        <div class="lesson-num">1</div>
+        <div class="lesson-title">How to Log In</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Every user — vendor, client, or admin — logs in through the same portal.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Open the login page:</strong> <span class="url-box">https://whoisdesirmediaagency.vercel.app/login</span></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Enter your email and password.</strong> These were provided to you by your agency admin.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Click "Sign In."</strong> You'll be automatically redirected to your portal based on your role.</div>
+        </div>
+        <div class="tip"><strong>Tip:</strong> Bookmark the login page for quick access. You can log in from any device.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-2">
+      <div class="lesson-header" onclick="toggleLesson('lesson-2')">
+        <div class="lesson-num">2</div>
+        <div class="lesson-title">Forgot Your Password?</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Go to the <strong>login page</strong> and click <strong>"Forgot password?"</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Enter your email address</strong> and click <strong>"Reset Password."</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Check your email for a reset link. Follow the instructions to set a new password.</div>
+        </div>
+        <div class="warning"><strong>Still can't log in?</strong> Contact your agency admin directly — they can reset your password manually.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-3">
+      <div class="lesson-header" onclick="toggleLesson('lesson-3')">
+        <div class="lesson-num">3</div>
+        <div class="lesson-title">Understanding Your Dashboard</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>After logging in, you land on your <strong>Dashboard</strong>. This is your home base.</p>
+        <ul>
+          <li><strong>Vendors</strong> see: Active contracts, pending signatures, SOWs, documents needed</li>
+          <li><strong>Clients</strong> see: Active projects, deliverables, invoices, media</li>
+          <li><strong>Admins</strong> see: Total contractors, active SOWs, pending contracts, all contractors list</li>
+        </ul>
+        <p>Use the <strong>sidebar</strong> on the left to navigate to different sections.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENDOR LESSONS -->
+  <div class="lesson-category" id="vendor-lessons">
+    <div class="category-header">
+      <div class="category-icon blue">🧑‍💻</div>
+      <div>
+        <div class="category-title">Vendor Lessons</div>
+        <div class="category-desc">For contractors and freelancers working with the agency</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-4">
+      <div class="lesson-header" onclick="toggleLesson('lesson-4')">
+        <div class="lesson-num">4</div>
+        <div class="lesson-title">Uploading Onboarding Documents</div>
+        <span class="lesson-tag tag-vendor">Vendor</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Before your contract can be finalized, upload your required documents.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Click <strong>"Onboarding"</strong> in the sidebar → navigate to <strong>/contractor/onboarding</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Tax Form (Required):</strong> Upload your W-9 (U.S.) or W-8BEN (international). Accepted: PDF, JPG, PNG.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Insurance Proof (if applicable):</strong> Required for on-location work. Upload your liability certificate.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Licensing Proof (if applicable):</strong> Required for specialized roles (drone, etc.).</div>
+        </div>
+        <div class="info"><strong>File limit:</strong> 10MB per file. Once all required documents are uploaded, you'll see a green confirmation banner.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-5">
+      <div class="lesson-header" onclick="toggleLesson('lesson-5')">
+        <div class="lesson-num">5</div>
+        <div class="lesson-title">Reviewing Your Statement of Work (SOW)</div>
+        <span class="lesson-tag tag-vendor">Vendor</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Your SOW defines your rate, payment schedule, and deliverables.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Go to <strong>Dashboard</strong> → scroll to <strong>"My Statements of Work"</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Review: Rate Type, Rate, Start Date, Payment Schedule, Status</div>
+        </div>
+        <p><strong>SOW Statuses:</strong></p>
+        <ul>
+          <li><strong>Draft</strong> — Still being prepared by your agency</li>
+          <li><strong>Approved</strong> — Agency approved. Contract will be generated next</li>
+          <li><strong>Active</strong> — In effect, work is underway</li>
+          <li><strong>Completed</strong> — Engagement ended</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-6">
+      <div class="lesson-header" onclick="toggleLesson('lesson-6')">
+        <div class="lesson-num">6</div>
+        <div class="lesson-title">Reviewing & Signing Your Contract</div>
+        <span class="lesson-tag tag-vendor">Vendor</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>After your SOW is approved and documents uploaded, your agency assembles the contract.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Click <strong>"My Contracts"</strong> in the sidebar → <strong>/contractor/contracts</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Select the contract to load the full preview. Read the Master Agreement, SOW terms, and role-specific addendum.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Scroll to <strong>"Your Signature"</strong> → draw your signature → click <strong>"Sign"</strong></div>
+        </div>
+        <div class="warning"><strong>Important:</strong> This is a legally binding agreement. Read it carefully and ask your agency admin if you have questions before signing.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-7">
+      <div class="lesson-header" onclick="toggleLesson('lesson-7')">
+        <div class="lesson-num">7</div>
+        <div class="lesson-title">Uploading Project Deliverables</div>
+        <span class="lesson-tag tag-vendor">Vendor</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Go to <strong>Projects</strong> in the sidebar to see your assigned projects</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Click into a project → upload images, documents, or files</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Go to <strong>Deliverables</strong> to track pending, in-progress, and approved items</div>
+        </div>
+        <div class="tip"><strong>Tip:</strong> You can also deliver photos directly to the client's Google Drive if it's configured (see Google Drive lessons below).</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-8">
+      <div class="lesson-header" onclick="toggleLesson('lesson-8')">
+        <div class="lesson-num">8</div>
+        <div class="lesson-title">Delivering Photos to Client's Google Drive</div>
+        <span class="lesson-tag tag-vendor">Vendor</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>If your agency has linked a Google Drive folder to the client, you can upload photos directly to their Drive.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Open the project → click <strong>"Deliver Photos to Client Drive"</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Select photos from your device (JPG, JPEG, PNG — max 15MB each)</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Files upload directly to the client's shared Google Drive folder</div>
+        </div>
+        <div class="info"><strong>Don't see the option?</strong> Your agency admin hasn't linked a Google Drive folder to this client yet. Ask them to set it up.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT LESSONS -->
+  <div class="lesson-category" id="client-lessons">
+    <div class="category-header">
+      <div class="category-icon green">🤝</div>
+      <div>
+        <div class="category-title">Client Lessons</div>
+        <div class="category-desc">For clients managing projects and reviewing deliverables</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-9">
+      <div class="lesson-header" onclick="toggleLesson('lesson-9')">
+        <div class="lesson-num">9</div>
+        <div class="lesson-title">Navigating Your Client Portal</div>
+        <span class="lesson-tag tag-client">Client</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Once logged in, your sidebar gives you access to:</p>
+        <ul>
+          <li><strong>Dashboard</strong> — Overview of projects, deliverables, invoices</li>
+          <li><strong>Projects</strong> — View all your active projects and timelines</li>
+          <li><strong>Documents</strong> — Contracts, NDAs, proposals, and other files</li>
+          <li><strong>Media Gallery</strong> — Browse project photos and files from Google Drive</li>
+          <li><strong>Billing</strong> — View invoices and payment status</li>
+          <li><strong>Training</strong> — Guides and reference materials</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-10">
+      <div class="lesson-header" onclick="toggleLesson('lesson-10')">
+        <div class="lesson-num">10</div>
+        <div class="lesson-title">Tracking Your Projects</div>
+        <span class="lesson-tag tag-client">Client</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Click <strong>"Projects"</strong> in the sidebar</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Each project shows: <strong>status</strong> (planning, in-progress, review, complete), <strong>timeline</strong>, and <strong>progress %</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Click into a project to see deliverables, images, and team assignments</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-11">
+      <div class="lesson-header" onclick="toggleLesson('lesson-11')">
+        <div class="lesson-num">11</div>
+        <div class="lesson-title">Accessing Your Media Gallery</div>
+        <span class="lesson-tag tag-client">Client</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Your Media Gallery connects to your agency's Google Drive to show project photos and files.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Click <strong>"Media Gallery"</strong> in the sidebar</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Browse photos and files organized by project</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Click any image to view it full-size or open it in Google Drive</div>
+        </div>
+        <div class="info"><strong>Empty gallery?</strong> Your agency admin needs to link a Google Drive folder to your account. Ask them to set it up.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-12">
+      <div class="lesson-header" onclick="toggleLesson('lesson-12')">
+        <div class="lesson-num">12</div>
+        <div class="lesson-title">Reviewing & Signing Agreements</div>
+        <span class="lesson-tag tag-client">Client</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Go to <strong>"Documents"</strong> in the sidebar</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Review contracts, NDAs, or proposals → sign electronically</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Signed documents are marked as <strong>"Signed"</strong> and stored for your records</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-13">
+      <div class="lesson-header" onclick="toggleLesson('lesson-13')">
+        <div class="lesson-num">13</div>
+        <div class="lesson-title">Viewing Invoices & Billing</div>
+        <span class="lesson-tag tag-client">Client</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Click <strong>"Billing"</strong> in the sidebar</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">View all invoices with status: <strong>Paid</strong>, <strong>Pending</strong>, <strong>Upcoming</strong>, or <strong>Overdue</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Click an invoice to see details: amount, due date, project reference</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOOGLE DRIVE -->
+  <div class="lesson-category" id="google-drive">
+    <div class="category-header">
+      <div class="category-icon purple">📁</div>
+      <div>
+        <div class="category-title">Google Drive Integration</div>
+        <div class="category-desc">How vendor uploads and client media galleries work</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-14">
+      <div class="lesson-header" onclick="toggleLesson('lesson-14')">
+        <div class="lesson-num">14</div>
+        <div class="lesson-title">How Google Drive Integration Works</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>The platform uses Google Drive to store and share project files between vendors, clients, and admins.</p>
+        <ul>
+          <li><strong>Admins</strong> create a Shared Drive and link client folders to the platform</li>
+          <li><strong>Vendors</strong> upload photos directly to the client's Drive folder</li>
+          <li><strong>Clients</strong> browse their Media Gallery to view uploaded files</li>
+        </ul>
+        <div class="warning"><strong>Important:</strong> Client folders must be in a <strong>Shared Drive</strong> (not My Drive). Service accounts cannot upload to personal Drive folders.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-15">
+      <div class="lesson-header" onclick="toggleLesson('lesson-15')">
+        <div class="lesson-num">15</div>
+        <div class="lesson-title">Troubleshooting Drive Uploads</div>
+        <span class="lesson-tag tag-vendor">Vendor</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>If you see errors when uploading to Google Drive:</p>
+        <ul>
+          <li><strong>"Service Accounts do not have storage quota"</strong> — The folder is in My Drive, not a Shared Drive. Ask your admin to move it.</li>
+          <li><strong>403 / Permission error</strong> — The Shared Drive hasn't been shared with the service account. Ask your admin to add it.</li>
+          <li><strong>503 error</strong> — Google Drive is temporarily unavailable. Try again later.</li>
+          <li><strong>Option doesn't appear</strong> — Your admin hasn't linked a Google Drive folder to this client yet.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="lesson-category" id="faq">
+    <div class="category-header">
+      <div class="category-icon orange">❓</div>
+      <div>
+        <div class="category-title">Frequently Asked Questions</div>
+        <div class="category-desc">Common questions and quick answers</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-16">
+      <div class="lesson-header" onclick="toggleLesson('lesson-16')">
+        <div class="lesson-num">16</div>
+        <div class="lesson-title">I can't log in — what should I do?</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <ol>
+          <li>Use the <strong>"Forgot password?"</strong> link on the login page</li>
+          <li>Check your email (including spam/junk folder)</li>
+          <li>If that doesn't work, contact your agency admin — they can reset your password manually</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-17">
+      <div class="lesson-header" onclick="toggleLesson('lesson-17')">
+        <div class="lesson-num">17</div>
+        <div class="lesson-title">My file upload failed — what do I do?</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <ul>
+          <li><strong>Check file size:</strong> Onboarding docs max 10MB, project images max 15MB</li>
+          <li><strong>Check file type:</strong> Onboarding accepts PDF, JPG, PNG. Project images accept JPG, JPEG, PNG, WEBP, GIF</li>
+          <li><strong>Check your connection:</strong> Try again with a stable internet connection</li>
+          <li><strong>Google Drive errors:</strong> See the Google Drive troubleshooting lesson above</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-18">
+      <div class="lesson-header" onclick="toggleLesson('lesson-18')">
+        <div class="lesson-num">18</div>
+        <div class="lesson-title">How do I get a copy of my signed contract?</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Go to <strong>"My Contracts"</strong> (vendors) or <strong>"Documents"</strong> (clients) → select the contract → click <strong>"Download"</strong> to save an HTML copy.</p>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-19">
+      <div class="lesson-header" onclick="toggleLesson('lesson-19')">
+        <div class="lesson-num">19</div>
+        <div class="lesson-title">Who do I contact for help?</div>
+        <span class="lesson-tag tag-both">Everyone</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <ul>
+          <li><strong>Login issues:</strong> Your agency admin can reset your password</li>
+          <li><strong>Contract questions:</strong> Ask your agency admin before signing</li>
+          <li><strong>Technical issues:</strong> Contact your agency support team directly</li>
+          <li><strong>Billing questions:</strong> Reach out to your agency's finance contact</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>WhoIsDésir® Media — Freelancer Talent Agreement System</p>
+  <p style="margin-top:8px;"><a href="/">Home</a> · <a href="/login">Login</a> · <a href="/portal-guide">Portal Guide</a></p>
+</div>
+
+<script>
+function toggleLesson(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// Smooth scroll for nav pills
+document.querySelectorAll('.nav-pill').forEach(pill => {
+  pill.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+    }
+  });
+});
+
+// Update active pill on scroll
+window.addEventListener('scroll', () => {
+  const sections = ['getting-started', 'vendor-lessons', 'client-lessons', 'google-drive', 'faq'];
+  let current = sections[0];
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 120) current = id;
+  }
+  document.querySelectorAll('.nav-pill').forEach(p => {
+    p.classList.toggle('active', p.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+
+</body>
+</html>

@@ -3,6 +3,7 @@
 import ContractorSidebar from '@/components/ContractorSidebar';
 import HtmlRenderer from '@/components/HtmlRenderer';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function ContractorTrainingPage() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
@@ -20,6 +21,14 @@ export default function ContractorTrainingPage() {
           <div className="mb-8">
             <h1 className="font-heading text-2xl font-bold text-dark mb-1">Training &amp; Guides</h1>
             <p className="text-sm text-muted">Your onboarding guide, portal walkthrough, and vendor phases</p>
+          </div>
+
+          <div className="mb-8 rounded-2xl border border-miami-blue-light/20 bg-miami-blue-light/5 p-6">
+            <h2 className="font-heading text-base font-bold text-dark mb-2">📚 Knowledge Base</h2>
+            <p className="text-sm text-muted mb-3">Looking for quick lessons on how to use the portal, upload deliverables, or deliver to Google Drive? Our Knowledge Base has step-by-step guides — available to everyone, even without logging in.</p>
+            <Link href="/knowledge-base" className="inline-flex items-center gap-2 text-sm font-semibold text-miami-blue-light hover:underline">
+              Open Knowledge Base →
+            </Link>
           </div>
 
           <div className="space-y-8">
