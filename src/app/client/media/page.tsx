@@ -57,9 +57,19 @@ function MediaContent() {
       Promise.all([
         fetch(`/api/projects?clientId=${u.clientId}`).then(r => r.json()),
         fetch(`/api/folders?clientId=${u.clientId}`).then(r => r.json()),
-      ]).then(([p, f]) => {
+        fetch(`/api/clients/${u.clientId}`).then(r => r.json()),
+      ]).then(([p, f, clientData]) => {
         const projectsData = Array.isArray(p) ? p : [];
-        const foldersData = Array.isArray(f) ? f : [];
+        const foldersData: Folder[] = Array.isArray(f) ? f : [];
+        if (foldersData.length === 0 && clientData?.googleDriveFolderId) {
+          foldersData.push({
+            id: 'root',
+            name: 'Media Folder',
+            icon: '📁',
+            driveFolderId: clientData.googleDriveFolderId,
+            driveFolderUrl: clientData.googleDriveFolderUrl,
+          });
+        }
         setProjects(projectsData);
         setFolders(foldersData);
         const folderParam = searchParams.get('folder');

@@ -16,27 +16,30 @@ export default function AdminProjectDetailPage() {
   const router = useRouter();
   const id = params?.id as string;
   const [project, setProject] = useState<any>(null);
+  const [contractors, setContractors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<any>({});
 
   useEffect(() => {
-    fetch(`/api/projects/${id}`)
-      .then(r => r.json())
-      .then(data => {
-        setProject(data);
-        setForm({
-          name: data.name,
-          description: data.description || '',
-          icon: data.icon || '📁',
-          status: data.status,
-          progress: data.progress,
-          timeline: JSON.parse(data.timeline || '[]'),
-          deliverables: data.deliverables || 0,
-        });
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch(`/api/projects/${id}`).then(r => r.json()),
+      fetch('/api/contractors').then(r => r.json()),
+    ]).then(([data, co]) => {
+      setProject(data);
+      setContractors(Array.isArray(co) ? co : []);
+      setForm({
+        name: data.name,
+        description: data.description || '',
+        icon: data.icon || '📁',
+        status: data.status,
+        progress: data.progress,
+        timeline: JSON.parse(data.timeline || '[]'),
+        deliverables: data.deliverables || 0,
+        contractorId: data.contractorId || '',
+      });
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, [id]);
 
   const handleSave = async () => {
@@ -127,6 +130,16 @@ export default function AdminProjectDetailPage() {
                   <label className="block text-xs font-semibold text-dark-800 mb-1.5">Deliverables Count</label>
                   <input type="number" min="0" value={form.deliverables} onChange={e => setForm((f: any) => ({ ...f, deliverables: parseInt(e.target.value) || 0 }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Assign Contractor</label>
+                <select value={form.contractorId} onChange={e => setForm((f: any) => ({ ...f, contractorId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
+                  <option value="">No contractor (unassigned)</option>
+                  {contractors.map((c: any) => (
+                    <option key={c.id} value={c.id}>{c.name || c.email}</option>
+                  ))}
+                </select>
+                <p className="text-[0.65rem] text-muted mt-1">Contractors can only see projects assigned to them.</p>
               </div>
             </div>
           </div>
