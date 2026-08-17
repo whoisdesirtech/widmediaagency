@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,24 +22,24 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Invalid credentials');
+      if (!res || res.error) {
+        setError('Invalid credentials');
         setLoading(false);
         return;
       }
 
-      localStorage.setItem('user', JSON.stringify(data.user));
-      if (data.user.role === 'client') {
+      const me = await fetch('/api/me').then(r => r.json());
+      localStorage.setItem('user', JSON.stringify(me));
+
+      if (me.role === 'client') {
         router.push('/client/dashboard');
-      } else if (data.user.role === 'contractor') {
+      } else if (me.role === 'contractor') {
         router.push('/contractor/dashboard');
       } else {
         router.push('/dashboard');
@@ -59,12 +60,8 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        setForgotResult(`New password for ${data.name}: ${data.newPassword}`);
-      } else {
-        setForgotResult(data.error || 'Failed to reset password');
-      }
+      await res.json();
+      setForgotResult('If an account exists for that email, a password reset link has been sent.');
     } catch {
       setForgotResult('Connection error');
     }
@@ -167,7 +164,7 @@ export default function LoginPage() {
                 {forgotLoading ? 'Resetting...' : 'Reset Password'}
               </button>
               {forgotResult && (
-                <div className={`px-3 py-2 rounded-lg text-xs font-semibold ${forgotResult.startsWith('New password') ? 'bg-blue-50 border border-blue-200 text-blue-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                <div className="px-3 py-2 rounded-lg text-xs font-semibold bg-blue-50 border border-blue-200 text-blue-700">
                   {forgotResult}
                 </div>
               )}

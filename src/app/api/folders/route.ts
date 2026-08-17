@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
+import { requireAuth, requireAdminOrStaff, isNextResponse, forbiddenResponse } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { clientId, name, icon, driveFolderId, driveFolderUrl: rawFolderUrl, sortOrder } = body;
 
@@ -33,8 +37,16 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const user = await requireAuth(['admin', 'staff', 'client']);
+    if (isNextResponse(user)) return user;
+
     const { searchParams } = new URL(req.url);
-    const clientId = searchParams.get('clientId');
+    let clientId = searchParams.get('clientId');
+
+    if (user.role === 'client') {
+      if (clientId && clientId !== user.clientId) return forbiddenResponse();
+      clientId = user.clientId;
+    }
 
     if (!clientId) {
       return NextResponse.json({ error: 'clientId is required' }, { status: 400 });

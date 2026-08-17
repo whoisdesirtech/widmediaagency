@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAuth, requireAdminOrStaff, isNextResponse, forbiddenResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { contractorId, rate, rateType, paymentSchedule, startDate, endDate, specialEquipment, software, deliverables } = body;
 
@@ -24,6 +29,8 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'sow.create', method: 'POST', path: '/api/sows', entity: 'SOW', entityId: sow.id, metadata: { contractorId, rate: parseFloat(rate), rateType } });
+
     return NextResponse.json(sow, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create SOW' }, { status: 500 });
@@ -32,11 +39,23 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    const user = await requireAuth(['admin', 'staff', 'contractor']);
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { id, status, deliverables, rate, rateType, paymentSchedule, startDate, endDate, specialEquipment, software } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    }
+
+    if (user.role === 'contractor') {
+      const existing = await prisma.sOW.findUnique({ where: { id } });
+      if (!existing) return NextResponse.json({ error: 'SOW not found' }, { status: 404 });
+      if (existing.contractorId !== user.contractorId) return forbiddenResponse();
+      if (status !== undefined || rate !== undefined || rateType !== undefined || paymentSchedule !== undefined || startDate !== undefined) {
+        return forbiddenResponse('Contractors may only update deliverable statuses');
+      }
     }
 
     const updateData: any = {};
@@ -63,6 +82,8 @@ export async function PATCH(req: Request) {
       data: updateData,
     });
 
+    await logAudit(user, { action: 'sow.update', method: 'PATCH', path: '/api/sows', entity: 'SOW', entityId: id, metadata: { changedKeys: Object.keys(updateData) } });
+
     return NextResponse.json(sow);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update SOW' }, { status: 500 });
@@ -71,7 +92,15 @@ export async function PATCH(req: Request) {
 
 export async function GET() {
   try {
+    const user = await requireAuth(['admin', 'staff', 'contractor']);
+    if (isNextResponse(user)) return user;
+
+    const where = user.role === 'contractor' && user.contractorId
+      ? { contractorId: user.contractorId }
+      : {};
+
     const sows = await prisma.sOW.findMany({
+      where,
       include: { contractor: true },
       orderBy: { createdAt: 'desc' },
     });

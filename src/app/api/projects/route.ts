@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const body = await req.json();
     const { clientId, contractorId, name, description, icon, status, progress, timeline, deliverables, images, sortOrder } = body;
 
@@ -34,13 +38,22 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const user = await requireAuth(['admin', 'staff', 'client', 'contractor']);
+    if (isNextResponse(user)) return user;
+
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get('clientId');
     const contractorId = searchParams.get('contractorId');
 
     const where: any = {};
-    if (clientId) where.clientId = clientId;
-    if (contractorId) where.contractorId = contractorId;
+    if (user.role === 'client') {
+      where.clientId = user.clientId;
+    } else if (user.role === 'contractor') {
+      where.contractorId = user.contractorId;
+    } else {
+      if (clientId) where.clientId = clientId;
+      if (contractorId) where.contractorId = contractorId;
+    }
 
     const projects = await prisma.project.findMany({
       where,

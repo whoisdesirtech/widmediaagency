@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
+import { rateLimit, clientKey, tooManyRequests } from '@/lib/rateLimit';
 
 const ORGANIZER_EMAIL = 'digitalvurv@gmail.com';
 
@@ -14,6 +15,8 @@ function validate(data: Record<string, unknown>): string | null {
 
 export async function POST(req: Request) {
   try {
+    if (!rateLimit(`booking:${clientKey(req)}`, 10, 60 * 60 * 1000)) return tooManyRequests();
+
     const body = await req.json();
     const error = validate(body);
     if (error) {

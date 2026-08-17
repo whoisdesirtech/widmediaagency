@@ -2,9 +2,16 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+
+const ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+const MAX_SIZE = 15 * 1024 * 1024;
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const formData = await req.formData();
     const files = formData.getAll('images') as File[];
     const projectName = formData.get('projectName') as string || 'project';
@@ -21,14 +28,27 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const existingImages = JSON.parse(project.images || '[]');
     const newImages = [];
 
+    const uploadDir = path.resolve(process.cwd(), 'public', 'uploads', 'projects');
+
     for (const file of files) {
+      if (file.size > MAX_SIZE) {
+        return NextResponse.json({ error: 'File too large (max 15MB)' }, { status: 400 });
+      }
+
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!ALLOWED_EXTS.includes(ext)) {
+        return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+      }
+
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const ext = file.name.split('.').pop() || 'jpg';
       const safeName = projectName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
       const filename = `${safeName}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const filepath = path.join(process.cwd(), 'public', 'uploads', 'projects', filename);
+      const filepath = path.join(uploadDir, filename);
+      if (!filepath.startsWith(uploadDir + path.sep)) {
+        return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+      }
 
       await writeFile(filepath, buffer);
 
@@ -52,6 +72,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const { searchParams } = new URL(req.url);
     const imageUrl = searchParams.get('url');
 

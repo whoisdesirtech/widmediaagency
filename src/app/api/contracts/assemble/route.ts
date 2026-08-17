@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { FIXED_CLAUSES, ADDED_CLAUSES } from '@/data/clauses';
+import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 function buildMergedContent(masterClauses: any[], contractor: any, sow: any, addenda: any[]): string {
   let content = '';
@@ -46,6 +48,9 @@ function buildMergedContent(masterClauses: any[], contractor: any, sow: any, add
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAdminOrStaff();
+    if (isNextResponse(user)) return user;
+
     const { contractorId } = await req.json();
 
     const contractor = await prisma.contractor.findUnique({ where: { id: contractorId } });
@@ -88,6 +93,8 @@ export async function POST(req: Request) {
       },
       include: { contractor: true, master: true, sow: true, signatures: true },
     });
+
+    await logAudit(user, { action: 'contract.assemble', method: 'POST', path: '/api/contracts/assemble', entity: 'AssembledContract', entityId: contract.id, metadata: { contractorId, sowId: sow?.id } });
 
     return NextResponse.json(contract, { status: 201 });
   } catch (error) {
