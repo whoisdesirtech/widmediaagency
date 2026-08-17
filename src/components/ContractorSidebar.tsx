@@ -12,8 +12,14 @@ const NAV_ITEMS = [
   { href: '/contractor/training', label: 'Training', icon: '📖' },
 ];
 
-export default function ContractorSidebar({ user }: { user?: { name: string; email: string } }) {
+const DEVELOPER_ITEMS = [
+  { href: '/contractor/developer', label: 'Developer Workspace', icon: '💻' },
+];
+
+export default function ContractorSidebar({ user, contractorRole }: { user?: { name: string; email: string }; contractorRole?: string }) {
   const pathname = usePathname();
+  const isDeveloper = contractorRole === 'developer';
+  const allItems = isDeveloper ? [...NAV_ITEMS, ...DEVELOPER_ITEMS] : NAV_ITEMS;
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -29,13 +35,13 @@ export default function ContractorSidebar({ user }: { user?: { name: string; ema
           </div>
           <div>
             <div className="font-heading font-bold text-white text-sm leading-tight">WhoIsDésir® Media</div>
-            <div className="text-[0.7rem] text-white/40">Contractor Portal</div>
+            <div className="text-[0.7rem] text-white/40">{isDeveloper ? 'Developer Portal' : 'Contractor Portal'}</div>
           </div>
         </Link>
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
-        {NAV_ITEMS.map((item) => {
+        {allItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link

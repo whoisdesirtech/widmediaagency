@@ -10,6 +10,8 @@ interface UserInfo {
   name: string;
   role: string;
   contractorId?: string;
+  clientId?: string;
+  contractorRole?: string;
 }
 
 interface ProjectImage {
@@ -147,7 +149,7 @@ export default function ContractorProjectsPage() {
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} />
+      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">

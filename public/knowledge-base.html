@@ -106,6 +106,7 @@
     <a href="#getting-started" class="nav-pill active">Getting Started</a>
     <a href="#vendor-lessons" class="nav-pill">Vendor Lessons</a>
     <a href="#client-lessons" class="nav-pill">Client Lessons</a>
+    <a href="#developer-lessons" class="nav-pill">Developers</a>
     <a href="#google-drive" class="nav-pill">Google Drive</a>
     <a href="#faq" class="nav-pill">FAQ</a>
   </div>
@@ -454,6 +455,131 @@
     </div>
   </div>
 
+  <!-- DEVELOPER LESSONS -->
+  <div class="lesson-category" id="developer-lessons">
+    <div class="category-header">
+      <div class="category-icon purple">💻</div>
+      <div>
+        <div class="category-title">Developer Lessons</div>
+        <div class="category-desc">For vibe coding specialists and front-end developers contributing to the platform</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-dev-1">
+      <div class="lesson-header" onclick="toggleLesson('lesson-dev-1')">
+        <div class="lesson-num">D1</div>
+        <div class="lesson-title">Getting Started as a Developer</div>
+        <span class="lesson-tag tag-vendor">Developer</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Developers are onboarded as contractors with the <code>developer</code> role. Once assigned, you get access to the Developer Workspace in your portal.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Get GitHub access:</strong> Your admin invites you to the <code>whoisdesirtech/widmediaagency</code> repository.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Get Vercel access:</strong> Your admin adds you to the Vercel team for deploy previews.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Clone &amp; set up:</strong> Clone the repo, install deps, copy <code>.env.example</code> to <code>.env</code>, run <code>npm run db:push</code> and <code>npm run dev</code>.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Open Developer Workspace:</strong> Click "Developer Workspace" in your sidebar for quick links and setup reference.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-dev-2">
+      <div class="lesson-header" onclick="toggleLesson('lesson-dev-2')">
+        <div class="lesson-num">D2</div>
+        <div class="lesson-title">Git Workflow &amp; Branching</div>
+        <span class="lesson-tag tag-vendor">Developer</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Never commit to main.</strong> Always create a feature branch: <code>git checkout -b feat/your-feature-name</code></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Conventional commits:</strong> Use prefixes — <code>feat:</code>, <code>fix:</code>, <code>chore:</code>, <code>docs:</code>, <code>refactor:</code></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Typecheck before pushing:</strong> Run <code>npm run typecheck</code> — it must pass clean.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Open a PR:</strong> Push your branch and create a pull request to <code>main</code>. Wait for review.</div>
+        </div>
+        <div class="warning"><strong>AGENTS.md rule:</strong> Never commit directly to <code>main</code>. Always use feature branches + PRs.</div>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-dev-3">
+      <div class="lesson-header" onclick="toggleLesson('lesson-dev-3')">
+        <div class="lesson-num">D3</div>
+        <div class="lesson-title">Auth &amp; API Route Patterns</div>
+        <span class="lesson-tag tag-vendor">Developer</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>Every API route must start with an auth guard. Never skip this.</p>
+        <p><strong>Admin-only route:</strong></p>
+        <p><code>const user = await requireAdmin(); if (isNextResponse(user)) return user;</code></p>
+        <p><strong>Any authenticated role:</strong></p>
+        <p><code>const user = await requireAuth(['admin', 'staff', 'contractor']); if (isNextResponse(user)) return user;</code></p>
+        <p>Helpers are in <code>src/lib/auth.ts</code>. Roles: <code>admin</code>, <code>staff</code>, <code>contractor</code>, <code>client</code>.</p>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-dev-4">
+      <div class="lesson-header" onclick="toggleLesson('lesson-dev-4')">
+        <div class="lesson-num">D4</div>
+        <div class="lesson-title">Vibe Coding Best Practices</div>
+        <span class="lesson-tag tag-vendor">Developer</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <p>When using AI-assisted development (Cursor, Copilot, Bolt, Lovable, etc.):</p>
+        <ul>
+          <li><strong>Review all generated code</strong> — AI can skip auth guards or produce incorrect patterns</li>
+          <li><strong>Run typecheck after every change</strong> — <code>npm run typecheck</code></li>
+          <li><strong>Check existing patterns first</strong> — look at neighboring files before generating new code</li>
+          <li><strong>Include context in prompts:</strong> "Next.js 14 App Router, Prisma + PostgreSQL, follow auth pattern in src/lib/auth.ts"</li>
+          <li><strong>Test locally</strong> — <code>npm run dev</code> and verify before committing</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson" id="lesson-dev-5">
+      <div class="lesson-header" onclick="toggleLesson('lesson-dev-5')">
+        <div class="lesson-num">D5</div>
+        <div class="lesson-title">Tech Stack Reference</div>
+        <span class="lesson-tag tag-vendor">Developer</span>
+        <span class="lesson-chevron">▾</span>
+      </div>
+      <div class="lesson-body">
+        <ul>
+          <li><strong>Framework:</strong> Next.js 14 App Router</li>
+          <li><strong>Language:</strong> TypeScript (strict-ish)</li>
+          <li><strong>Styling:</strong> Tailwind CSS with custom tokens (<code>miami-pink</code>, <code>miami-blue-light</code>, <code>dark-800</code>, <code>muted</code>)</li>
+          <li><strong>Database:</strong> PostgreSQL via Supabase, Prisma ORM (16 models)</li>
+          <li><strong>Auth:</strong> NextAuth.js credentials strategy</li>
+          <li><strong>File storage:</strong> Google Drive API via service account</li>
+          <li><strong>Deploy:</strong> Vercel</li>
+          <li><strong>Commands:</strong> <code>npm run dev</code>, <code>npm run typecheck</code>, <code>npm run db:push</code>, <code>npm run db:seed</code></li>
+        </ul>
+        <div class="info"><strong>Full docs:</strong> Visit <code>/developer</code> on the live site for API reference, architecture diagrams, and database schema details.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- GOOGLE DRIVE -->
   <div class="lesson-category" id="google-drive">
     <div class="category-header">
@@ -699,7 +825,7 @@ document.querySelectorAll('.nav-pill').forEach(pill => {
 
 // Update active pill on scroll
 window.addEventListener('scroll', () => {
-  const sections = ['getting-started', 'vendor-lessons', 'client-lessons', 'google-drive', 'faq'];
+  const sections = ['getting-started', 'vendor-lessons', 'client-lessons', 'developer-lessons', 'google-drive', 'faq'];
   let current = sections[0];
   for (const id of sections) {
     const el = document.getElementById(id);

@@ -35,6 +35,12 @@ export default function LoginPage() {
       }
 
       const me = await fetch('/api/me').then(r => r.json());
+      if (me.role === 'contractor' && me.contractorId) {
+        try {
+          const contractor = await fetch(`/api/contractors/${me.contractorId}`).then(r => r.json());
+          me.contractorRole = contractor.role;
+        } catch {}
+      }
       localStorage.setItem('user', JSON.stringify(me));
 
       if (me.role === 'client') {

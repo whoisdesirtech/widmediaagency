@@ -6,16 +6,18 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function ContractorTrainingPage() {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; contractorRole?: string } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (stored) setUser(JSON.parse(stored));
   }, []);
 
+  const isDeveloper = user?.contractorRole === 'developer';
+
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} />
+      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
       <main className="ml-64 flex-1">
         <div className="max-w-[1100px] mx-auto px-8 py-8">
           <div className="mb-8">
@@ -61,6 +63,18 @@ export default function ContractorTrainingPage() {
                 <HtmlRenderer src="/vendor-phases.html" />
               </div>
             </section>
+
+            {isDeveloper && (
+              <section>
+                <h2 className="font-heading text-lg font-bold text-dark mb-4 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">4</span>
+                  Developer Guide
+                </h2>
+                <div className="rounded-2xl overflow-hidden border border-muted-lighter bg-white">
+                  <HtmlRenderer src="/developer-training.html" />
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </main>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhoIsDésir® Media — Developer Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --pink: #ED145A; --blue: #18D8F0; --teal: #22ABC7; --dark: #0A0D1A; --gray-bg: #F8F9FC; --gray-border: #E2E6EF; --gray-text: #8891A5; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: white; color: #1E2233; line-height: 1.7; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+    h2 { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 20px; color: var(--dark); margin: 32px 0 12px; }
+    h3 { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px; color: var(--dark); margin: 24px 0 8px; }
+    p { font-size: 14px; color: #4A5068; margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; }
+    li { font-size: 14px; color: #4A5068; margin-bottom: 6px; }
+    strong { color: var(--dark); }
+    code { background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #1e40af; font-family: 'Courier New', monospace; }
+    pre { background: var(--dark); color: var(--blue); padding: 16px 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; margin: 12px 0; line-height: 1.6; }
+    .step { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--gray-border); }
+    .step:last-child { border-bottom: none; }
+    .step-num { flex-shrink: 0; width: 28px; height: 28px; background: var(--pink); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin-top: 2px; }
+    .step-text { font-size: 13px; color: #4A5068; }
+    .step-text strong { color: var(--dark); }
+    .tip { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 13px; color: #166534; }
+    .warning { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 13px; color: #92400E; }
+    .info { background: #F0F7FF; border: 1px solid rgba(24,216,240,0.2); border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 13px; color: #1e40af; }
+    .url-box { background: var(--dark); color: var(--blue); padding: 6px 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; display: inline-block; margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    th { text-align: left; padding: 8px 12px; background: var(--gray-bg); border: 1px solid var(--gray-border); font-weight: 700; color: var(--dark); font-size: 12px; }
+    td { padding: 8px 12px; border: 1px solid var(--gray-border); color: #4A5068; }
+    td code { background: #F1F5F9; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h2> Welcome, Developer</h2>
+  <p>This guide covers everything you need to start contributing to the WhoIsDésir® Media platform. Whether you're a vibe coding specialist, front-end developer, or full-stack contributor — this is your home base.</p>
+
+  <h2>1. Getting Access</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text"><strong>GitHub Access:</strong> Your agency admin will invite you to the <code>whoisdesirtech/widmediaagency</code> repository. Accept the invite via email.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text"><strong>Vercel Access:</strong> Ask your admin to add you to the Vercel team for deploy previews and production access.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text"><strong>Supabase Access:</strong> Request read-only access to the Supabase dashboard for database inspection.</div>
+  </div>
+
+  <h2>2. Local Setup</h2>
+  <pre># Clone the repo
+git clone https://github.com/whoisdesirtech/widmediaagency.git
+cd widmediaagency
+
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env
+# Fill in DATABASE_URL, NEXTAUTH_SECRET, etc.
+
+# Apply database schema
+npm run db:push
+
+# Seed dev data (optional)
+npm run db:seed
+
+# Start dev server
+npm run dev</pre>
+  <p>The dev server runs at <span class="url-box">http://localhost:3000</span></p>
+
+  <h2>3. Project Structure</h2>
+  <table>
+    <tr><th>Directory</th><th>Purpose</th></tr>
+    <tr><td><code>src/app/api/</code></td><td>Route handlers — all API endpoints</td></tr>
+    <tr><td><code>src/app/admin/</code></td><td>Admin dashboard pages</td></tr>
+    <tr><td><code>src/app/contractor/</code></td><td>Vendor/developer portal pages</td></tr>
+    <tr><td><code>src/app/client/</code></td><td>Client portal pages</td></tr>
+    <tr><td><code>src/lib/</code></td><td>Shared utilities (auth, audit, prisma, drive)</td></tr>
+    <tr><td><code>src/components/</code></td><td>Reusable UI components</td></tr>
+    <tr><td><code>prisma/</code></td><td>Database schema and seed script</td></tr>
+    <tr><td><code>public/</code></td><td>Static HTML training guides and assets</td></tr>
+  </table>
+
+  <h2>4. Auth Pattern (IMPORTANT)</h2>
+  <p>Every API route must start with an auth guard:</p>
+  <pre>import { requireAdmin, requireAuth, isNextResponse } from '@/lib/auth';
+
+// Admin-only route
+const user = await requireAdmin();
+if (isNextResponse(user)) return user;
+
+// Any authenticated role
+const user = await requireAuth(['admin', 'staff', 'contractor']);
+if (isNextResponse(user)) return user;</pre>
+  <div class="warning"><strong>Never skip the guard.</strong> Every new route handler must include an auth check as its first line.</div>
+
+  <h2>5. Git Workflow</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text"><strong>Never commit to main.</strong> Always create a feature branch: <code>git checkout -b feat/your-feature</code></div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text"><strong>Conventional commits:</strong> Use <code>feat:</code>, <code>fix:</code>, <code>chore:</code>, <code>docs:</code> prefixes.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text"><strong>Typecheck before committing:</strong> <code>npm run typecheck</code> must pass clean.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-text"><strong>Open a PR:</strong> Push your branch and open a pull request to <code>main</code>. Wait for review/merge.</div>
+  </div>
+
+  <h2>6. Key Conventions</h2>
+  <ul>
+    <li><strong>Stack:</strong> Next.js 14 App Router, TypeScript, Tailwind CSS, Prisma + PostgreSQL</li>
+    <li><strong>Styling:</strong> Use Tailwind utility classes. Custom tokens: <code>miami-pink</code>, <code>miami-blue-light</code>, <code>dark-800</code>, <code>muted</code></li>
+    <li><strong>Components:</strong> Check <code>src/components/</code> before creating new ones</li>
+    <li><strong>File uploads:</strong> Whitelist file types and sizes per route (10MB docs, 15MB images, 100MB Drive)</li>
+    <li><strong>ESLint:</strong> Not configured — do not run <code>next lint</code></li>
+    <li><strong>Verify:</strong> Always run <code>npm run typecheck</code> before pushing</li>
+  </ul>
+
+  <h2>7. Vibe Coding Guidelines</h2>
+  <p>If you're using AI-assisted development (Cursor, Copilot, Bolt, Lovable, etc.):</p>
+  <ul>
+    <li><strong>Always review generated code</strong> — AI can produce incorrect auth patterns or skip guards</li>
+    <li><strong>Run typecheck after every AI-generated change</strong> — <code>npm run typecheck</code></li>
+    <li><strong>Don't blindly accept AI suggestions</strong> for security-sensitive code (auth, API routes, file uploads)</li>
+    <li><strong>Check existing patterns first</strong> — look at neighboring files before generating new code</li>
+    <li><strong>Test locally</strong> — <code>npm run dev</code> and verify the feature works before committing</li>
+  </ul>
+  <div class="tip"><strong>Pro tip:</strong> When prompting AI, include context: "This is a Next.js 14 App Router project using Prisma + PostgreSQL. Follow the existing auth pattern in src/lib/auth.ts."</div>
+
+  <h2>8. Common Tasks</h2>
+  <h3>Add a new API route</h3>
+  <pre>// src/app/api/your-route/route.ts
+import { NextResponse } from 'next/server';
+import { requireAdmin, isNextResponse } from '@/lib/auth';
+
+export async function GET(req: Request) {
+  const user = await requireAdmin();
+  if (isNextResponse(user)) return user;
+  // Your logic here
+  return NextResponse.json({ data: 'hello' });
+}</pre>
+
+  <h3>Add a new page</h3>
+  <pre>// src/app/your-page/page.tsx
+export default function YourPage() {
+  return &lt;div&gt;Hello World&lt;/div&gt;;
+}</pre>
+
+  <h3>Create a database migration</h3>
+  <pre># Edit prisma/schema.prisma, then:
+npm run db:push</pre>
+
+  <h3>Deploy to production</h3>
+  <pre># Push to main (via PR merge) or:
+vercel --prod --yes</pre>
+
+  <h2>9. Getting Help</h2>
+  <ul>
+    <li><strong>Slack/Discord:</strong> Ask in the dev channel</li>
+    <li><strong>GitHub Issues:</strong> Check existing issues before creating new ones</li>
+    <li><strong>AGENTS.md:</strong> Read the project rules file in the repo root</li>
+    <li><strong>Developer Docs:</strong> Visit <code>/developer</code> on the live site for API reference</li>
+  </ul>
+
+</div>
+</body>
+</html>

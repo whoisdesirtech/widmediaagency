@@ -12,6 +12,8 @@ interface UserInfo {
   name: string;
   role: string;
   contractorId?: string;
+  clientId?: string;
+  contractorRole?: string;
 }
 
 export default function ContractorContractsPage() {
@@ -114,14 +116,14 @@ export default function ContractorContractsPage() {
 
   if (loading) return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} />
+      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
       <main className="flex-1 ml-64 p-8"><div className="text-muted">Loading contracts...</div></main>
     </div>
   );
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} />
+      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
