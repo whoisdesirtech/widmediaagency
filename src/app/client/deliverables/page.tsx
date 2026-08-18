@@ -3,23 +3,31 @@
 import React, { useEffect, useState } from 'react';
 import ClientSidebar from '@/components/ClientSidebar';
 
-const DELIVERABLES = [
-  { name: 'Homepage Hero Image', project: 'Website Redesign', status: 'pending', type: 'image', dueDate: 'Jul 28, 2026' },
-  { name: 'About Us Page Copy', project: 'Website Redesign', status: 'approved', type: 'document', dueDate: 'Jul 25, 2026' },
-  { name: 'Brand Portrait Set (10 photos)', project: 'Brand Photoshoot', status: 'in-progress', type: 'image', dueDate: 'Aug 2, 2026' },
-  { name: 'Instagram Reel — Product Launch', project: 'Social Media Content', status: 'pending', type: 'video', dueDate: 'Jul 30, 2026' },
-  { name: 'Logo Concepts (3 options)', project: 'Brand Photoshoot', status: 'pending-approval', type: 'design', dueDate: 'Jul 26, 2026' },
-  { name: 'Monthly Analytics Report', project: 'Social Media Content', status: 'approved', type: 'document', dueDate: 'Jul 20, 2026' },
-  { name: 'Social Media Content Calendar', project: 'Social Media Content', status: 'approved', type: 'document', dueDate: 'Jul 18, 2026' },
-  { name: 'Website Mockup — Mobile', project: 'Website Redesign', status: 'approved', type: 'design', dueDate: 'Jul 22, 2026' },
-];
+interface Deliverable {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  dueDate: string | null;
+  description: string;
+  projectId: string | null;
+  contractorId: string | null;
+  clientId: string;
+  sowId: string | null;
+  approvedAt: string | null;
+}
+
+interface Contractor {
+  id: string;
+  name: string;
+}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   'approved': { label: '✅ Approved', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  'pending': { label: '⏳ In Progress', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
   'in-progress': { label: '🔄 In Progress', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  'pending-approval': { label: '🔔 Awaiting Approval', color: 'text-miami-pink', bg: 'bg-pink-50 border-pink-200' },
+  'pending-approval': { label: '🔔 Awaiting Admin Approval', color: 'text-miami-pink', bg: 'bg-pink-50 border-pink-200' },
   'changes-requested': { label: '📝 Changes Requested', color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
+  'pending': { label: '⏳ Not Started', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
 };
 
 const TYPE_ICONS: Record<string, string> = {
@@ -29,9 +37,20 @@ const TYPE_ICONS: Record<string, string> = {
   'design': '🎨',
 };
 
+const FILTER_OPTIONS = [
+  { key: 'all', label: 'All' },
+  { key: 'approved', label: 'Approved' },
+  { key: 'in-progress', label: 'In Progress' },
+  { key: 'pending-approval', label: 'Pending Approval' },
+  { key: 'changes-requested', label: 'Changes Requested' },
+];
+
 export default function ClientDeliverablesPage() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
+  const [contractors, setContractors] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -39,7 +58,41 @@ export default function ClientDeliverablesPage() {
     setUser(JSON.parse(stored));
   }, []);
 
-  const filtered = filter === 'all' ? DELIVERABLES : DELIVERABLES.filter(d => d.status === filter);
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchData = async () => {
+      try {
+        const [delRes, conRes] = await Promise.all([
+          fetch('/api/deliverables'),
+          fetch('/api/contractors'),
+        ]);
+
+        if (delRes.ok) {
+          const data = await delRes.json();
+          setDeliverables(data.deliverables ?? data);
+        }
+
+        if (conRes.ok) {
+          const data = await conRes.json();
+          const list: Contractor[] = data.contractors ?? data;
+          const map: Record<string, string> = {};
+          list.forEach((c) => { map[c.id] = c.name; });
+          setContractors(map);
+        }
+      } catch {
+        // silently handle errors
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  const filtered = filter === 'all'
+    ? deliverables
+    : deliverables.filter((d) => d.status === filter);
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
@@ -48,56 +101,71 @@ export default function ClientDeliverablesPage() {
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
             <h1 className="font-heading text-2xl font-black text-dark-800">Deliverables</h1>
-            <p className="text-muted text-sm mt-1">Review and approve work from your agency</p>
+            <p className="text-muted text-sm mt-1">Review completed work from your agency</p>
           </div>
 
           <div className="flex gap-2 mb-6 flex-wrap">
-            {['all', 'pending-approval', 'pending', 'approved'].map((f) => (
+            {FILTER_OPTIONS.map((opt) => (
               <button
-                key={f}
-                onClick={() => setFilter(f)}
+                key={opt.key}
+                onClick={() => setFilter(opt.key)}
                 className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                  filter === f
+                  filter === opt.key
                     ? 'bg-dark text-white'
                     : 'bg-white border border-muted-lighter text-dark-800 hover:bg-muted-lighter/30'
                 }`}
               >
-                {f === 'all' ? 'All' : f === 'pending-approval' ? 'Awaiting Approval' : f.charAt(0).toUpperCase() + f.slice(1)}
+                {opt.label}
               </button>
             ))}
           </div>
 
-          <div className="space-y-3">
-            {filtered.map((item, i) => {
-              const status = STATUS_CONFIG[item.status];
-              return (
-                <div key={i} className="glass-card p-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-muted-lighter flex items-center justify-center text-lg">
-                        {TYPE_ICONS[item.type]}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-dark-800 text-sm">{item.name}</h4>
-                        <p className="text-xs text-muted">{item.project} · Due {item.dueDate}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full border ${status.bg} ${status.color}`}>
-                        {status.label}
-                      </span>
-                      {item.status === 'pending-approval' && (
-                        <div className="flex gap-1.5">
-                          <button className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors">Approve</button>
-                          <button className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-xs font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors">Request Changes</button>
+          {loading ? (
+            <div className="glass-card p-12 text-center">
+              <p className="text-muted text-sm">Loading deliverables...</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="glass-card p-12 text-center">
+              <p className="text-muted text-sm">No deliverables found.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filtered.map((item) => {
+                const status = STATUS_CONFIG[item.status] ?? STATUS_CONFIG['pending'];
+                const contractorName = item.contractorId ? contractors[item.contractorId] : null;
+
+                return (
+                  <div key={item.id} className="glass-card p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-muted-lighter flex items-center justify-center text-lg">
+                          {TYPE_ICONS[item.type] ?? '📦'}
                         </div>
-                      )}
+                        <div>
+                          <h4 className="font-semibold text-dark-800 text-sm">{item.name}</h4>
+                          <p className="text-xs text-muted">
+                            {item.description && <span>{item.description} · </span>}
+                            {contractorName && <span>{contractorName} · </span>}
+                            {item.dueDate ? `Due ${new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'No due date'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {item.approvedAt && item.status === 'approved' && (
+                          <span className="text-[0.65rem] text-muted">
+                            Approved {new Date(item.approvedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        )}
+                        <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full border ${status.bg} ${status.color}`}>
+                          {status.label}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>

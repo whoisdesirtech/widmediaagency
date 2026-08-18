@@ -22,7 +22,15 @@ interface Deliverable {
   dueDate: string | null;
   description: string;
   projectId: string | null;
+  contractorId: string | null;
   clientId: string;
+  sowId: string | null;
+  approvedAt: string | null;
+}
+
+interface Client {
+  id: string;
+  name: string;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -38,9 +46,16 @@ const TYPE_ICONS: Record<string, string> = { 'image': '🖼️', 'video': '🎬'
 export default function ContractorDeliverablesPage() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
+  const [clientMap, setClientMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -48,14 +63,25 @@ export default function ContractorDeliverablesPage() {
     const u = JSON.parse(stored);
     setUser(u);
 
-    if (u.contractorId) {
-      fetch(`/api/deliverables?contractorId=${u.contractorId}`)
-        .then(r => r.json())
-        .then(data => { setDeliverables(Array.isArray(data) ? data : []); setLoading(false); })
-        .catch(() => setLoading(false));
-    } else {
+    if (!u.contractorId) {
       setLoading(false);
+      return;
     }
+
+    Promise.all([
+      fetch(`/api/deliverables?contractorId=${u.contractorId}`).then(r => r.json()),
+      fetch('/api/clients').then(r => r.json()),
+    ])
+      .then(([deliverablesData, clientsData]) => {
+        setDeliverables(Array.isArray(deliverablesData) ? deliverablesData : []);
+        const map: Record<string, string> = {};
+        if (Array.isArray(clientsData)) {
+          clientsData.forEach((c: Client) => { map[c.id] = c.name; });
+        }
+        setClientMap(map);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
@@ -68,8 +94,13 @@ export default function ContractorDeliverablesPage() {
       });
       if (res.ok) {
         setDeliverables(prev => prev.map(d => d.id === id ? { ...d, status: newStatus } : d));
+        showToast(`Status updated to ${STATUS_CONFIG[newStatus]?.label || newStatus}`, 'success');
+      } else {
+        showToast('Failed to update status. Please try again.', 'error');
       }
-    } catch {}
+    } catch {
+      showToast('Failed to update status. Please try again.', 'error');
+    }
     setUpdatingId(null);
   };
 
@@ -95,12 +126,22 @@ export default function ContractorDeliverablesPage() {
 
           <div className="space-y-3">
             {loading ? (
-              <div className="text-muted">Loading...</div>
+              <div className="glass-card p-12 text-center">
+                <div className="text-4xl mb-3">⏳</div>
+                <div className="font-heading font-bold text-dark-800 mb-1">Loading Deliverables...</div>
+                <div className="text-muted text-sm">Fetching your assignments.</div>
+              </div>
             ) : filtered.length === 0 ? (
               <div className="glass-card p-12 text-center">
                 <div className="text-4xl mb-3">📋</div>
-                <div className="font-heading font-bold text-dark-800 mb-1">No Deliverables</div>
-                <div className="text-muted text-sm">No deliverables have been assigned to you yet.</div>
+                <div className="font-heading font-bold text-dark-800 mb-1">
+                  {filter === 'all' ? 'No Deliverables' : `No ${STATUS_CONFIG[filter]?.label || filter} Deliverables`}
+                </div>
+                <div className="text-muted text-sm">
+                  {filter === 'all'
+                    ? 'No deliverables have been assigned to you yet.'
+                    : `You have no deliverables with "${filter}" status.`}
+                </div>
               </div>
             ) : filtered.map((item) => {
               const status = STATUS_CONFIG[item.status] || STATUS_CONFIG['pending'];
@@ -113,6 +154,14 @@ export default function ContractorDeliverablesPage() {
                       </div>
                       <div>
                         <h4 className="font-semibold text-dark-800 text-sm">{item.name}</h4>
+                        <div className="flex items-center gap-2 text-xs text-muted">
+                          <span>{clientMap[item.clientId] || 'Unknown Client'}</span>
+                          {item.sowId && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[0.6rem] font-semibold">
+                              SOW
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-muted">{item.description || 'No description'} {item.dueDate ? `· Due ${item.dueDate}` : ''}</p>
                       </div>
                     </div>
@@ -147,6 +196,14 @@ export default function ContractorDeliverablesPage() {
           </div>
         </div>
       </main>
+
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-lg shadow-lg text-sm font-semibold transition-all ${
+          toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+        }`}>
+          {toast.type === 'success' ? '✓ ' : '✕ '}{toast.message}
+        </div>
+      )}
     </div>
   );
 }

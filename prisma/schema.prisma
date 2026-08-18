@@ -186,12 +186,14 @@ model Deliverable {
   client        Client   @relation(fields: [clientId], references: [id])
   projectId     String?
   contractorId  String?
+  sowId         String?
   name          String
   type          String   @default("document") // image | video | document | design
   status        String   @default("pending") // pending | in-progress | pending-approval | approved | changes-requested
   dueDate       String?
   description   String   @default("")
   sortOrder     Int      @default(0)
+  approvedAt    DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

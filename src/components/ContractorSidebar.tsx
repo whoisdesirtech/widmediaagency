@@ -6,9 +6,10 @@ import { usePathname } from 'next/navigation';
 const NAV_ITEMS = [
   { href: '/contractor/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/contractor/projects', label: 'Projects', icon: '📁' },
+  { href: '/contractor/sows', label: 'My SOWs', icon: '📝' },
   { href: '/contractor/deliverables', label: 'Deliverables', icon: '📋' },
-  { href: '/contractor/contracts', label: 'My Contracts', icon: '📑' },
   { href: '/contractor/my-roles', label: 'My Roles', icon: '🏷️' },
+  { href: '/contractor/contracts', label: 'My Contracts', icon: '📑' },
   { href: '/contractor/onboarding', label: 'Onboarding', icon: '📄' },
   { href: '/contractor/training', label: 'Training', icon: '📖' },
 ];

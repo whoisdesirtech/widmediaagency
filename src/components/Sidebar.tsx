@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: '/contractors', label: 'Contractors', icon: '👥' },
   { href: '/clients', label: 'Clients', icon: '🏢' },
   { href: '/admin/projects', label: 'Projects', icon: '📁' },
+  { href: '/admin/deliverables', label: 'Deliverables', icon: '📋' },
   { href: '/master-agreement', label: 'Master Agreement', icon: '📋' },
   { href: '/sow-builder', label: 'SOW Builder', icon: '📝' },
   { href: '/addenda', label: 'Addenda Library', icon: '📚' },
