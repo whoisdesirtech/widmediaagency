@@ -37,9 +37,15 @@ export default function LoginPage() {
       const me = await fetch('/api/me').then(r => r.json());
       if (me.role === 'contractor' && me.contractorId) {
         try {
-          const contractor = await fetch(`/api/contractors/${me.contractorId}`).then(r => r.json());
-          me.contractorRole = contractor.role;
-        } catch {}
+          const roles = await fetch(`/api/contractors/${me.contractorId}/roles`).then(r => r.json());
+          me.contractorRoles = roles.filter((r: any) => r.status === 'approved').map((r: any) => r.role);
+          if (!me.contractorRoles || me.contractorRoles.length === 0) {
+            const contractor = await fetch(`/api/contractors/${me.contractorId}`).then(r => r.json());
+            me.contractorRoles = [contractor.role];
+          }
+        } catch {
+          me.contractorRoles = ['photography'];
+        }
       }
       localStorage.setItem('user', JSON.stringify(me));
 

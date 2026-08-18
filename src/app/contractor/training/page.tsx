@@ -6,18 +6,18 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function ContractorTrainingPage() {
-  const [user, setUser] = useState<{ name: string; email: string; contractorRole?: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; contractorRole?: string; contractorRoles?: string[] } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (stored) setUser(JSON.parse(stored));
   }, []);
 
-  const isDeveloper = user?.contractorRole === 'developer';
+  const isDeveloper = user?.contractorRoles?.includes('developer');
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="ml-64 flex-1">
         <div className="max-w-[1100px] mx-auto px-8 py-8">
           <div className="mb-8">

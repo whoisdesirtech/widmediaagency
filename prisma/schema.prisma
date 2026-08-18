@@ -53,6 +53,7 @@ model Contractor {
   userId              String?
   sows                SOW[]
   assembledContracts  AssembledContract[]
+  roles               ContractorRole[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 }
@@ -263,4 +264,17 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+}
+
+model ContractorRole {
+  id            String    @id @default(uuid())
+  contractorId  String
+  contractor    Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  role          String
+  status        String    @default("approved") // pending | approved | rejected
+  requestedAt   DateTime  @default(now())
+  approvedAt    DateTime?
+  approvedBy    String?
+
+  @@unique([contractorId, role])
 }

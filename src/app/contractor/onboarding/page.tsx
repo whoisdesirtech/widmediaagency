@@ -11,6 +11,7 @@ interface UserInfo {
   contractorId?: string;
   clientId?: string;
   contractorRole?: string;
+  contractorRoles?: string[];
 }
 
 export default function ContractorOnboardingPage() {
@@ -58,14 +59,14 @@ export default function ContractorOnboardingPage() {
 
   if (loading) return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="flex-1 ml-64 p-8"><div className="text-muted">Loading...</div></main>
     </div>
   );
 
   if (!contractor) return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="flex-1 ml-64 p-8">
         <div className="glass-card p-12 text-center">
           <div className="text-4xl mb-3">🔗</div>
@@ -113,7 +114,7 @@ export default function ContractorOnboardingPage() {
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">

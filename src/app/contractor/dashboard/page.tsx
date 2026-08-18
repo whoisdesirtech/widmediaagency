@@ -12,7 +12,7 @@ interface UserInfo {
   role: string;
   contractorId?: string;
   clientId?: string;
-  contractorRole?: string;
+  contractorRoles?: string[];
 }
 
 interface ContractorData {
@@ -76,7 +76,7 @@ export default function ContractorDashboard() {
 
   if (loading) return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={contractor?.role} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="flex-1 ml-64 p-8"><div className="text-muted">Loading...</div></main>
     </div>
   );
@@ -114,7 +114,7 @@ export default function ContractorDashboard() {
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={contractor?.role} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-4 mb-8">
@@ -123,7 +123,10 @@ export default function ContractorDashboard() {
             </div>
             <div>
               <h1 className="font-heading text-2xl font-black text-dark-800">{contractor.name}</h1>
-              <p className="text-muted text-sm">{contractor.businessName} — <span className="capitalize">{contractor.role.replace(/-/g, ' ')}</span></p>
+              <p className="text-muted text-sm">{contractor.businessName} — {user?.contractorRoles && user.contractorRoles.length > 0
+                ? user.contractorRoles.map(r => ROLE_ICONS[r] ? `${ROLE_ICONS[r]} ${r.replace(/-/g, ' ')}` : r.replace(/-/g, ' ')).join(', ')
+                : <span className="capitalize">{contractor.role.replace(/-/g, ' ')}</span>
+              }</p>
             </div>
             <div className="ml-auto"><StatusBadge status={contractor.status} /></div>
           </div>

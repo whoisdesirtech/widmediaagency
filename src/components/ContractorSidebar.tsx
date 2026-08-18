@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: '/contractor/projects', label: 'Projects', icon: '📁' },
   { href: '/contractor/deliverables', label: 'Deliverables', icon: '📋' },
   { href: '/contractor/contracts', label: 'My Contracts', icon: '📑' },
+  { href: '/contractor/my-roles', label: 'My Roles', icon: '🏷️' },
   { href: '/contractor/onboarding', label: 'Onboarding', icon: '📄' },
   { href: '/contractor/training', label: 'Training', icon: '📖' },
 ];
@@ -16,10 +17,22 @@ const DEVELOPER_ITEMS = [
   { href: '/contractor/developer', label: 'Developer Workspace', icon: '💻' },
 ];
 
-export default function ContractorSidebar({ user, contractorRole }: { user?: { name: string; email: string }; contractorRole?: string }) {
+const ROLE_LABELS: Record<string, string> = {
+  photography: 'Photography', videography: 'Videography', 'social-media': 'Social Media',
+  designer: 'Design', 'ai-automation': 'AI Automation', developer: 'Development',
+  copywriter: 'Copywriting', 'web-designer': 'Web Design', 'motion-designer': 'Motion Design',
+  'virtual-assistant': 'Virtual Assistance', 'marketing-specialist': 'Marketing', 'podcast-editor': 'Podcast Editing',
+};
+
+export default function ContractorSidebar({ user, contractorRoles }: { user?: { name: string; email: string }; contractorRoles?: string[] }) {
   const pathname = usePathname();
-  const isDeveloper = contractorRole === 'developer';
+  const roles = contractorRoles || [];
+  const isDeveloper = roles.includes('developer');
   const allItems = isDeveloper ? [...NAV_ITEMS, ...DEVELOPER_ITEMS] : NAV_ITEMS;
+
+  const subtitle = roles.length > 0
+    ? roles.map(r => ROLE_LABELS[r] || r).join(' · ')
+    : 'Contractor Portal';
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -35,7 +48,7 @@ export default function ContractorSidebar({ user, contractorRole }: { user?: { n
           </div>
           <div>
             <div className="font-heading font-bold text-white text-sm leading-tight">WhoIsDésir® Media</div>
-            <div className="text-[0.7rem] text-white/40">{isDeveloper ? 'Developer Portal' : 'Contractor Portal'}</div>
+            <div className="text-[0.7rem] text-white/40">{subtitle}</div>
           </div>
         </Link>
       </div>

@@ -11,6 +11,7 @@ interface UserInfo {
   role: string;
   contractorId?: string;
   contractorRole?: string;
+  contractorRoles?: string[];
 }
 
 const QUICK_LINKS = [
@@ -50,7 +51,7 @@ export default function DeveloperWorkspacePage() {
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ContractorSidebar user={user || undefined} contractorRole={user?.contractorRole} />
+      <ContractorSidebar user={user || undefined} contractorRoles={user?.contractorRoles} />
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-[1100px] mx-auto">
           <div className="mb-8">
