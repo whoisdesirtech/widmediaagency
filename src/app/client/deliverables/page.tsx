@@ -156,6 +156,29 @@ export default function ClientDeliverablesPage() {
                             Approved {new Date(item.approvedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
                         )}
+                        {item.status === 'pending-approval' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/deliverables/${item.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'changes-requested' }),
+                                });
+                                if (res.ok) {
+                                  setDeliverables((prev) =>
+                                    prev.map((d) => d.id === item.id ? { ...d, status: 'changes-requested' } : d)
+                                  );
+                                }
+                              } catch {
+                                // silently handle errors
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-[0.65rem] font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
+                          >
+                            Request Changes
+                          </button>
+                        )}
                         <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full border ${status.bg} ${status.color}`}>
                           {status.label}
                         </span>

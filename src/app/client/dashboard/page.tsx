@@ -32,6 +32,7 @@ interface Project {
   progress: number;
   timeline: string;
   deliverables: number;
+  images: string;
 }
 
 interface Folder {
@@ -151,7 +152,14 @@ export default function ClientDashboard() {
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Media Files</div>
                   <div className="font-heading text-3xl font-black text-dark-800">
-                    {client.googleDriveFolderId ? '77' : '—'}
+                    {(() => {
+                      if (!client.googleDriveFolderId) return '—';
+                      let count = 0;
+                      for (const p of projects) {
+                        try { count += JSON.parse(p.images || '[]').length; } catch {}
+                      }
+                      return count;
+                    })()}
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg">🖼️</div>

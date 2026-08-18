@@ -171,6 +171,7 @@ model FileFolder {
   id            String   @id @default(uuid())
   clientId      String
   client        Client   @relation(fields: [clientId], references: [id])
+  projectId     String?
   name          String
   icon          String   @default("📁")
   driveFolderId String?  // Google Drive folder ID for this specific folder

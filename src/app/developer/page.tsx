@@ -319,7 +319,7 @@ export default function DeveloperPage() {
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center text-white font-heading font-black text-[10px]">W</div>
             <span className="text-sm text-white/30">WhoIsDésir<span className="text-miami-pink/60">®</span> Media</span>
-            <span className="text-xs text-white/30">v1.1.0</span>
+            <span className="text-xs text-white/30">v1.2.0</span>
           </div>
           <div className="text-xs text-white/20">
             Developer Documentation — Public Access

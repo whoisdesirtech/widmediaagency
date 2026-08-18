@@ -1,3 +1,5 @@
+> Last updated: 2026-08-18. Some historical references may be outdated.
+
 # WhoIsDésir® Media — Product Architecture Audit
 
 **Auditor:** opencode (AI-assisted, read-only audit)
@@ -60,7 +62,7 @@ public/                 Marketing HTML, brand assets, training guides, uploads/
 ## Phase 2 — Feature Map (verified)
 
 ### Core product positioning
-The app brands itself a **"Freelancer Talent Agreement System"** for a creative agency
+The app brands itself a **"Creative Business Operations Platform"** for a creative agency
 (WhoIsDésir® Media). Its centerpiece is **contract assembly**: automatically merging a
 Master Agreement + role-specific addenda + a Statement of Work into a single plain-text
 "FREELANCER TALENT AGREEMENT", signed by both parties via canvas signatures.
@@ -241,7 +243,7 @@ Stripe (~2.9% + $0.30/txn), LLM APIs (variable), Sentry (~$0–29). **UNKNOWN �
    and automation glue (Zapier/Make); **build** only the contract-assembly + AI layer.
 
 ### Long-term (6–18 months)
-5. Evolve from "Freelancer Talent Agreement System" → **"Creative Agency Operating System"**
+5. Evolve from "Creative Business Operations Platform" → **"Creative Agency Operating System"**
    where the assembly engine + agentic layer become the moat and portals become the
    delivery surface. Do NOT pivot to horizontal CRM — win the vertical.
 6. Productize multi-tenancy and offer the platform to other agencies as SaaS (leverage

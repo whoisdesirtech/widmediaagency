@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   events: {
     async signIn({ user, isNewUser }) {
-      const u = user as any;
+      const u = user as SessionUser | null;
       if (u?.email) {
         await logAudit({
           id: u.id,
@@ -68,20 +68,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
-        token.agencyId = (user as any).agencyId ?? null;
-        token.contractorId = (user as any).contractorId ?? null;
-        token.clientId = (user as any).clientId ?? null;
+        token.role = (user as SessionUser).role;
+        token.agencyId = (user as SessionUser).agencyId ?? null;
+        token.contractorId = (user as SessionUser).contractorId ?? null;
+        token.clientId = (user as SessionUser).clientId ?? null;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
-        (session.user as any).agencyId = token.agencyId ?? null;
-        (session.user as any).contractorId = token.contractorId ?? null;
-        (session.user as any).clientId = token.clientId ?? null;
+        (session.user as SessionUser).id = token.id as string;
+        (session.user as SessionUser).role = token.role as string;
+        (session.user as SessionUser).agencyId = token.agencyId as string | null ?? null;
+        (session.user as SessionUser).contractorId = token.contractorId as string | null ?? null;
+        (session.user as SessionUser).clientId = token.clientId as string | null ?? null;
       }
       return session;
     },
@@ -96,7 +96,7 @@ export async function getSession() {
 
 export function getSessionUser(session: Awaited<ReturnType<typeof getSession>>): SessionUser | null {
   if (!session?.user) return null;
-  const u = session.user as any;
+  const u = session.user as SessionUser;
   return {
     id: u.id,
     email: u.email,
@@ -142,6 +142,6 @@ export async function requireClient(): Promise<SessionUser | NextResponse> {
   return requireAuth(['client']);
 }
 
-export function isNextResponse(value: any): value is NextResponse {
+export function isNextResponse(value: SessionUser | NextResponse): value is NextResponse {
   return value instanceof NextResponse;
 }

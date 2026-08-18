@@ -6,6 +6,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and the project a
 to [Semantic Versioning](https://semver.org/). The version number in `package.json`
 is the source of truth; every meaningful change should bump it and add an entry here.
 
+## [1.2.0] - 2026-08-18
+
+Third tracked release. Developer experience improvements, client feedback workflow,
+code quality tooling, and documentation reorganization.
+
+### Added
+- ESLint + Prettier configuration for consistent code style enforcement.
+- Vitest test framework with smoke tests for core imports and schema validation.
+- Client "Request Changes" workflow — clients can now request changes on
+  deliverables awaiting approval, completing the contractor → admin → client
+  feedback loop.
+- Test data seed script (`npm run db:seed-test`) with multi-role contractor,
+  SOW, project, and 8 deliverables in mixed statuses.
+- `FileFolder` model gained `projectId` field for organizing Drive folders
+  per project.
+- Version display (`v1.1.0`) added to all landing pages, training docs,
+  and public documentation.
+
+### Changed
+- Rebranded product from "Freelancer Talent Agreement System" to "Creative
+  Business Operations Platform" across all pages, sidebars, training docs,
+  and metadata.
+- Decomposed `proposal-generator.ts` (3,202 lines) into 4 focused modules
+  under `src/lib/proposal/` (types, styles, templates, html-generators)
+  with a thin orchestrator entry point.
+- Reduced `any` type annotations in critical API routes and lib files
+  (deliverables routes, auth.ts).
+- Reorganized 11 root-level markdown files into `docs/` directory.
+- Updated `AGENTS.md` with version info, multi-role docs, SOW workflow,
+  and AI agent rules.
+
+### Fixed
+- Client dashboard media count now dynamically calculated from project
+  images instead of hardcoded value.
+- Deliverables PATCH route now correctly handles null `clientId`/`contractorId`
+  in role-scoped queries.
+
+### Deprecated
+- `public/vendor-phases-png.html` marked as deprecated (unreferenced legacy file).
+
 ## [1.1.0] - 2026-08-18
 
 Second tracked release. Adds multi-role contractor system, SOW/deliverables workflow,
@@ -187,5 +227,6 @@ First tracked release. Captures all work since the project began (2026-07-17).
 - Conditional `prisma db push` (only when `DATABASE_URL` is set).
 - Google Drive API integration (service account, shared-drive setup, upload/list API).
 
+[1.2.0]: https://github.com/whoisdesirtech/widmediaagency/releases/tag/v1.2.0
 [1.1.0]: https://github.com/whoisdesirtech/widmediaagency/releases/tag/v1.1.0
 [1.0.0]: https://github.com/whoisdesirtech/widmediaagency/releases/tag/v1.0.0

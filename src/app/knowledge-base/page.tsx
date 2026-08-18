@@ -11,7 +11,7 @@ export default function KnowledgeBasePage() {
           <Link href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center text-white font-heading font-black text-sm">W</div>
             <span className="font-heading font-bold text-sm text-white">WhoIsDésir<span className="text-miami-pink">®</span> Media</span>
-            <span className="text-xs text-white/30">v1.1.0</span>
+            <span className="text-xs text-white/30">v1.2.0</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/portal-guide" className="text-sm text-white/50 hover:text-white transition-colors">Portal Guide</Link>

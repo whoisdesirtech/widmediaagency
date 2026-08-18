@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 
@@ -44,10 +45,10 @@ export async function GET(req: Request) {
     const clientId = searchParams.get('clientId');
     const contractorId = searchParams.get('contractorId');
 
-    const where: any = {};
-    if (user.role === 'client') {
+    const where: Prisma.DeliverableWhereInput = {};
+    if (user.role === 'client' && user.clientId) {
       where.clientId = user.clientId;
-    } else if (user.role === 'contractor') {
+    } else if (user.role === 'contractor' && user.contractorId) {
       where.contractorId = user.contractorId;
     } else {
       if (clientId) where.clientId = clientId;
