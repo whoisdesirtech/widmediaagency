@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
-import { runAudit } from '@/lib/audit-agent/modules';
+import { runAuditPipeline } from '@/lib/audit-agent/modules';
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Influencer not found' }, { status: 404 });
     }
 
-    const auditResult = runAudit({
+    const pipelineResult = runAuditPipeline({
       influencerName: influencer.name,
       platform: influencer.platform,
       username: influencer.username || undefined,
@@ -36,6 +36,8 @@ export async function POST(req: Request) {
       engagementRate: influencer.engagementRate || undefined,
       brandKit: influencer.brandKits[0] || null,
     });
+
+    const auditResult = pipelineResult.auditResult;
 
     const methodology = JSON.stringify({
       modules: auditResult.modules.map(m => ({
@@ -86,7 +88,7 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ audit, result: auditResult }, { status: 201 });
+    return NextResponse.json({ audit, result: auditResult, pipeline: pipelineResult.stages, readyForReview: pipelineResult.readyForReview }, { status: 201 });
   } catch (error) {
     console.error('Audit run failed:', error);
     return NextResponse.json({ error: 'Failed to run audit' }, { status: 500 });

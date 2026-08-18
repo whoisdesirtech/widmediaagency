@@ -14,7 +14,7 @@ export default function DeveloperBrandKitsPage() {
   const [brandKits, setBrandKits] = useState<any[]>([]);
   const [influencers, setInfluencers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ status: '' });
+  const [filter, setFilter] = useState({ status: '', search: '' });
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     influencerId: '',
@@ -74,7 +74,14 @@ export default function DeveloperBrandKitsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <input
+            type="text"
+            placeholder="Search brand kits..."
+            value={filter.search || ''}
+            onChange={(e) => setFilter(f => ({ ...f, search: e.target.value }))}
+            className="flex-1 min-w-[200px] px-4 py-2 rounded-xl border-2 border-gray-200 bg-white text-sm"
+          />
           <select
             value={filter.status}
             onChange={(e) => setFilter(f => ({ ...f, status: e.target.value }))}
@@ -107,7 +114,10 @@ export default function DeveloperBrandKitsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {brandKits.map((brandKit) => {
+            {brandKits.filter(bk => {
+              if (filter.search && !bk.name?.toLowerCase().includes(filter.search.toLowerCase()) && !bk.influencer?.name?.toLowerCase().includes(filter.search.toLowerCase()) && !bk.niche?.toLowerCase().includes(filter.search.toLowerCase())) return false;
+              return true;
+            }).map((brandKit) => {
               const statusOpt = STATUS_OPTIONS.find(s => s.value === brandKit.status);
               const completedSections = brandKit.sections?.filter((s: any) => s.isCompleted).length || 0;
               const totalSections = brandKit.sections?.length || 0;

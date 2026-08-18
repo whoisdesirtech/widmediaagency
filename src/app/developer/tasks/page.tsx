@@ -24,7 +24,7 @@ export default function DeveloperTasksPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ status: '', priority: '' });
+  const [filter, setFilter] = useState({ status: '', priority: '', search: '' });
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -53,6 +53,7 @@ export default function DeveloperTasksPage() {
   const filteredTasks = tasks.filter(task => {
     if (filter.status && task.status !== filter.status) return false;
     if (filter.priority && task.priority !== filter.priority) return false;
+    if (filter.search && !task.title?.toLowerCase().includes(filter.search.toLowerCase()) && !task.description?.toLowerCase().includes(filter.search.toLowerCase())) return false;
     return true;
   });
 
@@ -106,7 +107,14 @@ export default function DeveloperTasksPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={filter.search || ''}
+            onChange={(e) => setFilter(f => ({ ...f, search: e.target.value }))}
+            className="flex-1 min-w-[200px] px-4 py-2 rounded-xl border-2 border-gray-200 bg-white text-sm"
+          />
           <select
             value={filter.status}
             onChange={(e) => setFilter(f => ({ ...f, status: e.target.value }))}

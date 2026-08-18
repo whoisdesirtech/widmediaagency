@@ -420,15 +420,56 @@ export default function BrandKitDetailPage() {
             {activeSection === 'content-style' && (
               <div className="glass-card p-6 space-y-4">
                 <h3 className="font-heading font-bold text-lg text-gray-900">✍️ Content Style</h3>
+                <p className="text-xs text-gray-500">Define how the brand communicates across all channels.</p>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Voice</label>
                   <textarea value={voice} onChange={e => setVoice(e.target.value)} rows={2}
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm" placeholder="How the brand speaks" />
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm" placeholder="How the brand speaks (e.g. warm, authoritative, playful)" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Tone</label>
                   <textarea value={tone} onChange={e => setTone(e.target.value)} rows={2}
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm" placeholder="Tone of voice" />
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm" placeholder="Tone of voice (e.g. casual, professional, inspiring)" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Vocabulary</label>
+                  <textarea
+                    rows={2}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
+                    placeholder="Key words and phrases the brand uses (e.g. 'elevate', 'authentic', 'level up')"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Caption Style</label>
+                  <textarea
+                    rows={2}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
+                    placeholder="How captions are structured (e.g. short punchy lines, storytelling, list format)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Hook Style</label>
+                  <textarea
+                    rows={2}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
+                    placeholder="How content hooks the audience (e.g. question openers, bold statements, curiosity gaps)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">CTA Style</label>
+                  <textarea
+                    rows={2}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
+                    placeholder="Call-to-action style (e.g. 'Link in bio', 'DM us', 'Comment below')"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Storytelling Approach</label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
+                    placeholder="How the brand tells stories (e.g. personal anecdotes, before/after transformations, user-generated content)"
+                  />
                 </div>
               </div>
             )}

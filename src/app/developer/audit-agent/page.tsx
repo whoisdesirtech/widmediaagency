@@ -36,6 +36,12 @@ interface AuditResult {
   disclaimers?: string[];
 }
 
+interface PipelineStage {
+  stage: string;
+  status: string;
+  output: any;
+}
+
 const GRADE_COLORS: Record<string, string> = {
   'A+': 'from-emerald-400 to-emerald-600 text-white',
   'A': 'from-emerald-400 to-emerald-500 text-white',
@@ -52,6 +58,7 @@ export default function AuditAgentPage() {
   const [selectedId, setSelectedId] = useState('');
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
+  const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
@@ -78,6 +85,7 @@ export default function AuditAgentPage() {
       const data = await res.json();
       if (data.result) {
         setResult(data.result);
+        setPipeline(data.pipeline || []);
         // Refresh history
         const updated = await fetch('/api/influencer-audits?limit=10').then(r => r.json());
         setHistory(Array.isArray(updated) ? updated : updated.audits || []);
@@ -186,6 +194,32 @@ export default function AuditAgentPage() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Pipeline Stages */}
+            {pipeline.length > 0 && (
+              <div className="glass-card p-5 mb-4">
+                <h3 className="font-heading font-bold text-sm text-gray-900 mb-3">Audit Pipeline</h3>
+                <div className="space-y-2">
+                  {pipeline.map((stage, i) => (
+                    <div key={i} className="flex items-center gap-3 text-sm">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        stage.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                        stage.status === 'pending-review' ? 'bg-amber-100 text-amber-700' :
+                        'bg-gray-100 text-gray-500'
+                      }`}>
+                        {stage.status === 'completed' ? '✓' : stage.status === 'pending-review' ? '⏳' : '○'}
+                      </div>
+                      <span className="text-gray-700 font-medium">{stage.stage.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        stage.status === 'completed' ? 'bg-emerald-50 text-emerald-600' :
+                        stage.status === 'pending-review' ? 'bg-amber-50 text-amber-600' :
+                        'bg-gray-50 text-gray-500'
+                      }`}>{stage.status}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

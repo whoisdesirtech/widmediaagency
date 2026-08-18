@@ -23,7 +23,7 @@ const STATUS_OPTIONS = [
 export default function DeveloperInfluencersPage() {
   const [influencers, setInfluencers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ platform: '', status: '' });
+  const [filter, setFilter] = useState({ platform: '', status: '', search: '' });
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -96,7 +96,14 @@ export default function DeveloperInfluencersPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <input
+            type="text"
+            placeholder="Search influencers..."
+            value={filter.search || ''}
+            onChange={(e) => setFilter(f => ({ ...f, search: e.target.value }))}
+            className="flex-1 min-w-[200px] px-4 py-2 rounded-xl border-2 border-gray-200 bg-white text-sm"
+          />
           <select
             value={filter.platform}
             onChange={(e) => setFilter(f => ({ ...f, platform: e.target.value }))}
@@ -139,7 +146,10 @@ export default function DeveloperInfluencersPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {influencers.map((influencer) => {
+            {influencers.filter(inf => {
+              if (filter.search && !inf.name?.toLowerCase().includes(filter.search.toLowerCase()) && !inf.username?.toLowerCase().includes(filter.search.toLowerCase()) && !inf.niche?.toLowerCase().includes(filter.search.toLowerCase())) return false;
+              return true;
+            }).map((influencer) => {
               const platformOpt = PLATFORM_OPTIONS.find(p => p.value === influencer.platform);
               const statusOpt = STATUS_OPTIONS.find(s => s.value === influencer.status);
               const latestAudit = influencer.audits?.[0];

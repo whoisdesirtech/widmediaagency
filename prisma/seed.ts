@@ -267,6 +267,30 @@ async function main() {
     });
   }
 
+  // ── Demo Influencer 2 (find-or-create) ──
+  let influencer2 = await prisma.influencer.findFirst({
+    where: { name: 'TechBro Marcus', username: 'techbro_marcus' },
+  });
+  if (!influencer2) {
+    influencer2 = await prisma.influencer.create({
+      data: {
+        name: 'TechBro Marcus',
+        creatorName: 'Marcus Williams',
+        platform: 'youtube',
+        username: 'techbro_marcus',
+        profileUrl: 'https://youtube.com/@techbro_marcus',
+        niche: 'Technology & Gadgets',
+        audienceDescription: 'Tech enthusiasts aged 20-40 interested in gadgets, software reviews, and tutorials',
+        followerCount: 85000,
+        engagementRate: 3.1,
+        contentCategories: JSON.stringify(['Tech Reviews', 'Tutorials', 'Gadgets', 'Software']),
+        postingFrequency: '3x per week',
+        status: 'in-audit',
+        isDemo: true,
+      },
+    });
+  }
+
   // ── Demo Audit (find-or-create by influencerId + isDemo) ──
   let audit1 = await prisma.influencerAudit.findFirst({
     where: { influencerId: influencer1.id, isDemo: true },
@@ -394,6 +418,7 @@ async function main() {
   console.log('✓ Demo portfolio items ready (2)');
   console.log('✓ Demo tasks ready (2)');
   console.log('✓ Demo influencer ready: Sarah Lifestyle');
+  console.log('✓ Demo influencer ready: TechBro Marcus');
   console.log('✓ Demo audit ready with scores');
   console.log('✓ Demo brand kit ready with sections');
 }

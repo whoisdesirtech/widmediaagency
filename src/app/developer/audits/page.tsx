@@ -26,7 +26,7 @@ export default function DeveloperAuditsPage() {
   const [audits, setAudits] = useState<any[]>([]);
   const [influencers, setInfluencers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ status: '' });
+  const [filter, setFilter] = useState({ status: '', search: '' });
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     influencerId: '',
@@ -90,7 +90,14 @@ export default function DeveloperAuditsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <input
+            type="text"
+            placeholder="Search audits..."
+            value={filter.search || ''}
+            onChange={(e) => setFilter(f => ({ ...f, search: e.target.value }))}
+            className="flex-1 min-w-[200px] px-4 py-2 rounded-xl border-2 border-gray-200 bg-white text-sm"
+          />
           <select
             value={filter.status}
             onChange={(e) => setFilter(f => ({ ...f, status: e.target.value }))}
@@ -122,7 +129,10 @@ export default function DeveloperAuditsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {audits.map((audit) => {
+            {audits.filter(a => {
+              if (filter.search && !a.influencer?.name?.toLowerCase().includes(filter.search.toLowerCase()) && !a.influencer?.username?.toLowerCase().includes(filter.search.toLowerCase())) return false;
+              return true;
+            }).map((audit) => {
               const statusOpt = STATUS_OPTIONS.find(s => s.value === audit.status);
               return (
                 <div key={audit.id} className="glass-card p-5">
