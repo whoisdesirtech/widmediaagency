@@ -85,7 +85,7 @@ export default function ContractsPage() {
         .sig-label{font-size:10px;color:#8891A5;margin-bottom:4px}
       </style></head><body>
         <div class="draft-banner"><strong>⚖ WORKING DRAFT — Not a Binding Agreement. Must be reviewed by a licensed attorney before signing. IP assignment, indemnity, and worker-classification clauses carry real legal risk.</strong></div>
-        <h1>Freelancer Talent Agreement — WhoIsDésir® Media</h1>
+        <h1>Creative Business Operations — WhoIsDésir® Media</h1>
         ${content.split('\n').map((line: string) => {
           if (line.startsWith('## ')) return `<h2>${line.slice(3)}</h2>`;
           if (line.match(/^\d+\./)) return `<div class="clause">${line}</div>`;

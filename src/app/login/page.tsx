@@ -93,7 +93,7 @@ export default function LoginPage() {
             W
           </div>
           <h1 className="font-heading text-3xl font-black text-white mb-2">WhoIsDésir® Media</h1>
-          <p className="text-white/50 text-sm">Freelancer Talent Agreement System</p>
+          <p className="text-white/50 text-sm">Creative Business Operations Platform</p>
           <p className="text-white/30 text-xs mt-1">Creative Agency</p>
         </div>
 

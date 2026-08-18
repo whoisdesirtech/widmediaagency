@@ -173,7 +173,7 @@ export default function ContractorOnboardingPage() {
             <ol className="space-y-2 text-sm text-muted">
               <li className="flex items-start gap-2"><span className="text-miami-pink font-bold">1.</span> Your agency admin reviews your uploaded documents</li>
               <li className="flex items-start gap-2"><span className="text-miami-pink font-bold">2.</span> A Statement of Work (SOW) is prepared for your role</li>
-              <li className="flex items-start gap-2"><span className="text-miami-pink font-bold">3.</span> Your freelancer talent agreement is assembled for signature</li>
+              <li className="flex items-start gap-2"><span className="text-miami-pink font-bold">3.</span> Your business operation agreement is assembled for signature</li>
               <li className="flex items-start gap-2"><span className="text-miami-pink font-bold">4.</span> You review and sign the agreement in the Contracts tab</li>
             </ol>
           </div>

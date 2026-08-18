@@ -62,7 +62,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="font-heading text-2xl font-black text-dark-800">Dashboard</h1>
-              <p className="text-muted text-sm mt-1">Freelancer Talent Agreement System — WhoIsDésir® Media</p>
+              <p className="text-muted text-sm mt-1">Creative Business Operations Platform — WhoIsDésir® Media</p>
             </div>
             <Link href="/contractors/new" className="btn-primary">
               + Add Contractor

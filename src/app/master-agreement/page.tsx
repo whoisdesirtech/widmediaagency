@@ -55,7 +55,7 @@ export default function MasterAgreementPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="font-heading text-2xl font-black text-dark-800">Master Agreement</h1>
-              <p className="text-muted text-sm mt-1">WhoIsDésir® Media Agency — Freelancer Talent Agreement</p>
+              <p className="text-muted text-sm mt-1">WhoIsDésir® Media Agency — Creative Business Operations</p>
             </div>
             <div className="flex gap-2">
               {editing ? (

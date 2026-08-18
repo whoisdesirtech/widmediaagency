@@ -59,11 +59,11 @@ export default function LandingPage() {
           </div>
           <h1 className="font-heading font-black text-5xl md:text-7xl lg:text-8xl leading-[0.95] mb-6">
             <span className="text-white">Manage Your</span><br />
-            <span className="gradient-text">Freelance Agreements</span><br />
+            <span className="gradient-text">Creative Business</span><br />
             <span className="text-white">In One Place</span>
           </h1>
           <p className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed">
-            A modular talent agreement system built for creative agencies. Onboard vendors, assemble contracts, collect signatures — all from a single platform.
+            A creative business operations platform built for agencies. Onboard vendors, assemble contracts, collect signatures — all from a single platform.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link href="/login" className="btn-primary text-base px-8 py-3.5">
@@ -182,7 +182,7 @@ export default function LandingPage() {
       <section className="py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-6">
-            Ready to streamline your<br />freelance agreements?
+            Ready to streamline your<br />creative business operations?
           </h2>
           <p className="text-white/40 mb-10 text-lg">
             Log in to access your agency dashboard, manage vendors, and assemble contracts.
@@ -199,9 +199,10 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center text-white font-heading font-black text-[10px]">W</div>
             <span className="text-sm text-white/30">WhoIsDésir<span className="text-miami-pink/60">®</span> Media</span>
+            <span className="text-xs text-white/30">v1.1.0</span>
           </div>
           <div className="text-xs text-white/20">
-            Freelancer Talent Agreement System. All contracts are drafts until reviewed by a licensed attorney.
+            Creative Business Operations Platform. All contracts are drafts until reviewed by a licensed attorney.
           </div>
           <div className="text-xs text-white/30">
             <Link href="/portal-guide" className="hover:text-white/60 transition-colors">Portal Guide</Link>

@@ -105,6 +105,12 @@ developer portal, knowledge base, security hardening, and proposal builder.
 - Contractor deliverables PATCH now allows contractors to update their own
   deliverables' status (was previously admin-only).
 
+### Changed
+- Rebranded product from "Freelancer Talent Agreement System" to "Creative Business
+  Operations Platform" across all pages, sidebars, training docs, and metadata.
+- Added version display (`v1.1.0`) to landing page, developer docs, knowledge base,
+  portal guide, and all public training HTML files.
+
 ### Security
 - CSRF double-submit cookie protection on all mutating `/api/*` routes.
 - Audit logging on all state-mutating operations with entity tracking.

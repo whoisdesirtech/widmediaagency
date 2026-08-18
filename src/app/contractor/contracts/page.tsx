@@ -94,7 +94,7 @@ export default function ContractorContractsPage() {
         .sig-label{font-size:10px;color:#8891A5;margin-bottom:4px}
       </style></head><body>
         <div class="draft-banner"><strong>WORKING DRAFT -- Not a Binding Agreement. Must be reviewed by a licensed attorney before signing.</strong></div>
-        <h1>Freelancer Talent Agreement -- WhoIsDésir® Media</h1>
+        <h1>Creative Business Operations — WhoIsDésir® Media</h1>
         ${content.split('\n').map((line: string) => {
           if (line.startsWith('## ')) return `<h2>${line.slice(3)}</h2>`;
           if (line.match(/^\d+\./)) return `<div class="clause">${line}</div>`;
@@ -129,7 +129,7 @@ export default function ContractorContractsPage() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h1 className="font-heading text-2xl font-black text-dark-800">My Contracts</h1>
-            <p className="text-muted text-sm mt-1">Review and sign your freelancer talent agreements.</p>
+            <p className="text-muted text-sm mt-1">Review and sign your business operation agreements.</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -48,7 +48,7 @@ export default function Sidebar() {
           </div>
           <div>
             <div className="font-heading font-bold text-white text-sm leading-tight">WhoIsDésir® Media</div>
-            <div className="text-[0.7rem] text-white/40">Freelancer Agreement System</div>
+            <div className="text-[0.7rem] text-white/40">Creative Business Operations</div>
           </div>
         </Link>
       </div>
