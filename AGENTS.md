@@ -1,6 +1,6 @@
 # whoisdesir-media — WhoIsDésir® Media Agency Platform
 
-Next.js (App Router) agency-management platform: contractor onboarding, SOWs, contract assembly/signing, clients, deliverables, invoices, and Google Drive storage.
+Next.js (App Router) agency-management platform: contractor onboarding, SOWs, contract assembly/signing, clients, deliverables, invoices, Google Drive storage, developer portfolio, influencer audits, audit agent (AI scoring), and social media brand kits.
 
 ## Commands
 
@@ -15,15 +15,24 @@ Next.js (App Router) agency-management platform: contractor onboarding, SOWs, co
 ## Stack
 
 - Next.js 14 App Router, TypeScript (strict-ish; `any` used in places), Tailwind CSS
-- Prisma + PostgreSQL (see `prisma/schema.prisma`, 16 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
+- Prisma + PostgreSQL (see `prisma/schema.prisma`, 25 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
 - NextAuth credentials strategy (`src/app/api/auth/[...nextauth]/route.ts`, options in `src/lib/auth.ts`)
 - Google Drive via service account (`src/lib/driveService.ts`), uploads to Drive, not local disk
 
 ## Project structure
 
 - `src/app/api/` — all route handlers; auth pattern is uniform (see below)
+- `src/app/api/tasks/` — task CRUD (admin/staff)
+- `src/app/api/portfolio/` — portfolio item CRUD (admin/staff)
+- `src/app/api/influencers/` — influencer CRUD (admin/staff)
+- `src/app/api/influencer-audits/` — audit CRUD + status updates
+- `src/app/api/audit-agent/` — POST to run AI scoring agent on an influencer
+- `src/app/api/brand-kits/` — brand kit CRUD + section management
+- `src/app/api/reviews/` — review CRUD (admin/staff approval workflow)
 - `src/app/<role>/` — portals: `admin`+`dashboard` (admin/staff), `contractor/`, `client/`
 - `src/app/<role>s/[id]/` — admin-facing detail pages for a client/contractor
+- `src/app/developer/` — developer portal (portfolio, projects, tasks, influencers, audits, audit agent, brand kits)
+- `src/lib/audit-agent/` — modular AI scoring framework (brand identity, visual identity, content strategy, social presence, market position)
 - `src/lib/` — `auth.ts` (session helpers), `audit.ts` (audit logging), `storage.ts` (storage limits), `rateLimit.ts`, `prisma.ts`, `drive.ts`, `driveService.ts`
 - `src/components/` — shared UI (Sidebar, ContractorSidebar, SignaturePad, StatusBadge, DraftBanner)
 - `src/middleware.ts` — CSRF double-submit protection (see below)
@@ -37,10 +46,19 @@ Every API route handler MUST start with a guard. Helpers in `src/lib/auth.ts`:
 const user = await requireAdminOrStaff();   // admin | staff
 const user = await requireAdmin();           // admin only
 const user = await requireAuth(['admin', 'staff', 'contractor']); // any list
+const user = await requireManagerOrAbove();  // admin | staff | manager
+const user = await requireReviewerOrAbove(); // admin | staff | manager | reviewer
+const user = await requireDeveloperOrAbove(); // admin | staff | manager | reviewer | developer
 if (isNextResponse(user)) return user;       // always check after a guard
+
+// Permission checkers
+canDelete(user)        // admin | staff | manager
+canApprove(user)       // admin | staff | manager | reviewer
+canPublish(user)       // admin | staff | manager
+canModifyConfig(user)  // admin only
 ```
 
-Roles: `admin`, `staff`, `contractor`, `client` (column on `User`). Session user carries `agencyId`, `contractorId`, `clientId` — use these for ownership checks (e.g. contractor may only see/sign their own contracts).
+Roles: `admin`, `staff`, `contractor`, `client`, `manager`, `reviewer`, `developer`, `intern` (column on `User`). Session user carries `agencyId`, `contractorId`, `clientId` — use these for ownership checks (e.g. contractor may only see/sign their own contracts).
 
 - Shared GET routes are role-scoped: clients/contractors must be forced to their own records (`where.clientId = user.clientId`), never trust query params from them.
 - Public by design: `api/booking`, `api/plugin-lead`, `api/auth/reset-password`. All are rate-limited via `src/lib/rateLimit.ts` and reset-password must NEVER return the new password or confirm account existence.
