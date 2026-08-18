@@ -2,6 +2,8 @@
 
 Next.js (App Router) agency-management platform: contractor onboarding, SOWs, contract assembly/signing, clients, deliverables, invoices, and Google Drive storage.
 
+**Current version: 1.1.0** | **Latest tag: v1.0.0** | **Branch: main**
+
 ## Commands
 
 - `npm run dev` — start dev server
@@ -10,24 +12,25 @@ Next.js (App Router) agency-management platform: contractor onboarding, SOWs, co
 - `npm run db:push` — apply schema changes to DB (no migration files used)
 - `npm run db:seed` — `tsx prisma/seed.ts`
 - `npm run db:studio` — Prisma Studio
+- `npm run db:backfill-roles` — migrate single-role contractors to multi-role system
 - ESLint is NOT configured (`next lint` opens an interactive setup prompt — do not run it).
 
 ## Stack
 
 - Next.js 14 App Router, TypeScript (strict-ish; `any` used in places), Tailwind CSS
-- Prisma + PostgreSQL (see `prisma/schema.prisma`, 16 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
+- Prisma + PostgreSQL (see `prisma/schema.prisma`, 18 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
 - NextAuth credentials strategy (`src/app/api/auth/[...nextauth]/route.ts`, options in `src/lib/auth.ts`)
 - Google Drive via service account (`src/lib/driveService.ts`), uploads to Drive, not local disk
 
 ## Project structure
 
-- `src/app/api/` — all route handlers; auth pattern is uniform (see below)
+- `src/app/api/` — all route handlers (37 files); auth pattern is uniform (see below)
 - `src/app/<role>/` — portals: `admin`+`dashboard` (admin/staff), `contractor/`, `client/`
 - `src/app/<role>s/[id]/` — admin-facing detail pages for a client/contractor
-- `src/lib/` — `auth.ts` (session helpers), `audit.ts` (audit logging), `storage.ts` (storage limits), `rateLimit.ts`, `prisma.ts`, `drive.ts`, `driveService.ts`
-- `src/components/` — shared UI (Sidebar, ContractorSidebar, SignaturePad, StatusBadge, DraftBanner)
+- `src/lib/` — `auth.ts` (session helpers), `audit.ts` (audit logging), `storage.ts` (storage limits), `rateLimit.ts`, `prisma.ts`, `drive.ts`, `driveService.ts`, `proposal-generator.ts`
+- `src/components/` — shared UI (Sidebar, ContractorSidebar, ClientSidebar, SignaturePad, StatusBadge, DraftBanner, CsrfProvider)
 - `src/middleware.ts` — CSRF double-submit protection (see below)
-- `src/app/admin/audit-log/` — admin-only audit log viewer (feed: `GET /api/audit`, admin only)
+- `docs/` — project documentation (architecture, version control, release checklist, session handoff, known issues)
 
 ## Auth & security conventions (IMPORTANT)
 
@@ -51,8 +54,51 @@ Roles: `admin`, `staff`, `contractor`, `client` (column on `User`). Session user
 - Storage limits: contractor uploads are capped per-contractor (`STORAGE_LIMIT_MB`, default 500) by summing `public/uploads/<contractorId>/`. Apply `storageLimitBytes()` + `dirBytes()` to new upload routes.
 - Keep every new route handler guarded — this repo is being hardened and regressions are the main risk.
 
+## Multi-role contractor system
+
+Contractors can have multiple approved roles (e.g., developer + photographer). Roles are managed via the `ContractorRole` model (status: pending/approved/rejected). The sidebar dynamically builds navigation from all approved roles. Admin approves role requests on the contractor detail page.
+
+## SOW ↔ Deliverables workflow
+
+Deliverables link to SOWs via `sowId`. The flow: Admin creates SOW → creates Deliverable records (linked via sowId) → Contractor sees SOW + deliverables in "My SOWs" → Contractor updates status (Start → In Progress → Submit) → Admin approves → Client sees approved deliverables.
+
 ## Gotchas
 
 - `tsc --noEmit` also type-checks stale generated files under `.next/types/`. If you see errors referencing removed routes (e.g. `api/auth/login`), delete the stale entry (`.next` is gitignored and regenerated).
 - `me` endpoint uses `getSession`/`getSessionUser` directly, not `requireAuth`.
 - File sizes are capped because route handlers read whole files into memory.
+
+## Before coding
+
+- Read this file (`AGENTS.md`)
+- Read `docs/ARCHITECTURE.md` for project structure
+- Read `docs/KNOWN_ISSUES.md` for existing problems
+- Check `git status` and understand current branch
+- Understand the current version (1.1.0)
+
+## During coding
+
+- Make focused changes — avoid unrelated refactors
+- Preserve existing functionality
+- Never expose secrets, keys, or credentials
+- Never modify production configuration without authorization
+- Follow existing auth patterns (guard every route handler)
+- Use existing components from `src/components/` before creating new ones
+
+## After coding
+
+- Run `npm run typecheck` — must pass
+- Run `npm run build` — must pass
+- Update documentation if behavior changed
+- Update CHANGELOG.md when appropriate (with authorization)
+- Report files changed and any unresolved issues
+
+## Version control
+
+AI agents must NOT:
+- Bump versions without explicit authorization
+- Create Git tags without explicit authorization
+- Force-push to any branch
+- Delete branches
+- Rewrite Git history
+- Deploy to production without authorization
