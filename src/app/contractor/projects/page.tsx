@@ -92,14 +92,25 @@ export default function ContractorProjectsPage() {
   const loadFolders = async (project: Project) => {
     if (!project.client?.id || foldersByProject[project.id]) return;
     try {
-      const [foldersRes, clientRes] = await Promise.all([
+      const contractorId = user?.contractorId;
+      const [foldersRes, clientRes, contractorRes] = await Promise.all([
         fetch(`/api/folders?clientId=${project.client.id}`),
         fetch(`/api/clients/${project.client.id}`),
+        contractorId ? fetch(`/api/contractors/${contractorId}`) : Promise.resolve(null),
       ]);
       const foldersData = await foldersRes.json();
       const clientData = await clientRes.json();
+      const contractorData = contractorRes ? await contractorRes.json() : null;
       const subFolders: DriveFolder[] = Array.isArray(foldersData) ? foldersData.filter((f: DriveFolder) => f.driveFolderId || f.driveFolderUrl) : [];
-      if (subFolders.length === 0 && clientData?.googleDriveFolderId) {
+      if (subFolders.length === 0 && contractorData?.googleDriveFolderId) {
+        subFolders.push({
+          id: 'contractor-root',
+          name: `${contractorData.name} — My Drive Folder`,
+          icon: '📂',
+          driveFolderId: contractorData.googleDriveFolderId,
+          driveFolderUrl: contractorData.googleDriveFolderUrl,
+        });
+      } else if (subFolders.length === 0 && clientData?.googleDriveFolderId) {
         subFolders.push({
           id: 'root',
           name: `${project.client.name} — Main Folder`,
@@ -110,7 +121,7 @@ export default function ContractorProjectsPage() {
       }
       setFoldersByProject(prev => ({ ...prev, [project.id]: subFolders }));
       if (subFolders.length > 0 && !selectedFolderByProject[project.id]) {
-        const preferred = subFolders.find((f: DriveFolder) => /photo|image/i.test(f.name)) || subFolders[0];
+        const preferred = subFolders.find((f: DriveFolder) => /photo|image|my drive/i.test(f.name)) || subFolders[0];
         setSelectedFolderByProject(prev => ({ ...prev, [project.id]: preferred.driveFolderId || preferred.driveFolderUrl || preferred.id }));
       }
     } catch {

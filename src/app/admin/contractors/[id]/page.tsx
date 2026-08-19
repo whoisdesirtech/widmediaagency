@@ -54,6 +54,10 @@ export default function AdminContractorDetailPage() {
   const [showAddRole, setShowAddRole] = useState(false);
   const [roleAction, setRoleAction] = useState<string | null>(null);
 
+  const [driveFolderUrl, setDriveFolderUrl] = useState('');
+  const [savingFolder, setSavingFolder] = useState(false);
+  const [folderMessage, setFolderMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   useEffect(() => {
     fetch(`/api/contractors/${id}`)
       .then(r => r.json())
@@ -69,6 +73,32 @@ export default function AdminContractorDetailPage() {
       .then(data => { setRoles(Array.isArray(data) ? data : []); setRolesLoading(false); })
       .catch(() => setRolesLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (contractor?.googleDriveFolderUrl) setDriveFolderUrl(contractor.googleDriveFolderUrl);
+  }, [contractor]);
+
+  const handleSaveDriveFolder = async () => {
+    setSavingFolder(true);
+    setFolderMessage(null);
+    try {
+      const res = await fetch(`/api/contractors/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ googleDriveFolderUrl: driveFolderUrl || null }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setContractor((c: any) => ({ ...c, googleDriveFolderId: updated.googleDriveFolderId, googleDriveFolderUrl: updated.googleDriveFolderUrl }));
+        setFolderMessage({ type: 'success', text: driveFolderUrl ? 'Drive folder saved.' : 'Drive folder removed.' });
+      } else {
+        setFolderMessage({ type: 'error', text: 'Failed to save.' });
+      }
+    } catch {
+      setFolderMessage({ type: 'error', text: 'Failed to save.' });
+    }
+    setSavingFolder(false);
+  };
 
   const refreshRoles = () => {
     fetch(`/api/contractors/${id}/roles`)
@@ -251,6 +281,40 @@ export default function AdminContractorDetailPage() {
               <div className="text-xs font-semibold text-muted mb-2">Assembled Contracts</div>
               <div className="text-sm font-semibold text-dark-800">{contractor.assembledContracts?.length || 0}</div>
             </div>
+          </div>
+
+          <div className="glass-card p-6 mb-8">
+            <h3 className="font-heading font-bold text-dark-800 mb-4">Google Drive Folder</h3>
+            <p className="text-muted text-xs mb-4">Assign a Google Drive folder where this contractor uploads project deliverables.</p>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-muted mb-1">Folder URL or ID</label>
+                <input
+                  type="text"
+                  value={driveFolderUrl}
+                  onChange={e => setDriveFolderUrl(e.target.value)}
+                  placeholder="https://drive.google.com/drive/folders/..."
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
+                />
+              </div>
+              <button
+                onClick={handleSaveDriveFolder}
+                disabled={savingFolder}
+                className="btn-primary text-sm whitespace-nowrap disabled:opacity-50"
+              >
+                {savingFolder ? 'Saving...' : 'Save Folder'}
+              </button>
+            </div>
+            {folderMessage && (
+              <p className={`text-xs mt-2 font-semibold ${folderMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                {folderMessage.text}
+              </p>
+            )}
+            {contractor.googleDriveFolderId && (
+              <p className="text-xs text-muted mt-3">
+                Connected: <span className="font-mono text-dark-800">{contractor.googleDriveFolderId}</span>
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

@@ -48,6 +48,8 @@ model Contractor {
   taxFormUrl          String?
   insuranceProofUrl   String?
   licensingProofUrl   String?
+  googleDriveFolderId String?
+  googleDriveFolderUrl String?
   agencyId            String
   agency              Agency              @relation(fields: [agencyId], references: [id])
   userId              String?

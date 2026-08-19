@@ -26,6 +26,8 @@ interface ContractorData {
   taxFormUrl?: string;
   insuranceProofUrl?: string;
   licensingProofUrl?: string;
+  googleDriveFolderId?: string;
+  googleDriveFolderUrl?: string;
   sows: any[];
   assembledContracts: any[];
 }
@@ -191,6 +193,27 @@ export default function ContractorDashboard() {
               </div>
             </div>
           </div>
+
+          {contractor.googleDriveFolderId && (
+            <div className="glass-card p-6 mb-8">
+              <h3 className="font-heading font-bold text-dark-800 mb-2">My Drive Folder</h3>
+              <p className="text-muted text-xs mb-3">Your assigned Google Drive folder for uploading project deliverables.</p>
+              <a
+                href={contractor.googleDriveFolderUrl || `https://drive.google.com/drive/folders/${contractor.googleDriveFolderId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-miami-pink/5 border border-miami-pink/20 rounded-xl text-miami-pink text-sm font-semibold hover:bg-miami-pink/10 transition-colors"
+              >
+                📂 Open My Drive Folder →
+              </a>
+            </div>
+          )}
+          {!contractor.googleDriveFolderId && (
+            <div className="glass-card p-6 mb-8">
+              <h3 className="font-heading font-bold text-dark-800 mb-2">My Drive Folder</h3>
+              <p className="text-muted text-xs">No Drive folder assigned yet. Contact your agency admin to set one up.</p>
+            </div>
+          )}
 
           {pendingContracts.length > 0 && (
             <div className="glass-card overflow-hidden mb-6">
