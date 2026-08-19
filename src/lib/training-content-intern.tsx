@@ -119,7 +119,29 @@ export async function GET(req: Request) {
         <li><code>AGENTS.md</code> — Full project instructions</li>
       </ul>
 
-      {/* 6. What NOT to Touch */}
+      {/* 6. Google Drive Integration */}
+      <h2>6. Google Drive Integration</h2>
+      <p>
+        The platform uses <strong>Google Drive</strong> for file storage. Files are uploaded via a service account, not stored locally.
+      </p>
+      <p>
+        <strong>How it works:</strong>
+      </p>
+      <ul>
+        <li>Admin assigns a Google Drive folder to each contractor/client (paste the folder URL on their detail page)</li>
+        <li>When a contractor uploads project files, they go directly to that assigned Drive folder</li>
+        <li>The service account email (<code>widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</code>) must have <code>Editor</code> access to the folder</li>
+      </ul>
+      <p><strong>Key files:</strong></p>
+      <ul>
+        <li><code>src/lib/driveService.ts</code> — Drive API calls (upload, list, create folders)</li>
+        <li><code>src/lib/drive.ts</code> — URL normalization helpers</li>
+        <li><code>src/app/api/drive/upload/route.ts</code> — Upload endpoint</li>
+        <li><code>src/app/contractor/projects/page.tsx</code> — Contractor upload UI</li>
+      </ul>
+      <p><strong>Do NOT modify:</strong> <code>src/lib/driveService.ts</code> without approval — it handles the Drive API integration.</p>
+
+      {/* 7. What NOT to Touch */}
       <h2>6. What NOT to Touch</h2>
       <p>Unless explicitly told to:</p>
       <ul>
@@ -136,8 +158,8 @@ export async function GET(req: Request) {
       </ul>
       <p><strong>When in doubt, ask before changing.</strong></p>
 
-      {/* 7. How to Test Your Changes */}
-      <h2>7. How to Test Your Changes</h2>
+      {/* 8. How to Test Your Changes */}
+      <h2>8. How to Test Your Changes</h2>
       <pre className="bg-gray-900 rounded-lg p-4 text-sm font-mono overflow-x-auto">
 {`# Step 1: Type check (MUST pass)
 npm run typecheck
@@ -156,8 +178,8 @@ npm run lint
       </pre>
       <p><strong>If typecheck or build fails, fix it before pushing.</strong></p>
 
-      {/* 8. How to Write a Commit Message */}
-      <h2>8. How to Write a Commit Message</h2>
+      {/* 9. How to Write a Commit Message */}
+      <h2>9. How to Write a Commit Message</h2>
       <p><strong>Good:</strong></p>
       <pre className="bg-gray-900 rounded-lg p-4 text-sm font-mono overflow-x-auto">
 {`feat: add category field to notifications
@@ -180,8 +202,8 @@ asdfasdf`}
         Types: <code>feat</code> (new feature), <code>fix</code> (bug fix), <code>chore</code> (maintenance), <code>docs</code> (documentation)
       </p>
 
-      {/* 9. How to Ask for Help */}
-      <h2>9. How to Ask for Help</h2>
+      {/* 10. How to Ask for Help */}
+      <h2>10. How to Ask for Help</h2>
       <p><strong>Good:</strong></p>
       <blockquote>
         &quot;I&apos;m trying to add a category field to notifications. I added it to the schema and ran
@@ -201,8 +223,8 @@ asdfasdf`}
         <li>Relevant code snippets</li>
       </ol>
 
-      {/* 10. Your First Task */}
-      <h2>10. Your First Task</h2>
+      {/* 11. Your First Task */}
+      <h2>11. Your First Task</h2>
       <p><strong>Add a <code>category</code> field to the Notification model.</strong></p>
       <ol>
         <li>Add <code>category String?</code> to the Notification model in <code>prisma/schema.prisma</code></li>
@@ -221,8 +243,8 @@ asdfasdf`}
         <li>Won&apos;t break anything</li>
       </ul>
 
-      {/* 11. Quick Reference */}
-      <h2>11. Quick Reference</h2>
+      {/* 12. Quick Reference */}
+      <h2>12. Quick Reference</h2>
       <h3>Commands</h3>
       <table>
         <thead>

@@ -605,7 +605,127 @@ npm run format       # Prettier`}
         </div>
       </section>
 
-      {/* ─── 11. Security Rules ─── */}
+      {/* ─── 11. Google Drive Integration ─── */}
+      <section className="mb-16">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">11</span>
+          <h2 className="font-heading text-2xl font-bold text-white">Google Drive Integration</h2>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-8 mb-6">
+          <h3 className="font-heading font-bold text-white mb-4">How It Works</h3>
+          <p className="text-sm text-white/50 mb-4">
+            Files are uploaded to Google Drive via a <span className="text-white/70 font-semibold">service account</span> (<code className="bg-white/5 px-2 py-0.5 rounded text-miami-blue-light text-xs">widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</code>). Each client and contractor has a <span className="text-white/70 font-semibold">designated Drive folder</span> where their files are uploaded.
+          </p>
+          <div className="bg-gray-900 rounded-lg p-4 text-sm font-mono overflow-x-auto text-white/70 leading-relaxed mb-4">
+{`Flow:
+  Admin assigns Drive folder to client/contractor
+    → Folder ID stored in Client.googleDriveFolderId or Contractor.googleDriveFolderId
+    → URL normalized via normalizeDriveId() from src/lib/drive.ts
+  User uploads files via project page
+    → POST /api/drive/upload with folderId + files
+    → driveService.uploadFileToFolder() uploads to Drive
+    → File metadata stored in project.images JSON array`}
+          </div>
+          <div className="grid md:grid-cols-3 gap-3">
+            <div className="bg-white/[0.04] border border-white/5 rounded-xl p-4">
+              <p className="text-xs text-white/30 mb-1">Service Account</p>
+              <p className="text-xs text-miami-blue-light font-mono break-all">whoisdesir-media.iam.gserviceaccount.com</p>
+            </div>
+            <div className="bg-white/[0.04] border border-white/5 rounded-xl p-4">
+              <p className="text-xs text-white/30 mb-1">Upload Endpoint</p>
+              <p className="text-xs text-miami-blue-light font-mono">POST /api/drive/upload</p>
+            </div>
+            <div className="bg-white/[0.04] border border-white/5 rounded-xl p-4">
+              <p className="text-xs text-white/30 mb-1">Folder Fields</p>
+              <p className="text-xs text-miami-blue-light font-mono">googleDriveFolderId</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6">
+            <h3 className="font-heading font-bold text-white mb-4">Admin: Assigning Drive Folders</h3>
+            <ol className="space-y-3 text-sm text-white/50">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                <span>Open <strong className="text-white/70">Admin → Contractors</strong> or <strong className="text-white/70">Admin → Clients</strong></span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                <span>Click on a contractor/client to open their detail page</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                <span>Paste the Google Drive folder URL into the <strong className="text-white/70">&quot;Google Drive Folder&quot;</strong> section</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                <span>Click <strong className="text-white/70">&quot;Save Folder&quot;</strong> — the URL is normalized to a folder ID automatically</span>
+              </li>
+            </ol>
+            <div className="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+              <p className="text-xs text-amber-300/80">
+                <strong>Note:</strong> The service account email must have <code className="bg-white/5 px-1 rounded">Editor</code> access to the folder. Share the folder with <code className="bg-white/5 px-1 rounded text-[10px]">widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</code> before assigning it.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6">
+            <h3 className="font-heading font-bold text-white mb-4">Contractor: Uploading Project Files</h3>
+            <ol className="space-y-3 text-sm text-white/50">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-blue-light/15 text-miami-blue-light flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                <span>Log in as a contractor and go to <strong className="text-white/70">My Projects</strong></span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-blue-light/15 text-miami-blue-light flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                <span>Click on a project to expand it</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-blue-light/15 text-miami-blue-light flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                <span>Select the target folder from the dropdown (your assigned Drive folder or project subfolder)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-miami-blue-light/15 text-miami-blue-light flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                <span>Select photos/videos and click <strong className="text-white/70">&quot;Upload to Drive&quot;</strong></span>
+              </li>
+            </ol>
+            <div className="mt-4 bg-white/[0.04] border border-white/5 rounded-xl p-3">
+              <p className="text-xs text-white/40">
+                <strong>Folder priority:</strong> If the contractor has their own assigned Drive folder, uploads go there. Otherwise, falls back to the client&apos;s folder. Subfolders take priority over root folders.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-8">
+          <h3 className="font-heading font-bold text-white mb-4">Key Files</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left py-2 px-3 text-white/70">File</th>
+                  <th className="text-left py-2 px-3 text-white/70">Purpose</th>
+                </tr>
+              </thead>
+              <tbody className="text-white/80">
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/lib/driveService.ts</td><td className="py-2 px-3">Google Drive API — uploadFileToFolder, createSubfolder, listFilesInFolder</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/lib/drive.ts</td><td className="py-2 px-3">URL normalization — normalizeDriveId, driveFolderUrl</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/app/api/drive/upload/route.ts</td><td className="py-2 px-3">POST endpoint — accepts folderId + files, uploads to Drive</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/app/api/contractors/[id]/route.ts</td><td className="py-2 px-3">PATCH — normalizes Drive folder URL on contractor update</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/app/api/clients/[id]/route.ts</td><td className="py-2 px-3">PATCH — normalizes Drive folder URL on client update</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/app/contractor/projects/page.tsx</td><td className="py-2 px-3">Contractor project upload UI — selects folder, uploads files</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/app/admin/contractors/[id]/page.tsx</td><td className="py-2 px-3">Admin — sets Drive folder URL for contractor</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">src/app/admin/clients/[id]/page.tsx</td><td className="py-2 px-3">Admin — sets Drive folder URL for client</td></tr>
+                <tr className="border-b border-white/5"><td className="py-2 px-3 font-mono text-xs text-miami-blue-light">prisma/schema.prisma</td><td className="py-2 px-3">Contractor and Client models — googleDriveFolderId, googleDriveFolderUrl</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 12. Security Rules ─── */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
           <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">11</span>
@@ -648,10 +768,10 @@ npm run format       # Prettier`}
         </div>
       </section>
 
-      {/* ─── 12. Common Mistakes ─── */}
+      {/* ─── 13. Common Mistakes ─── */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
-          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">12</span>
+          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">13</span>
           <h2 className="font-heading text-2xl font-bold text-white">Common Mistakes</h2>
         </div>
 
@@ -682,10 +802,10 @@ npm run format       # Prettier`}
         </div>
       </section>
 
-      {/* ─── 13. First Task Recommendation ─── */}
+      {/* ─── 14. First Task Recommendation ─── */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
-          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">13</span>
+          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">14</span>
           <h2 className="font-heading text-2xl font-bold text-white">First Task Recommendation</h2>
         </div>
 
@@ -737,10 +857,10 @@ npm run build`}
         </div>
       </section>
 
-      {/* ─── 14. Developer Golden Rules ─── */}
+      {/* ─── 15. Developer Golden Rules ─── */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
-          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">14</span>
+          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">15</span>
           <h2 className="font-heading text-2xl font-bold text-white">Developer Golden Rules</h2>
         </div>
 
@@ -771,10 +891,10 @@ npm run build`}
         </div>
       </section>
 
-      {/* ─── 15. Final Checklist ─── */}
+      {/* ─── 16. Final Checklist ─── */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
-          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">15</span>
+          <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-xs font-bold">16</span>
           <h2 className="font-heading text-2xl font-bold text-white">Final Checklist</h2>
         </div>
 

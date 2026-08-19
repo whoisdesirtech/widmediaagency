@@ -202,6 +202,45 @@ export async function GET(req: Request) {
         </div>
       </section>
 
+      {/* Google Drive Folder Assignment */}
+      <section>
+        <h2 className="font-heading text-xl font-bold text-white mb-4">Google Drive Folder Assignment</h2>
+        <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6 mb-4">
+          <p className="text-sm text-white/60 mb-4">
+            Admins assign Google Drive folders to contractors and clients. This is where project files are uploaded.
+          </p>
+          <div className="space-y-3 text-sm text-white/70">
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">1</span>
+              <span>Go to <strong className="text-white/90">Admin → Contractors</strong> (or Clients) → click a record</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">2</span>
+              <span>Paste the Google Drive folder URL into the <strong className="text-white/90">&quot;Google Drive Folder&quot;</strong> section</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-miami-pink/15 text-miami-pink flex items-center justify-center text-xs font-bold shrink-0">3</span>
+              <span>Click <strong className="text-white/90">&quot;Save Folder&quot;</strong> — the URL is normalized to a folder ID automatically</span>
+            </div>
+          </div>
+          <div className="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+            <p className="text-xs text-amber-300/80">
+              <strong>Prerequisite:</strong> Share the folder with <code className="bg-white/5 px-1 rounded text-[10px]">widmedia-drive-upload@whoisdesir-media.iam.gserviceaccount.com</code> as Editor before assigning it.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3">
+            <span className="text-white/50">Contractor uploads go to:</span>{' '}
+            <code className="text-miami-pink">Contractor.googleDriveFolderId</code> (or client&apos;s)
+          </div>
+          <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3">
+            <span className="text-white/50">Client uploads go to:</span>{' '}
+            <code className="text-miami-pink">Client.googleDriveFolderId</code>
+          </div>
+        </div>
+      </section>
+
       {/* Gotchas */}
       <section>
         <h2 className="font-heading text-xl font-bold text-white mb-4">Gotchas</h2>
