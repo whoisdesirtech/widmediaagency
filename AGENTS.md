@@ -2,7 +2,7 @@
 
 Next.js (App Router) agency-management platform: contractor onboarding, SOWs, contract assembly/signing, clients, deliverables, invoices, and Google Drive storage.
 
-**Current version: 1.1.0** | **Latest tag: v1.0.0** | **Branch: main**
+**Current version: 1.2.0** | **Latest tag: v1.0.0** | **Branch: main**
 
 ## Commands
 
@@ -18,9 +18,10 @@ Next.js (App Router) agency-management platform: contractor onboarding, SOWs, co
 ## Stack
 
 - Next.js 14 App Router, TypeScript (strict-ish; `any` used in places), Tailwind CSS
-- Prisma + PostgreSQL (see `prisma/schema.prisma`, 18 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
+- Prisma + PostgreSQL (see `prisma/schema.prisma`, 23 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
 - NextAuth credentials strategy (`src/app/api/auth/[...nextauth]/route.ts`, options in `src/lib/auth.ts`)
 - Google Drive via service account (`src/lib/driveService.ts`), uploads to Drive, not local disk
+- GitHub via Octokit PAT (`src/lib/github.ts`), creates training repos from template or empty repos
 
 ## Project structure
 
@@ -62,6 +63,31 @@ Contractors can have multiple approved roles (e.g., developer + photographer). R
 
 Deliverables link to SOWs via `sowId`. The flow: Admin creates SOW → creates Deliverable records (linked via sowId) → Contractor sees SOW + deliverables in "My SOWs" → Contractor updates status (Start → In Progress → Submit) → Admin approves → Client sees approved deliverables.
 
+## Individualized Training System
+
+Training lessons are defined in `TrainingLesson` (slug, steps JSON, requiresGithub flag). Admins assign lessons via `POST /api/admin/training/assign`. Contractors progress through steps via `POST /api/training/progress`. Progress is calculated as `completed steps / total steps * 100`.
+
+### GitHub Training Repositories
+
+Lessons with `requiresGithub: true` can have individual GitHub repositories. Architecture: **GitHub Template Repository + Octokit PAT**.
+
+- **Service**: `src/lib/github.ts` — `createTrainingRepo()`, `generateRepoName()`, `getRepoStatus()`
+- **Endpoint**: `POST /api/training/github` (contractor-authenticated, ownership-verified)
+- **Model**: `GitHubRepository` — linked to `TrainingAssignment` via `@@unique([assignmentId])`
+- **Naming**: `wid-{lesson_slug}-{short_id}` — no personal info exposed
+- **Idempotency**: Existing repo returned on repeated clicks; error repos allow retry
+- **Auth**: `GITHUB_TOKEN` env var (PAT with `repo` scope), server-side only
+- **Template**: `GITHUB_TEMPLATE_OWNER`/`GITHUB_TEMPLATE_REPO` env vars; falls back to empty repo if template not found
+
+Required env vars: `GITHUB_TOKEN`, `GITHUB_ORG` (default: `whoisdesirtech`), `GITHUB_TEMPLATE_OWNER`, `GITHUB_TEMPLATE_REPO`
+
+### Canonical Lessons
+
+- `contractor-onboarding` (7 steps, no GitHub)
+- `developer-full` (16 steps, GitHub required)
+- `developer-intern` (12 steps, GitHub required)
+- `slack-fundamentals` (7 placeholder steps, GitHub required)
+
 ## Gotchas
 
 - `tsc --noEmit` also type-checks stale generated files under `.next/types/`. If you see errors referencing removed routes (e.g. `api/auth/login`), delete the stale entry (`.next` is gitignored and regenerated).
@@ -74,7 +100,7 @@ Deliverables link to SOWs via `sowId`. The flow: Admin creates SOW → creates D
 - Read `docs/ARCHITECTURE.md` for project structure
 - Read `docs/KNOWN_ISSUES.md` for existing problems
 - Check `git status` and understand current branch
-- Understand the current version (1.1.0)
+- Understand the current version (1.2.0)
 
 ## During coding
 

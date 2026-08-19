@@ -300,18 +300,19 @@ model ContractorRole {
 }
 
 model TrainingLesson {
-  id          String   @id @default(uuid())
-  slug        String   @unique
-  title       String
-  description String?
-  version     Int      @default(1)
-  targetRole  String   // contractor | client | developer | intern
-  steps       Json     // [{ id: string, title: string, order: number }]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  title          String
+  description    String?
+  version        Int      @default(1)
+  targetRole     String   // contractor | client | developer | intern
+  steps          Json     // [{ id: string, title: string, order: number }]
+  isActive       Boolean  @default(true)
+  requiresGithub Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  assignments TrainingAssignment[]
+  assignments    TrainingAssignment[]
 }
 
 model TrainingAssignment {
@@ -327,7 +328,8 @@ model TrainingAssignment {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  steps        TrainingStepProgress[]
+  steps            TrainingStepProgress[]
+  githubRepository GitHubRepository?
 
   @@unique([lessonId, contractorId])
 }
@@ -344,4 +346,21 @@ model TrainingStepProgress {
   updatedAt    DateTime            @updatedAt
 
   @@unique([assignmentId, stepId])
+}
+
+model GitHubRepository {
+  id                   String             @id @default(uuid())
+  assignmentId         String
+  assignment           TrainingAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  repoName             String
+  repoUrl              String
+  owner                String
+  githubRepositoryId   Int
+  defaultBranch        String             @default("main")
+  status               String             @default("pending") // pending | creating | created | active | error | archived
+  errorMessage         String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@unique([assignmentId])
 }

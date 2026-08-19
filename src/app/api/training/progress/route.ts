@@ -13,6 +13,7 @@ export async function GET() {
       include: {
         lesson: true,
         steps: { orderBy: { createdAt: 'asc' } },
+        githubRepository: true,
       },
       orderBy: { createdAt: 'asc' },
     });
@@ -39,6 +40,7 @@ export async function GET() {
           description: a.lesson.description,
           targetRole: a.lesson.targetRole,
           steps: a.lesson.steps,
+          requiresGithub: a.lesson.requiresGithub,
         },
         steps: a.steps.map(s => ({
           id: s.id,
@@ -46,6 +48,14 @@ export async function GET() {
           status: s.status,
           completedAt: s.completedAt,
         })),
+        githubRepository: a.githubRepository ? {
+          id: a.githubRepository.id,
+          repoName: a.githubRepository.repoName,
+          repoUrl: a.githubRepository.repoUrl,
+          status: a.githubRepository.status,
+          defaultBranch: a.githubRepository.defaultBranch,
+          errorMessage: a.githubRepository.errorMessage,
+        } : null,
       };
     });
 

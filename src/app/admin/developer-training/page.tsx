@@ -19,8 +19,9 @@ interface ProgressAssignment {
   completedSteps: number;
   totalSteps: number;
   contractor: ContractorInfo;
-  lesson: { id: string; slug: string; title: string; targetRole: string };
+  lesson: { id: string; slug: string; title: string; targetRole: string; requiresGithub: boolean };
   steps: { stepId: string; status: string; completedAt: string | null }[];
+  githubRepository: { repoName: string; repoUrl: string; status: string } | null;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -267,6 +268,7 @@ function ContractorProgress() {
                 <th className="text-left py-3 px-3 text-white/70">Lesson</th>
                 <th className="text-left py-3 px-3 text-white/70">Status</th>
                 <th className="text-left py-3 px-3 text-white/70">Progress</th>
+                <th className="text-left py-3 px-3 text-white/70">GitHub</th>
                 <th className="text-left py-3 px-3 text-white/70">Assigned</th>
               </tr>
             </thead>
@@ -289,6 +291,27 @@ function ContractorProgress() {
                         </div>
                         <span className="text-white/60 text-xs">{a.completedSteps}/{a.totalSteps}</span>
                       </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      {a.lesson.requiresGithub ? (
+                        a.githubRepository ? (
+                          a.githubRepository.status === 'created' || a.githubRepository.status === 'active' ? (
+                            <a href={a.githubRepository.repoUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-miami-blue-light hover:underline">
+                              {a.githubRepository.repoName}
+                            </a>
+                          ) : a.githubRepository.status === 'error' ? (
+                            <span className="text-xs text-red-400">Error</span>
+                          ) : a.githubRepository.status === 'creating' ? (
+                            <span className="text-xs text-blue-400">Creating...</span>
+                          ) : (
+                            <span className="text-xs text-white/40">{a.githubRepository.status}</span>
+                          )
+                        ) : (
+                          <span className="text-xs text-white/40">Not Created</span>
+                        )
+                      ) : (
+                        <span className="text-xs text-white/30">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-3 text-white/50 text-xs">{new Date(a.assignedAt).toLocaleDateString()}</td>
                   </tr>

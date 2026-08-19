@@ -19,6 +19,7 @@ export async function GET(req: Request) {
         lesson: true,
         contractor: { select: { id: true, name: true, businessName: true } },
         steps: true,
+        githubRepository: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -44,12 +45,18 @@ export async function GET(req: Request) {
           slug: a.lesson.slug,
           title: a.lesson.title,
           targetRole: a.lesson.targetRole,
+          requiresGithub: a.lesson.requiresGithub,
         },
         steps: a.steps.map(s => ({
           stepId: s.stepId,
           status: s.status,
           completedAt: s.completedAt,
         })),
+        githubRepository: a.githubRepository ? {
+          repoName: a.githubRepository.repoName,
+          repoUrl: a.githubRepository.repoUrl,
+          status: a.githubRepository.status,
+        } : null,
       };
     });
 

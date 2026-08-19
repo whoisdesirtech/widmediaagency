@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 interface StepDef { id: string; title: string; order: number; }
 interface StepProgress { id: string; stepId: string; status: string; completedAt: string | null; }
+interface GitHubRepo { id: string; repoName: string; repoUrl: string; status: string; defaultBranch: string; errorMessage: string | null; }
 interface Assignment {
   id: string;
   status: string;
@@ -16,8 +17,9 @@ interface Assignment {
   progress: number;
   completedSteps: number;
   totalSteps: number;
-  lesson: { id: string; slug: string; title: string; description: string | null; targetRole: string; steps: StepDef[] };
+  lesson: { id: string; slug: string; title: string; description: string | null; targetRole: string; steps: StepDef[]; requiresGithub: boolean };
   steps: StepProgress[];
+  githubRepository: GitHubRepo | null;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -26,12 +28,22 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   completed: { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Completed' },
 };
 
+const GH_STATUS: Record<string, { bg: string; text: string; label: string }> = {
+  pending: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Not Created' },
+  creating: { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Creating...' },
+  created: { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Ready' },
+  active: { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Ready' },
+  error: { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: 'Error' },
+  archived: { bg: 'bg-gray-100', text: 'text-gray-500', label: 'Archived' },
+};
+
 export default function ContractorTrainingPage() {
   const [user, setUser] = useState<{ name: string; email: string; contractorRole?: string; contractorRoles?: string[] } | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [assignmentsLoading, setAssignmentsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [completingStep, setCompletingStep] = useState<string | null>(null);
+  const [creatingRepo, setCreatingRepo] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -60,6 +72,23 @@ export default function ContractorTrainingPage() {
     setCompletingStep(null);
   };
 
+  const handleCreateRepo = async (assignmentId: string) => {
+    setCreatingRepo(assignmentId);
+    try {
+      const res = await fetch('/api/training/github', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignmentId }),
+      });
+      if (res.ok) loadAssignments();
+      else {
+        const err = await res.json();
+        alert(err.error || 'Failed to create repository');
+      }
+    } catch { alert('Failed to create repository'); }
+    setCreatingRepo(null);
+  };
+
   const isDeveloper = user?.contractorRoles?.includes('developer');
 
   return (
@@ -85,6 +114,9 @@ export default function ContractorTrainingPage() {
                   const isExpanded = expandedId === a.id;
                   const style = STATUS_STYLES[a.status] || STATUS_STYLES.assigned;
                   const lessonSteps = a.lesson.steps || [];
+                  const ghStatus = a.githubRepository ? GH_STATUS[a.githubRepository.status] || GH_STATUS.pending : null;
+                  const isCreating = creatingRepo === a.id;
+
                   return (
                     <div key={a.id} className="glass-card overflow-hidden">
                       <button
@@ -97,6 +129,11 @@ export default function ContractorTrainingPage() {
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
                               {style.label}
                             </span>
+                            {a.lesson.requiresGithub && ghStatus && (
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${ghStatus.bg} ${ghStatus.text}`}>
+                                GH: {ghStatus.label}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted">
                             <span>{a.completedSteps} / {a.totalSteps} complete</span>
@@ -117,6 +154,61 @@ export default function ContractorTrainingPage() {
                           {a.lesson.description && (
                             <p className="text-sm text-muted mb-4">{a.lesson.description}</p>
                           )}
+
+                          {/* GitHub Repository Section */}
+                          {a.lesson.requiresGithub && (
+                            <div className="mb-4 p-4 rounded-xl bg-gray-50 border border-muted-lighter">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className="text-sm font-bold text-dark">GitHub Training Repository</h4>
+                                  {a.githubRepository ? (
+                                    <div className="mt-1">
+                                      {a.githubRepository.status === 'created' || a.githubRepository.status === 'active' ? (
+                                        <a
+                                          href={a.githubRepository.repoUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-sm text-miami-blue-light hover:underline font-medium"
+                                        >
+                                          {a.githubRepository.repoName} →
+                                        </a>
+                                      ) : a.githubRepository.status === 'error' ? (
+                                        <p className="text-xs text-red-600 mt-1">{a.githubRepository.errorMessage || 'Creation failed. You can retry.'}</p>
+                                      ) : a.githubRepository.status === 'creating' ? (
+                                        <p className="text-xs text-blue-600 mt-1">Repository is being created...</p>
+                                      ) : null}
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-muted mt-1">Not created yet</p>
+                                  )}
+                                </div>
+                                <div>
+                                  {!a.githubRepository || a.githubRepository.status === 'error' ? (
+                                    <button
+                                      onClick={() => handleCreateRepo(a.id)}
+                                      disabled={isCreating}
+                                      className="px-4 py-2 bg-miami-blue-light text-white text-xs font-semibold rounded-lg hover:bg-miami-blue-light/80 transition-colors disabled:opacity-50"
+                                    >
+                                      {isCreating ? 'Creating...' : 'Create Training Repository'}
+                                    </button>
+                                  ) : a.githubRepository.status === 'created' || a.githubRepository.status === 'active' ? (
+                                    <a
+                                      href={a.githubRepository.repoUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-4 py-2 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors inline-block"
+                                    >
+                                      Open GitHub Repository
+                                    </a>
+                                  ) : a.githubRepository.status === 'creating' ? (
+                                    <span className="px-4 py-2 bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg inline-block">Creating...</span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Training Steps */}
                           <div className="space-y-2">
                             {lessonSteps.sort((x, y) => x.order - y.order).map(step => {
                               const sp = a.steps.find(s => s.stepId === step.id);

@@ -8,6 +8,7 @@ const lessons = [
     title: 'Contractor Onboarding',
     description: 'Essential onboarding for new contractors — portal, SOW, contracts, Drive, and deliverables.',
     targetRole: 'contractor',
+    requiresGithub: false,
     steps: [
       { id: 'login', title: 'How to Log In', order: 1 },
       { id: 'portal-overview', title: 'Portal Overview', order: 2 },
@@ -23,6 +24,7 @@ const lessons = [
     title: 'Full Developer Training',
     description: 'Complete developer training — architecture, auth, API routes, git workflow, and security.',
     targetRole: 'developer',
+    requiresGithub: true,
     steps: [
       { id: 'welcome-project-overview', title: 'Welcome & Project Overview', order: 1 },
       { id: 'technology-stack', title: 'Technology Stack', order: 2 },
@@ -47,6 +49,7 @@ const lessons = [
     title: 'Intern Training',
     description: 'Abbreviated developer training for interns making small features.',
     targetRole: 'intern',
+    requiresGithub: true,
     steps: [
       { id: 'what-is-this-project', title: 'What Is This Project?', order: 1 },
       { id: 'setup', title: 'Setup (5 minutes)', order: 2 },
@@ -67,6 +70,7 @@ const lessons = [
     title: 'Slack Fundamentals',
     description: 'Learn to use Slack for team communication — workspace, channels, messages, and threads.',
     targetRole: 'contractor',
+    requiresGithub: true,
     steps: [
       { id: 'join-workspace', title: 'Join the Slack Workspace', order: 1 },
       { id: 'profile', title: 'Complete Your Profile', order: 2 },
@@ -81,22 +85,32 @@ const lessons = [
 
 async function main() {
   let created = 0;
+  let updated = 0;
   let skipped = 0;
 
   for (const lesson of lessons) {
     const existing = await prisma.trainingLesson.findUnique({ where: { slug: lesson.slug } });
     if (existing) {
-      skipped++;
+      // Update requiresGithub if changed
+      if (existing.requiresGithub !== lesson.requiresGithub) {
+        await prisma.trainingLesson.update({
+          where: { slug: lesson.slug },
+          data: { requiresGithub: lesson.requiresGithub },
+        });
+        updated++;
+      } else {
+        skipped++;
+      }
       continue;
     }
     await prisma.trainingLesson.create({ data: lesson });
     created++;
   }
 
-  console.log(`\nTraining lessons: ${created} created, ${skipped} skipped (already exist)`);
+  console.log(`\nTraining lessons: ${created} created, ${updated} updated, ${skipped} unchanged`);
   console.log('Canonical lessons:');
   for (const l of lessons) {
-    console.log(`  - ${l.slug} (${l.steps.length} steps)`);
+    console.log(`  - ${l.slug} (${l.steps.length} steps, requiresGithub: ${l.requiresGithub})`);
   }
 }
 
