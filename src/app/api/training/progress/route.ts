@@ -3,6 +3,58 @@ import { prisma } from '@/lib/prisma';
 import { requireContractor, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 
+export async function GET() {
+  try {
+    const user = await requireContractor();
+    if (isNextResponse(user)) return user;
+
+    const assignments = await prisma.trainingAssignment.findMany({
+      where: { contractorId: user.contractorId! },
+      include: {
+        lesson: true,
+        steps: { orderBy: { createdAt: 'asc' } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const result = assignments.map(a => {
+      const steps = (a.lesson.steps as Array<{ id: string; title: string; order: number }>) || [];
+      const totalSteps = steps.length;
+      const completedSteps = a.steps.filter(s => s.status === 'completed').length;
+      const progress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
+      return {
+        id: a.id,
+        status: a.status,
+        assignedAt: a.assignedAt,
+        startedAt: a.startedAt,
+        completedAt: a.completedAt,
+        progress,
+        completedSteps,
+        totalSteps,
+        lesson: {
+          id: a.lesson.id,
+          slug: a.lesson.slug,
+          title: a.lesson.title,
+          description: a.lesson.description,
+          targetRole: a.lesson.targetRole,
+          steps: a.lesson.steps,
+        },
+        steps: a.steps.map(s => ({
+          id: s.id,
+          stepId: s.stepId,
+          status: s.status,
+          completedAt: s.completedAt,
+        })),
+      };
+    });
+
+    return NextResponse.json(result);
+  } catch {
+    return NextResponse.json({ error: 'Failed to fetch training progress' }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const user = await requireContractor();
