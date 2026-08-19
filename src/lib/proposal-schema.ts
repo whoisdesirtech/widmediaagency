@@ -121,6 +121,11 @@ export interface ProposalInput {
   /** Must be > 0. No defaults are provided. */
   investment: number;
   payment_terms?: string;
+  status?: "pending" | "confirmed";
+
+  // ── Discovery & Integrations ──────────────────────────────────────────────
+  google_script_url?: string;
+  webhook_url?: string;
 }
 
 // ─── REQUIRED FIELD REGISTRY ─────────────────────────────────────────────────
@@ -254,6 +259,19 @@ export function validateProposalInput(data: Partial<ProposalInput>): ValidationR
           errors.push({ field: "deliverables", message: `deliverables[${i}].title is required and cannot be empty.` });
         }
       });
+    }
+  }
+
+  // ── 8. status ("pending" | "confirmed") ───────────────────────────────────
+  if (data.status !== undefined && data.status !== "pending" && data.status !== "confirmed") {
+    errors.push({ field: "status", message: `status must be either 'pending' or 'confirmed', got '${data.status}'.` });
+  }
+
+  // ── 9. integration URLs (optional) ────────────────────────────────────────
+  for (const urlField of ["google_script_url", "webhook_url"] as const) {
+    const val = data[urlField];
+    if (val !== undefined && val.trim() !== "" && !URL_RE.test(val.trim())) {
+      errors.push({ field: urlField, message: `${urlField} must be a valid URL starting with http:// or https://.` });
     }
   }
 

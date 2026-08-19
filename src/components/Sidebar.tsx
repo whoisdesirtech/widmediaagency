@@ -22,6 +22,7 @@ const NAV_ITEMS = [
 const ADMIN_ONLY_ITEMS = [
   { href: '/admin/audit', label: 'Audit Admin', icon: '🛡️' },
   { href: '/admin/audit-log', label: 'Audit Log', icon: '🧾' },
+  { href: '/admin/developer-training', label: 'Developer Training', icon: '🎓' },
 ];
 
 export default function Sidebar() {
