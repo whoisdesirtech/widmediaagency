@@ -28,7 +28,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const existingImages = JSON.parse(project.images || '[]');
     const newImages = [];
 
-    const uploadDir = path.resolve(process.cwd(), 'public', 'uploads', 'projects');
+    const uploadDir = path.resolve(process.cwd(), 'data', 'uploads', 'projects');
 
     for (const file of files) {
       if (file.size > MAX_SIZE) {
@@ -53,7 +53,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       await writeFile(filepath, buffer);
 
       newImages.push({
-        url: `/uploads/projects/${filename}`,
+        url: `/api/uploads/projects/${filename}`,
         name: file.name,
         uploadedAt: new Date().toISOString(),
       });

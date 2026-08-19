@@ -46,7 +46,13 @@ export async function GET() {
     const user = await requireAdminOrStaff();
     if (isNextResponse(user)) return user;
 
+    const where: any = {};
+    if (user.agencyId) {
+      where.agencyId = user.agencyId;
+    }
+
     const contractors = await prisma.contractor.findMany({
+      where,
       include: { sows: true, _count: { select: { sows: true, assembledContracts: true } } },
       orderBy: { createdAt: 'desc' },
     });

@@ -130,6 +130,7 @@ model Signature {
   signerName    String
   signerEmail   String
   signatureData String
+  signatureHash String?
   signedAt      DateTime          @default(now())
   contract      AssembledContract @relation(fields: [contractId], references: [id])
 }

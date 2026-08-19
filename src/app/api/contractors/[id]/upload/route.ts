@@ -41,7 +41,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
-    const uploadDir = path.resolve(process.cwd(), 'public', 'uploads', params.id);
+    const uploadDir = path.resolve(process.cwd(), 'data', 'uploads', params.id);
     await mkdir(uploadDir, { recursive: true });
 
     const used = await dirBytes(uploadDir);
@@ -62,7 +62,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(filepath, buffer);
 
-    const url = `/uploads/${params.id}/${filename}`;
+    const url = `/api/uploads/${params.id}/${filename}`;
 
     await prisma.contractor.update({
       where: { id: params.id },

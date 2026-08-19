@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createHash } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, isNextResponse, forbiddenResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
@@ -32,6 +33,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid signer role' }, { status: 400 });
     }
 
+    const signatureHash = createHash('sha256')
+      .update(JSON.stringify({ contractId, signerRole, signerName, signerEmail, signatureData, signedAt: new Date().toISOString() }))
+      .digest('hex');
+
     const signature = await prisma.signature.create({
       data: {
         contractId,
@@ -39,6 +44,7 @@ export async function POST(req: Request) {
         signerName,
         signerEmail: signerEmail || '',
         signatureData,
+        signatureHash,
       },
     });
 

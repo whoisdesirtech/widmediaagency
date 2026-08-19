@@ -140,7 +140,7 @@ export default function ClientDashboard() {
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Pending Approvals</div>
                   <div className="font-heading text-3xl font-black text-dark-800">
-                    {projects.filter(p => p.status === 'review').length || 2}
+                    {projects.filter(p => p.status === 'review').length}
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-lg">⏳</div>
@@ -149,9 +149,9 @@ export default function ClientDashboard() {
             <div className="glass-card p-5">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-muted text-xs font-semibold mb-1">Media Files</div>
+                  <div className="text-muted text-xs font-semibold mb-1">Media Folders</div>
                   <div className="font-heading text-3xl font-black text-dark-800">
-                    {client.googleDriveFolderId ? '77' : '—'}
+                    {folders.length}
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg">🖼️</div>
@@ -161,7 +161,7 @@ export default function ClientDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Messages</div>
-                  <div className="font-heading text-3xl font-black text-dark-800">4</div>
+                  <div className="font-heading text-3xl font-black text-dark-800">—</div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-lg">💬</div>
               </div>

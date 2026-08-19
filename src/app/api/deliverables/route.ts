@@ -51,6 +51,10 @@ export async function GET(req: Request) {
     } else {
       if (clientId) where.clientId = clientId;
       if (contractorId) where.contractorId = contractorId;
+      
+      if (user.agencyId) {
+        where.client = { agencyId: user.agencyId };
+      }
     }
 
     const deliverables = await prisma.deliverable.findMany({
