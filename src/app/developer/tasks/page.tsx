@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const STATUS_OPTIONS = [
   { value: 'not-started', label: 'Not Started', color: 'bg-gray-100 text-gray-700' },
@@ -25,6 +26,7 @@ export default function DeveloperTasksPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ status: '', priority: '', search: '' });
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -103,7 +105,27 @@ export default function DeveloperTasksPage() {
             <h1 className="font-heading text-2xl font-black text-gray-900">Tasks</h1>
             <p className="text-gray-500 text-sm mt-1">Track assigned work and deliverables</p>
           </div>
-          <button onClick={() => setShowCreate(true)} className="btn-primary">+ New Task</button>
+          <div className="flex items-center gap-2">
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                List
+              </button>
+              <button
+                onClick={() => setViewMode('kanban')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === 'kanban' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Kanban
+              </button>
+            </div>
+            <button onClick={() => setShowCreate(true)} className="btn-primary">+ New Task</button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -154,7 +176,7 @@ export default function DeveloperTasksPage() {
             <div className="text-gray-500 text-sm mb-4">Create your first task to get started.</div>
             <button onClick={() => setShowCreate(true)} className="btn-primary inline-flex">+ New Task</button>
           </div>
-        ) : (
+        ) : viewMode === 'list' ? (
           <div className="space-y-2">
             {filteredTasks.map((task) => {
               const statusOpt = STATUS_OPTIONS.find(s => s.value === task.status);
@@ -170,7 +192,7 @@ export default function DeveloperTasksPage() {
                         'bg-gray-300'
                       }`}></div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm text-gray-900">{task.title}</h4>
+                        <Link href={`/developer/tasks/${task.id}`} className="font-medium text-sm text-gray-900 hover:text-pink-600">{task.title}</Link>
                         <p className="text-xs text-gray-500">{task.project?.name || 'No project'}</p>
                       </div>
                     </div>
@@ -194,6 +216,42 @@ export default function DeveloperTasksPage() {
                         ✕
                       </button>
                     </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="grid grid-cols-7 gap-4 overflow-x-auto">
+            {STATUS_OPTIONS.map(status => {
+              const columnTasks = filteredTasks.filter(t => t.status === status.value);
+              return (
+                <div key={status.value} className="min-w-[180px]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className={`text-[0.6rem] font-semibold px-2 py-0.5 rounded-full ${status.color}`}>
+                      {status.label}
+                    </span>
+                    <span className="text-xs text-gray-400">{columnTasks.length}</span>
+                  </div>
+                  <div className="space-y-2">
+                    {columnTasks.map(task => {
+                      const priorityOpt = PRIORITY_OPTIONS.find(p => p.value === task.priority);
+                      return (
+                        <div key={task.id} className="glass-card p-3 hover:shadow-md transition-shadow">
+                          <Link href={`/developer/tasks/${task.id}`} className="font-medium text-xs text-gray-900 hover:text-pink-600 block mb-2">
+                            {task.title}
+                          </Link>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[0.5rem] font-semibold px-1.5 py-0.5 rounded-full ${priorityOpt?.color || 'bg-gray-100 text-gray-700'}`}>
+                              {priorityOpt?.label || task.priority}
+                            </span>
+                            {task.assignedUser && (
+                              <span className="text-[0.5rem] text-gray-400">{task.assignedUser.name}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );

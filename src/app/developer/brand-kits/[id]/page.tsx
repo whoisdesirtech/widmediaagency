@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { jsPDF } from 'jspdf';
 
 const SECTION_TYPES = [
   { type: 'brand-identity', label: 'Brand Identity', icon: '🏷️' },
@@ -29,6 +30,8 @@ export default function BrandKitDetailPage() {
   const [activeSection, setActiveSection] = useState('brand-identity');
   const [saving, setSaving] = useState(false);
   const [showSubmitReview, setShowSubmitReview] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Editable fields
   const [name, setName] = useState('');
@@ -193,6 +196,99 @@ export default function BrandKitDetailPage() {
     setSaving(false);
   };
 
+  const handleExportPdf = async () => {
+    setExporting(true);
+    try {
+      const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+      
+      // Title
+      doc.setFontSize(24);
+      doc.text(brandKit.name || 'Brand Kit', 20, 20);
+      
+      doc.setFontSize(12);
+      doc.text(`${brandKit.influencer?.name || ''} · ${brandKit.influencer?.platform || ''}`, 20, 28);
+      
+      let y = 40;
+      const addSection = (title: string, content: string[]) => {
+        if (y > 260) { doc.addPage(); y = 20; }
+        doc.setFontSize(14);
+        doc.text(title, 20, y);
+        y += 8;
+        doc.setFontSize(10);
+        content.forEach(line => {
+          if (y > 280) { doc.addPage(); y = 20; }
+          doc.text(line, 20, y);
+          y += 6;
+        });
+        y += 4;
+      };
+
+      addSection('Brand Identity', [
+        `Name: ${name}`,
+        `Tagline: ${tagline}`,
+        `Mission: ${mission}`,
+        `Positioning: ${positioning}`,
+        `Niche: ${niche}`,
+        `Target Audience: ${targetAudience}`,
+        `Personality: ${brandPersonality}`,
+      ]);
+
+      addSection('Visual Identity', [
+        `Primary: ${primaryColor}`,
+        `Secondary: ${secondaryColor}`,
+        `Accent: ${accentColor}`,
+        `Heading Font: ${headingFont}`,
+        `Body Font: ${bodyFont}`,
+      ]);
+
+      addSection('Social Identity', [
+        `Instagram: ${instagramBio}`,
+        `TikTok: ${tiktokBio}`,
+        `YouTube: ${youtubeDescription}`,
+      ]);
+
+      addSection('Content Style', [
+        `Voice: ${voice}`,
+        `Tone: ${tone}`,
+        `Vocabulary: ${vocabulary}`,
+        `Caption Style: ${captionStyle}`,
+        `Hook Style: ${hookStyle}`,
+        `CTA Style: ${ctaStyle}`,
+        `Storytelling: ${storytellingApproach}`,
+      ]);
+
+      if (contentPillars.length > 0) {
+        addSection('Content Pillars', contentPillars.map((p: any, i: number) => `${i + 1}. ${p.name}: ${p.description}`));
+      }
+
+      addSection('Visual Content', [
+        `Reels: ${visualReels}`,
+        `Stories: ${visualStories}`,
+        `Carousels: ${visualCarousels}`,
+        `Static: ${visualStatic}`,
+        `Thumbnails: ${visualThumbnails}`,
+        `Photography: ${visualPhotography}`,
+        `Video: ${visualVideo}`,
+        `Templates: ${visualTemplates}`,
+        `Direction: ${visualContentDirection}`,
+      ]);
+
+      addSection('Brand Rules', [
+        `Do: ${rulesDo}`,
+        `Don't: ${rulesDont}`,
+        `Visual: ${rulesVisual}`,
+        `Writing: ${rulesWriting}`,
+        `Social: ${rulesSocial}`,
+        `Additional: ${brandConsistencyRules}`,
+      ]);
+
+      doc.save(`${brandKit.name || 'brand-kit'}.pdf`);
+    } catch (e) {
+      console.error('[PDF_EXPORT]', e);
+    }
+    setExporting(false);
+  };
+
   const completionChecklist = [
     { label: 'Brand identity completed', done: !!name && !!tagline && !!mission },
     { label: 'Audience defined', done: !!targetAudience },
@@ -246,6 +342,9 @@ export default function BrandKitDetailPage() {
             <span className={`text-[0.6rem] font-semibold px-2 py-0.5 rounded-full ${statusOpt?.color}`}>
               {statusOpt?.label || brandKit.status}
             </span>
+            <button onClick={handleExportPdf} disabled={exporting} className="btn-secondary text-sm disabled:opacity-50">
+              {exporting ? 'Exporting...' : '📄 Export PDF'}
+            </button>
             <button onClick={handleSave} disabled={saving} className="btn-primary disabled:opacity-50">
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

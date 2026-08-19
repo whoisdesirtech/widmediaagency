@@ -33,6 +33,18 @@ export default function AuditDetailPage() {
   const [scores, setScores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [editScores, setEditScores] = useState(false);
+  const [scoreForm, setScoreForm] = useState({
+    profileOptimizationScore: 0,
+    brandIdentityScore: 0,
+    contentQualityScore: 0,
+    contentConsistencyScore: 0,
+    audienceAlignmentScore: 0,
+    engagementScore: 0,
+    discoverabilityScore: 0,
+    professionalReadinessScore: 0,
+    brandPartnershipReadinessScore: 0,
+  });
 
   useEffect(() => {
     fetch(`/api/influencer-audits/${params.id}`)
@@ -40,6 +52,17 @@ export default function AuditDetailPage() {
       .then(data => {
         setAudit(data);
         setScores(data.scores || []);
+        setScoreForm({
+          profileOptimizationScore: data.profileOptimizationScore || 0,
+          brandIdentityScore: data.brandIdentityScore || 0,
+          contentQualityScore: data.contentQualityScore || 0,
+          contentConsistencyScore: data.contentConsistencyScore || 0,
+          audienceAlignmentScore: data.audienceAlignmentScore || 0,
+          engagementScore: data.engagementScore || 0,
+          discoverabilityScore: data.discoverabilityScore || 0,
+          professionalReadinessScore: data.professionalReadinessScore || 0,
+          brandPartnershipReadinessScore: data.brandPartnershipReadinessScore || 0,
+        });
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -56,6 +79,35 @@ export default function AuditDetailPage() {
       if (res.ok) {
         const updated = await res.json();
         setAudit(updated);
+      }
+    } catch {}
+    setUpdating(false);
+  };
+
+  const handleSaveScores = async () => {
+    setUpdating(true);
+    try {
+      const overallScore = Math.round(
+        (scoreForm.profileOptimizationScore +
+         scoreForm.brandIdentityScore +
+         scoreForm.contentQualityScore +
+         scoreForm.contentConsistencyScore +
+         scoreForm.audienceAlignmentScore +
+         scoreForm.engagementScore +
+         scoreForm.discoverabilityScore +
+         scoreForm.professionalReadinessScore +
+         scoreForm.brandPartnershipReadinessScore) / 9
+      );
+
+      const res = await fetch(`/api/influencer-audits/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...scoreForm, overallScore }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setAudit(updated);
+        setEditScores(false);
       }
     } catch {}
     setUpdating(false);
@@ -123,24 +175,71 @@ export default function AuditDetailPage() {
         </div>
 
         {/* Score Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {[
-            { label: 'Content Quality', score: audit.contentQualityScore },
-            { label: 'Brand Identity', score: audit.brandIdentityScore },
-            { label: 'Audience Alignment', score: audit.audienceAlignmentScore },
-            { label: 'Discoverability', score: audit.discoverabilityScore },
-          ].map((item, i) => (
-            <div key={i} className="glass-card p-5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">{item.label}</span>
-                <span className="text-2xl font-heading font-black text-gray-900">{item.score}</span>
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-pink-500 to-cyan-400 rounded-full" style={{ width: `${item.score}%` }} />
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-heading font-bold text-gray-900">Score Breakdown</h3>
+          <button onClick={() => setEditScores(!editScores)} className="text-sm text-pink-600 hover:text-pink-700">
+            {editScores ? 'Cancel' : 'Edit Scores'}
+          </button>
         </div>
+
+        {editScores ? (
+          <div className="glass-card p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { key: 'profileOptimizationScore', label: 'Profile Optimization' },
+                { key: 'brandIdentityScore', label: 'Brand Identity' },
+                { key: 'contentQualityScore', label: 'Content Quality' },
+                { key: 'contentConsistencyScore', label: 'Content Consistency' },
+                { key: 'audienceAlignmentScore', label: 'Audience Alignment' },
+                { key: 'engagementScore', label: 'Engagement' },
+                { key: 'discoverabilityScore', label: 'Discoverability' },
+                { key: 'professionalReadinessScore', label: 'Professional Readiness' },
+                { key: 'brandPartnershipReadinessScore', label: 'Brand Partnership Readiness' },
+              ].map(item => (
+                <div key={item.key}>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">{item.label}</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={(scoreForm as any)[item.key]}
+                    onChange={e => setScoreForm({ ...scoreForm, [item.key]: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end mt-4">
+              <button onClick={handleSaveScores} disabled={updating} className="btn-primary text-sm disabled:opacity-50">
+                {updating ? 'Saving...' : 'Save Scores'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {[
+              { label: 'Profile Optimization', score: audit.profileOptimizationScore },
+              { label: 'Brand Identity', score: audit.brandIdentityScore },
+              { label: 'Content Quality', score: audit.contentQualityScore },
+              { label: 'Content Consistency', score: audit.contentConsistencyScore },
+              { label: 'Audience Alignment', score: audit.audienceAlignmentScore },
+              { label: 'Engagement', score: audit.engagementScore },
+              { label: 'Discoverability', score: audit.discoverabilityScore },
+              { label: 'Professional Readiness', score: audit.professionalReadinessScore },
+              { label: 'Brand Partnership Readiness', score: audit.brandPartnershipReadinessScore },
+            ].map((item, i) => (
+              <div key={i} className="glass-card p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-gray-700">{item.label}</span>
+                  <span className="text-2xl font-heading font-black text-gray-900">{item.score}</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-pink-500 to-cyan-400 rounded-full" style={{ width: `${item.score}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Module Scores */}
         {scores.length > 0 && (
