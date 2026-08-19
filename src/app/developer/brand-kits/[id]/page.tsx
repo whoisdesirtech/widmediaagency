@@ -51,6 +51,24 @@ export default function BrandKitDetailPage() {
   const [youtubeDescription, setYoutubeDescription] = useState('');
   const [visualContentDirection, setVisualContentDirection] = useState('');
   const [brandConsistencyRules, setBrandConsistencyRules] = useState('');
+  const [vocabulary, setVocabulary] = useState('');
+  const [captionStyle, setCaptionStyle] = useState('');
+  const [hookStyle, setHookStyle] = useState('');
+  const [ctaStyle, setCtaStyle] = useState('');
+  const [storytellingApproach, setStorytellingApproach] = useState('');
+  const [visualReels, setVisualReels] = useState('');
+  const [visualStories, setVisualStories] = useState('');
+  const [visualCarousels, setVisualCarousels] = useState('');
+  const [visualStatic, setVisualStatic] = useState('');
+  const [visualThumbnails, setVisualThumbnails] = useState('');
+  const [visualPhotography, setVisualPhotography] = useState('');
+  const [visualVideo, setVisualVideo] = useState('');
+  const [visualTemplates, setVisualTemplates] = useState('');
+  const [rulesDo, setRulesDo] = useState('');
+  const [rulesDont, setRulesDont] = useState('');
+  const [rulesVisual, setRulesVisual] = useState('');
+  const [rulesWriting, setRulesWriting] = useState('');
+  const [rulesSocial, setRulesSocial] = useState('');
 
   useEffect(() => {
     fetch(`/api/brand-kits/${params.id}`)
@@ -77,6 +95,39 @@ export default function BrandKitDetailPage() {
         setYoutubeDescription(data.youtubeDescription || '');
         setVisualContentDirection(data.visualContentDirection || '');
         setBrandConsistencyRules(data.brandConsistencyRules || '');
+        setVocabulary(data.vocabulary || '');
+        setCaptionStyle(data.captionStyle || '');
+        setHookStyle(data.hookStyle || '');
+        setCtaStyle(data.ctaStyle || '');
+        setStorytellingApproach(data.storytellingApproach || '');
+
+        try {
+          const vc = data.visualContentDirection ? JSON.parse(data.visualContentDirection) : {};
+          setVisualReels(vc.reels || '');
+          setVisualStories(vc.stories || '');
+          setVisualCarousels(vc.carousels || '');
+          setVisualStatic(vc.static || '');
+          setVisualThumbnails(vc.thumbnails || '');
+          setVisualPhotography(vc.photography || '');
+          setVisualVideo(vc.video || '');
+          setVisualTemplates(vc.templates || '');
+          setVisualContentDirection(vc.direction || '');
+        } catch {
+          setVisualContentDirection(data.visualContentDirection || '');
+        }
+
+        try {
+          const br = data.brandConsistencyRules ? JSON.parse(data.brandConsistencyRules) : {};
+          setRulesDo(br.do || '');
+          setRulesDont(br.dont || '');
+          setRulesVisual(br.visual || '');
+          setRulesWriting(br.writing || '');
+          setRulesSocial(br.social || '');
+          setBrandConsistencyRules(br.additional || '');
+        } catch {
+          setBrandConsistencyRules(data.brandConsistencyRules || '');
+        }
+
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -91,8 +142,17 @@ export default function BrandKitDetailPage() {
         body: JSON.stringify({
           name, tagline, mission, positioning, niche, targetAudience, brandPersonality,
           primaryColor, secondaryColor, accentColor, headingFont, bodyFont,
-          voice, tone, contentPillars, instagramBio, tiktokBio, youtubeDescription,
-          visualContentDirection, brandConsistencyRules,
+          voice, tone, vocabulary, captionStyle, hookStyle, ctaStyle, storytellingApproach,
+          contentPillars, instagramBio, tiktokBio, youtubeDescription,
+          visualContentDirection: JSON.stringify({
+            reels: visualReels, stories: visualStories, carousels: visualCarousels,
+            static: visualStatic, thumbnails: visualThumbnails, photography: visualPhotography,
+            video: visualVideo, templates: visualTemplates, direction: visualContentDirection,
+          }),
+          brandConsistencyRules: JSON.stringify({
+            do: rulesDo, dont: rulesDont, visual: rulesVisual,
+            writing: rulesWriting, social: rulesSocial, additional: brandConsistencyRules,
+          }),
         }),
       });
       if (res.ok) {
@@ -433,40 +493,35 @@ export default function BrandKitDetailPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Vocabulary</label>
-                  <textarea
-                    rows={2}
+                  <textarea value={vocabulary} onChange={e => setVocabulary(e.target.value)} rows={2}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="Key words and phrases the brand uses (e.g. 'elevate', 'authentic', 'level up')"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Caption Style</label>
-                  <textarea
-                    rows={2}
+                  <textarea value={captionStyle} onChange={e => setCaptionStyle(e.target.value)} rows={2}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="How captions are structured (e.g. short punchy lines, storytelling, list format)"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Hook Style</label>
-                  <textarea
-                    rows={2}
+                  <textarea value={hookStyle} onChange={e => setHookStyle(e.target.value)} rows={2}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="How content hooks the audience (e.g. question openers, bold statements, curiosity gaps)"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">CTA Style</label>
-                  <textarea
-                    rows={2}
+                  <textarea value={ctaStyle} onChange={e => setCtaStyle(e.target.value)} rows={2}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="Call-to-action style (e.g. 'Link in bio', 'DM us', 'Comment below')"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Storytelling Approach</label>
-                  <textarea
-                    rows={3}
+                  <textarea value={storytellingApproach} onChange={e => setStorytellingApproach(e.target.value)} rows={3}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="How the brand tells stories (e.g. personal anecdotes, before/after transformations, user-generated content)"
                   />
@@ -480,19 +535,21 @@ export default function BrandKitDetailPage() {
                 <p className="text-xs text-gray-500">Define the visual style for all content types.</p>
 
                 {[
-                  { label: 'Reels', key: 'reels', placeholder: 'e.g. Vertical 9:16, fast cuts, bold text overlays, trending audio' },
-                  { label: 'Stories', key: 'stories', placeholder: 'e.g. Casual behind-the-scenes, polls, interactive stickers' },
-                  { label: 'Carousel Posts', key: 'carousels', placeholder: 'e.g. Educational slides, branded templates, 5-10 slides' },
-                  { label: 'Static Posts', key: 'static', placeholder: 'e.g. Quote cards, product shots, flat-lay photography' },
-                  { label: 'Thumbnails', key: 'thumbnails', placeholder: 'e.g. Bold text, expressive face, high contrast colors' },
-                  { label: 'Photography', key: 'photography', placeholder: 'e.g. Natural light, warm tones, lifestyle shots' },
-                  { label: 'Video', key: 'video', placeholder: 'e.g. 4K, cinematic color grading, smooth transitions' },
-                  { label: 'Backgrounds & Templates', key: 'templates', placeholder: 'e.g. Clean minimal, brand colors, consistent borders' },
+                  { label: 'Reels', key: 'reels', value: visualReels, setter: setVisualReels, placeholder: 'e.g. Vertical 9:16, fast cuts, bold text overlays, trending audio' },
+                  { label: 'Stories', key: 'stories', value: visualStories, setter: setVisualStories, placeholder: 'e.g. Casual behind-the-scenes, polls, interactive stickers' },
+                  { label: 'Carousel Posts', key: 'carousels', value: visualCarousels, setter: setVisualCarousels, placeholder: 'e.g. Educational slides, branded templates, 5-10 slides' },
+                  { label: 'Static Posts', key: 'static', value: visualStatic, setter: setVisualStatic, placeholder: 'e.g. Quote cards, product shots, flat-lay photography' },
+                  { label: 'Thumbnails', key: 'thumbnails', value: visualThumbnails, setter: setVisualThumbnails, placeholder: 'e.g. Bold text, expressive face, high contrast colors' },
+                  { label: 'Photography', key: 'photography', value: visualPhotography, setter: setVisualPhotography, placeholder: 'e.g. Natural light, warm tones, lifestyle shots' },
+                  { label: 'Video', key: 'video', value: visualVideo, setter: setVisualVideo, placeholder: 'e.g. 4K, cinematic color grading, smooth transitions' },
+                  { label: 'Backgrounds & Templates', key: 'templates', value: visualTemplates, setter: setVisualTemplates, placeholder: 'e.g. Clean minimal, brand colors, consistent borders' },
                 ].map(item => (
                   <div key={item.key}>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">{item.label}</label>
                     <input
                       type="text"
+                      value={item.value}
+                      onChange={e => item.setter(e.target.value)}
                       placeholder={item.placeholder}
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     />
@@ -520,7 +577,7 @@ export default function BrandKitDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-emerald-700 mb-1.5">✅ Do</label>
-                    <textarea
+                    <textarea value={rulesDo} onChange={e => setRulesDo(e.target.value)}
                       rows={6}
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-emerald-200 bg-emerald-50 text-sm"
                       placeholder={"Use brand colors consistently\nPost at least 3x per week\nRespond to comments within 24h\nUse branded templates\nTag collaborators"}
@@ -528,7 +585,7 @@ export default function BrandKitDetailPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-red-700 mb-1.5">❌ Don't</label>
-                    <textarea
+                    <textarea value={rulesDont} onChange={e => setRulesDont(e.target.value)}
                       rows={6}
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-red-200 bg-red-50 text-sm"
                       placeholder={"Use competitor branding\nPost blurry or low-quality images\nUse excessive hashtags (max 15)\nEngage in controversial topics\nBuy followers or engagement"}
@@ -538,7 +595,7 @@ export default function BrandKitDetailPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Visual Rules</label>
-                  <textarea
+                  <textarea value={rulesVisual} onChange={e => setRulesVisual(e.target.value)}
                     rows={3}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="e.g. Always use brand fonts, maintain consistent color palette, no stock photos without approval"
@@ -547,7 +604,7 @@ export default function BrandKitDetailPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Writing Rules</label>
-                  <textarea
+                  <textarea value={rulesWriting} onChange={e => setRulesWriting(e.target.value)}
                     rows={3}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="e.g. Use active voice, keep captions under 200 words, always include a CTA"
@@ -556,7 +613,7 @@ export default function BrandKitDetailPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Social Posting Rules</label>
-                  <textarea
+                  <textarea value={rulesSocial} onChange={e => setRulesSocial(e.target.value)}
                     rows={3}
                     className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-sm"
                     placeholder="e.g. Post between 9am-6pm, use 10-15 hashtags, alternate content types, cross-post to stories"
