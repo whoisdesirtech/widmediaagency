@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(deliverable, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create deliverable' }, { status: 500 });
   }
 }
@@ -60,7 +60,7 @@ export async function GET(req: Request) {
       orderBy: { sortOrder: 'asc' },
     });
     return NextResponse.json(deliverables);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch deliverables' }, { status: 500 });
   }
 }

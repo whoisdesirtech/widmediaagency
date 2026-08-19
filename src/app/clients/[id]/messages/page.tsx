@@ -21,8 +21,6 @@ export default function AdminClientMessagesPage() {
   const id = params?.id as string;
   const [client, setClient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeConvo, setActiveConvo] = useState<any>(null);
-  const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
     fetch(`/api/clients/${id}`)

@@ -65,7 +65,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     });
 
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to upload images' }, { status: 500 });
   }
 }
@@ -96,7 +96,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     });
 
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete image' }, { status: 500 });
   }
 }

@@ -29,7 +29,9 @@ export default function AddendaPage() {
       if (res.ok) {
         setSavedAddenda(prev => [...prev, data]);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

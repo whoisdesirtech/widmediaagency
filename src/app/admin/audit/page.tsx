@@ -8,7 +8,6 @@ import Sidebar from '@/components/Sidebar';
 export default function AdminAuditPage() {
   const router = useRouter();
   const reportRef = useRef<HTMLDivElement>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [html, setHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -17,13 +16,13 @@ export default function AdminAuditPage() {
     let stored: any = null;
     try {
       stored = JSON.parse(localStorage.getItem('user') || 'null');
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     if (!stored || stored.role !== 'admin') {
       router.replace('/login');
       return;
     }
-    setIsAdmin(true);
-
     fetch('/reports/ai-discovery-and-target-prompts.html')
       .then(r => r.text())
       .then(text => {

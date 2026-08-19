@@ -30,8 +30,6 @@ export default function ClientDetailPage() {
   const [editForm, setEditForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
-  const currentTab = TABS.find(t => t.href === '' ? pathname === `/clients/${id}` : pathname === `/clients/${id}${t.href}`);
-
   useEffect(() => {
     fetch(`/api/clients/${id}`)
       .then(r => r.json())
@@ -48,7 +46,9 @@ export default function ClientDetailPage() {
       });
       const data = await res.json();
       if (res.ok) setLoginCredentials(data);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setGeneratingLogin(false);
   };
 
@@ -86,7 +86,9 @@ export default function ClientDetailPage() {
         setClient(updated);
         setEditing(false);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

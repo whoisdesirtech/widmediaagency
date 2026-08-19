@@ -89,7 +89,9 @@ export default function AdminClientProjectsPage() {
         setShowCreate(false);
         setForm({ name: '', description: '', icon: '📁', status: 'planning', progress: 0, deliverables: 0, contractorId: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -107,7 +109,9 @@ export default function AdminClientProjectsPage() {
         setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
         setEditProject(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -143,7 +147,9 @@ export default function AdminClientProjectsPage() {
         setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
         setSelectedProject(updated);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -157,7 +163,9 @@ export default function AdminClientProjectsPage() {
         setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
         setSelectedProject(updated);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
   };
 
   const getProjectImages = (project: Project): ProjectImage[] => {

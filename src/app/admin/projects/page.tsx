@@ -57,7 +57,9 @@ export default function AdminProjectsPage() {
         setShowCreate(false);
         setForm({ clientId: '', contractorId: '', name: '', description: '', icon: '📁', status: 'planning', progress: 0 });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

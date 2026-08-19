@@ -53,7 +53,9 @@ export default function ContractorOnboardingPage() {
       if (res.ok) {
         setContractor((c: any) => ({ ...c, [field]: data.url }));
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setUploading(null);
   };
 

@@ -205,7 +205,7 @@ function About() {
               </p>
               <p>
                 Désir speaks on AI in marketing, AI for small business, and practical AI adoption —
-                sharing what he's learned building real products, not just theory. His talks are
+                sharing what he&apos;s learned building real products, not just theory. His talks are
                 grounded in hands-on experience: training models, deploying AI tools, and using
                 AI to drive measurable outcomes for real clients.
               </p>
@@ -382,7 +382,7 @@ function Contact() {
             Message Sent
           </h2>
           <p className="text-muted font-body mb-8">
-            Thanks for reaching out. I'll follow up within 1–2 business days.
+            Thanks for reaching out. I&apos;ll follow up within 1–2 business days.
           </p>
           <button
             type="button"
@@ -406,7 +406,7 @@ function Contact() {
           </h2>
           <p className="text-muted font-body max-w-xl mx-auto">
             Interested in having Désir speak at your conference, corporate event, or workshop?
-            Fill out the form below and we'll be in touch.
+            Fill out the form below and we&apos;ll be in touch.
           </p>
           <p className="text-xs text-muted/50 mt-3">
             Or email directly:{' '}

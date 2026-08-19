@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     await logAudit(user, { action: 'contractor.create', method: 'POST', path: '/api/contractors', entity: 'Contractor', entityId: contractor.id, metadata: { role } });
 
     return NextResponse.json(contractor, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create contractor' }, { status: 500 });
   }
 }
@@ -51,7 +51,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(contractors);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch contractors' }, { status: 500 });
   }
 }

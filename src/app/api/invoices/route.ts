@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(invoice, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });
   }
 }
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(invoices);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
   }
 }

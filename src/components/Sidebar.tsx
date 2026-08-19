@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import NotificationBell from './NotificationBell';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
@@ -78,6 +79,7 @@ export default function Sidebar() {
             <div className="text-white text-xs font-semibold truncate">{user?.name || 'Agency Admin'}</div>
             <div className="text-white/40 text-[0.65rem] truncate">{user?.email || ''}</div>
           </div>
+          <NotificationBell />
         </div>
         <button
           onClick={handleLogout}

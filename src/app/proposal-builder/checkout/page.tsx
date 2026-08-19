@@ -68,7 +68,7 @@ export default function CheckoutPage() {
             
             <div className="bg-white border border-[#E2E6EF] rounded-xl p-4 space-y-3 shadow-sm">
               <div className="text-xs font-bold text-[#0A0D1A] uppercase tracking-wide flex items-center gap-1.5">
-                <span>📦</span> What's in the box:
+                <span>📦</span> What&apos;s in the box:
               </div>
               <ul className="text-xs text-[#8891A5] space-y-2">
                 <li className="flex items-center gap-2">

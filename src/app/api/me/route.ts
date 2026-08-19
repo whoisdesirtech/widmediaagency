@@ -7,7 +7,7 @@ export async function GET() {
     const user = getSessionUser(session);
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     return NextResponse.json(user);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

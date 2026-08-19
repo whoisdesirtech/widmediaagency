@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import DraftBanner from '@/components/DraftBanner';
 import SignaturePad from '@/components/SignaturePad';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function ContractsPage() {
-  const router = useRouter();
   const [contracts, setContracts] = useState<any[]>([]);
   const [contractors, setContractors] = useState<any[]>([]);
   const [selectedContract, setSelectedContract] = useState<any>(null);
@@ -44,7 +42,9 @@ export default function ContractsPage() {
       } else {
         setAssembleError(data.error || 'Failed to assemble contract');
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setAssembling(false);
   };
 

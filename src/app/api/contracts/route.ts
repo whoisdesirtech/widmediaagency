@@ -4,63 +4,6 @@ import { FIXED_CLAUSES, ADDED_CLAUSES } from '@/data/clauses';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 
-function buildMergedContent(masterClauses: any[], contractor: any, sow: any, addenda: any[]): string {
-  let content = '';
-  content += `FREELANCER TALENT AGREEMENT\n`;
-  content += `WhoIsDésir® Media Agency × ${contractor.name}\n\n`;
-
-  content += `CONTRACTOR INFORMATION\n`;
-  content += `Name: ${contractor.name}\n`;
-  content += `Business: ${contractor.businessName}\n`;
-  content += `Role: ${contractor.role.replace(/-/g, ' ')}\n`;
-  content += `Jurisdiction: ${contractor.state}, ${contractor.country}\n\n`;
-
-  content += `MASTER AGREEMENT CLAUSES\n`;
-  content += `${'='.repeat(40)}\n\n`;
-
-  for (const clause of masterClauses) {
-    content += `${clause.number}. ${clause.title}\n`;
-    content += `${clause.content}\n\n`;
-  }
-
-  if (sow) {
-    const deliverables = JSON.parse(sow.deliverables || '[]');
-    content += `STATEMENT OF WORK\n`;
-    content += `${'='.repeat(40)}\n\n`;
-    content += `Rate: $${sow.rate} (${sow.rateType.replace(/-/g, ' ')})\n`;
-    content += `Payment Schedule: ${sow.paymentSchedule}\n`;
-    content += `Start Date: ${sow.startDate}\n`;
-    if (sow.specialEquipment) content += `Special Equipment: ${sow.specialEquipment}\n`;
-    if (sow.software) content += `Software: ${sow.software}\n`;
-    content += `\nDeliverables:\n`;
-    deliverables.forEach((d: any, i: number) => {
-      const text = typeof d === 'string' ? d : d.text;
-      content += `  ${i + 1}. ${text}\n`;
-    });
-    content += '\n';
-  }
-
-  if (addenda.length > 0) {
-    content += `ROLE-SPECIFIC ADDENDA\n`;
-    content += `${'='.repeat(40)}\n\n`;
-    for (const addendum of addenda) {
-      content += `## ${addendum.title}\n`;
-      const fields = JSON.parse(addendum.fields || '[]');
-      for (const field of fields) {
-        content += `${field.label}: ${field.defaultValue || 'Not specified'}\n`;
-      }
-      content += '\n';
-    }
-  }
-
-  content += `SIGNATURES\n`;
-  content += `${'='.repeat(40)}\n\n`;
-  content += `Agency Representative: _________________________ Date: __________\n\n`;
-  content += `Contractor: _________________________ Date: __________\n`;
-
-  return content;
-}
-
 export async function GET() {
   try {
     const user = await requireAdminOrStaff();
@@ -71,7 +14,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(contracts);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
@@ -106,7 +49,7 @@ export async function POST(req: Request) {
     await logAudit(user, { action: 'contract.create', method: 'POST', path: '/api/contracts', entity: 'AssembledContract', entityId: contract.id, metadata: { contractorId } });
 
     return NextResponse.json(contract, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

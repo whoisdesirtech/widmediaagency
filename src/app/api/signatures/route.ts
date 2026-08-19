@@ -42,7 +42,6 @@ export async function POST(req: Request) {
       },
     });
 
-    const sigCount = await prisma.signature.count({ where: { contractId } });
     const hasAgency = await prisma.signature.findFirst({ where: { contractId, signerRole: 'agency' } });
     const hasContractor = await prisma.signature.findFirst({ where: { contractId, signerRole: 'contractor' } });
     if (hasAgency && hasContractor) {

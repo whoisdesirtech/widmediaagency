@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
     if (!client) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(client);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch client' }, { status: 500 });
   }
 }
@@ -38,7 +38,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     });
     await logAudit(user, { action: 'client.update', method: 'PATCH', path: `/api/clients/${params.id}`, entity: 'Client', entityId: params.id, metadata: { changedKeys: Object.keys(data) } });
     return NextResponse.json(client);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update client' }, { status: 500 });
   }
 }

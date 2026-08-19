@@ -70,7 +70,9 @@ export default function ContractorDashboard() {
         ...c,
         sows: c.sows.map((s: any) => s.id === sowId ? { ...s, deliverables: JSON.stringify(updated) } : s),
       }));
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setUpdatingDeliverable(null);
   };
 

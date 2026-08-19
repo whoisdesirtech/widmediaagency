@@ -22,7 +22,9 @@ export default function SettingsPage() {
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
   };
 
   return (

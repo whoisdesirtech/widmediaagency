@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import { normalizeDriveId } from '@/lib/drive';
@@ -19,7 +19,6 @@ const ICON_OPTIONS = ['📸', '🎬', '🌐', '🎨', '✨', '📁', '📄', '�
 
 export default function AdminClientFoldersPage() {
   const params = useParams();
-  const router = useRouter();
   const clientId = params?.id as string;
   const [client, setClient] = useState<any>(null);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -55,7 +54,9 @@ export default function AdminClientFoldersPage() {
         setShowCreate(false);
         setForm({ name: '', icon: '📁', driveFolderId: '', driveFolderUrl: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -73,7 +74,9 @@ export default function AdminClientFoldersPage() {
         setFolders(prev => prev.map(f => f.id === updated.id ? updated : f));
         setEditFolder(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

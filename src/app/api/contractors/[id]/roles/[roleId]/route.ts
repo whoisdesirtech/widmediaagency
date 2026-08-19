@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isNextResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { createNotification } from '@/lib/notifications';
 
 export async function PATCH(req: Request, { params }: { params: { id: string; roleId: string } }) {
   try {
@@ -32,8 +33,21 @@ export async function PATCH(req: Request, { params }: { params: { id: string; ro
       },
     });
 
+    const contractorUser = await prisma.user.findFirst({ where: { contractorId: id } });
+    if (contractorUser) {
+      await createNotification({
+        userId: contractorUser.id,
+        type: status === 'approved' ? 'role_approved' : 'role_rejected',
+        title: status === 'approved' ? 'Role Approved' : 'Role Rejected',
+        message: status === 'approved'
+          ? `Your role "${existing.role}" has been approved.`
+          : `Your role "${existing.role}" has been rejected.`,
+        link: '/contractor/dashboard',
+      });
+    }
+
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update role' }, { status: 500 });
   }
 }
@@ -66,7 +80,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string; r
     await prisma.contractorRole.delete({ where: { id: roleId } });
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete role' }, { status: 500 });
   }
 }

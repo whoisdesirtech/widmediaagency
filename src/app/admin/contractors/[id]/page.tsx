@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import StatusBadge from '@/components/StatusBadge';
@@ -36,7 +36,6 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> =
 
 export default function AdminContractorDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id as string;
   const [contractor, setContractor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -87,7 +86,9 @@ export default function AdminContractorDetailPage() {
         body: JSON.stringify({ status: 'approved' }),
       });
       refreshRoles();
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setRoleAction(null);
   };
 
@@ -100,7 +101,9 @@ export default function AdminContractorDetailPage() {
         body: JSON.stringify({ status: 'rejected' }),
       });
       refreshRoles();
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setRoleAction(null);
   };
 
@@ -111,7 +114,9 @@ export default function AdminContractorDetailPage() {
         method: 'DELETE',
       });
       refreshRoles();
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setRoleAction(null);
   };
 
@@ -125,7 +130,9 @@ export default function AdminContractorDetailPage() {
       });
       refreshRoles();
       setShowAddRole(false);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setRoleAction(null);
   };
 
@@ -148,7 +155,9 @@ export default function AdminContractorDetailPage() {
       });
       const data = await res.json();
       if (res.ok) setLoginCredentials(data);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setGeneratingLogin(false);
   };
 
@@ -164,7 +173,9 @@ export default function AdminContractorDetailPage() {
       });
       const data = await res.json();
       if (res.ok) setResetResult(data);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setResetting(false);
   };
 
@@ -196,7 +207,9 @@ export default function AdminContractorDetailPage() {
         }));
         setEditingSow(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setEditSaving(false);
   };
 

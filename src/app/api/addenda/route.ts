@@ -10,7 +10,7 @@ export async function GET() {
 
     const addenda = await prisma.addendum.findMany({ orderBy: { createdAt: 'desc' } });
     return NextResponse.json(addenda.map(a => ({ ...a, fields: JSON.parse(a.fields) })));
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     });
     await logAudit(user, { action: 'addendum.create', method: 'POST', path: '/api/addenda', entity: 'Addendum', entityId: addendum.id, metadata: { roleType, title } });
     return NextResponse.json({ ...addendum, fields }, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

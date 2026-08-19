@@ -113,7 +113,9 @@ export default function ContractorProjectsPage() {
         const preferred = subFolders.find((f: DriveFolder) => /photo|image/i.test(f.name)) || subFolders[0];
         setSelectedFolderByProject(prev => ({ ...prev, [project.id]: preferred.driveFolderId || preferred.driveFolderUrl || preferred.id }));
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
   };
 
   const handleDriveUpload = async (project: Project) => {

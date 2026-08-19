@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function ContractorDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id as string;
   const [contractor, setContractor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +47,9 @@ export default function ContractorDetailPage() {
       });
       const data = await res.json();
       if (res.ok) setLoginCredentials(data);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setGeneratingLogin(false);
   };
 
@@ -64,7 +65,9 @@ export default function ContractorDetailPage() {
       });
       const data = await res.json();
       if (res.ok) setResetResult(data);
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setResetting(false);
   };
 
@@ -96,7 +99,9 @@ export default function ContractorDetailPage() {
         }));
         setEditingSow(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setEditSaving(false);
   };
 

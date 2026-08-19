@@ -68,7 +68,9 @@ export default function ContractorContractsPage() {
           });
         }
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
   };
 
   const hasContractorSigned = (contract: any) => {

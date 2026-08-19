@@ -79,7 +79,9 @@ export default function MyRolesPage() {
         const data = await res.json();
         setRoles(Array.isArray(data) ? data : []);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setLoading(false);
   };
 

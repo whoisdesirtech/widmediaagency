@@ -21,7 +21,7 @@ export async function GET() {
       responseTimeDefault: agency.responseTimeDefault,
       urgentResponseTime: agency.urgentResponseTime,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
@@ -37,7 +37,7 @@ export async function PUT(req: Request) {
       agency = await prisma.agency.create({ data: { name: 'WhoIsDésir® Media Agency' } });
     }
 
-    const updated = await prisma.agency.update({
+    await prisma.agency.update({
       where: { id: agency.id },
       data: {
         name: body.name || agency.name,
@@ -51,7 +51,7 @@ export async function PUT(req: Request) {
     await logAudit(user, { action: 'settings.update', method: 'PUT', path: '/api/settings' });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

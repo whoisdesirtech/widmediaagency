@@ -19,7 +19,7 @@ export async function GET() {
       effectiveDate: master.effectiveDate,
       clauses: JSON.parse(master.clauses),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     });
     await logAudit(user, { action: 'master-agreement.create', method: 'POST', path: '/api/master-agreements', entity: 'MasterAgreement', entityId: master.id, metadata: { version: master.version } });
     return NextResponse.json({ id: master.id, version: master.version }, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
@@ -70,7 +70,7 @@ export async function PUT(req: Request) {
     });
     await logAudit(user, { action: 'master-agreement.update', method: 'PUT', path: '/api/master-agreements', entity: 'MasterAgreement', entityId: updated.id, metadata: { version: updated.version } });
     return NextResponse.json({ id: updated.id, version: updated.version });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

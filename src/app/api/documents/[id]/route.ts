@@ -13,7 +13,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       data: body,
     });
     return NextResponse.json(document);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update document' }, { status: 500 });
   }
 }
@@ -25,7 +25,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     await prisma.document.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete document' }, { status: 500 });
   }
 }

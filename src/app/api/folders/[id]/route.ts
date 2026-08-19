@@ -20,7 +20,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       data,
     });
     return NextResponse.json(folder);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update folder' }, { status: 500 });
   }
 }
@@ -32,7 +32,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     await prisma.fileFolder.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 });
   }
 }

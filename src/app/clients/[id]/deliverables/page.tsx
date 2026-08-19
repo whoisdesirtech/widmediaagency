@@ -77,7 +77,9 @@ export default function AdminClientDeliverablesPage() {
         setShowCreate(false);
         setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -95,7 +97,9 @@ export default function AdminClientDeliverablesPage() {
         setDeliverables(prev => prev.map(d => d.id === updated.id ? updated : d));
         setEditItem(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

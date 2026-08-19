@@ -156,7 +156,9 @@ export default function ClientDashboard() {
                       if (!client.googleDriveFolderId) return '—';
                       let count = 0;
                       for (const p of projects) {
-                        try { count += JSON.parse(p.images || '[]').length; } catch {}
+                        try { count += JSON.parse(p.images || '[]').length; } catch {
+          // Intentionally ignored
+        }
                       }
                       return count;
                     })()}

@@ -103,7 +103,9 @@ export default function ContractorSOWsPage() {
       if (res.ok) {
         setAllDeliverables(prev => prev.map(d => d.id === id ? { ...d, status: newStatus } : d));
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setUpdatingId(null);
   };
 

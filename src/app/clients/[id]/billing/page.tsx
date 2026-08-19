@@ -71,7 +71,9 @@ export default function AdminClientBillingPage() {
         setShowCreate(false);
         setForm({ invoiceNumber: '', description: '', project: '', amount: '', status: 'pending', dueDate: '', paidDate: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -89,7 +91,9 @@ export default function AdminClientBillingPage() {
         setInvoices(prev => prev.map(i => i.id === updated.id ? updated : i));
         setEditInvoice(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

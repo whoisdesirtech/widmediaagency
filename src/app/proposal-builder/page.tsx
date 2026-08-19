@@ -68,7 +68,7 @@ export default function ProposalBuilder() {
     { icon: "✨", title: "Brand Atmosphere & Candid Moments", desc: "The vibe, décor, lighting, and spontaneous moments that make your brand authentic." }
   ]);
 
-  const [rights, setRights] = useState<string[]>([
+  const [rights] = useState<string[]>([
     "Instagram posts, stories, and reels",
     "Facebook page and advertising",
     "TikTok content",
@@ -80,7 +80,7 @@ export default function ProposalBuilder() {
     "Future advertising campaigns"
   ]);
 
-  const [hospitality, setHospitality] = useState<HospitalityItem[]>([
+  const [hospitality] = useState<HospitalityItem[]>([
     { icon: "🍽️", title: "Complimentary Meals", desc: "Two complimentary meals for production team members during the event — so we can stay fueled and focused." },
     { icon: "🎁", title: "Future Visit Gift Card", desc: "One $50 gift card for a future visit — because we'd love to come back as guests and customers too." },
     { icon: "🎯", title: "On-Site Accommodations", desc: "Access to a staging area or supportive on-site accommodations to facilitate smooth production logistics." }
@@ -151,6 +151,7 @@ export default function ProposalBuilder() {
   };
 
   // Debounced auto-preview refresh on input change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
@@ -166,14 +167,15 @@ export default function ProposalBuilder() {
       }
     };
   }, [
-    agencyName, clientName, eventTitle, eventDate, location, coverageHours, 
-    eventHours, email, cashAppLink, youtubeId, standardValue, discount, 
-    balanceDueDate, signatureDish, brandSpecialization, targetRegion, 
-    culturalHeritage, status, hostName, googleScriptUrl, deliverables, 
+    agencyName, clientName, eventTitle, eventDate, location, coverageHours,
+    eventHours, email, cashAppLink, youtubeId, standardValue, discount,
+    balanceDueDate, signatureDish, brandSpecialization, targetRegion,
+    culturalHeritage, status, hostName, googleScriptUrl, deliverables,
     rights, hospitality, testimonials
   ]);
 
   // Initial render load
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     updatePreview();
   }, []);

@@ -32,7 +32,7 @@ export async function GET() {
         createdAt: c.createdAt,
       })),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch dashboard data' }, { status: 500 });
   }
 }

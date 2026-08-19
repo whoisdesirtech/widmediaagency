@@ -107,7 +107,9 @@ export default function AdminDeliverablesPage() {
         setShowCreate(false);
         setForm({ clientId: '', contractorId: '', sowId: '', name: '', type: 'document', dueDate: '', description: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

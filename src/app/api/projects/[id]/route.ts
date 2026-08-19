@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
     if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(project);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch project' }, { status: 500 });
   }
 }
@@ -32,7 +32,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       data: body,
     });
     return NextResponse.json(project);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
   }
 }
@@ -44,7 +44,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     await prisma.project.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
   }
 }

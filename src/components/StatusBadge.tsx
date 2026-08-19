@@ -17,7 +17,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; dot?: string }> 
   cancelled: { bg: 'bg-red-50 border-red-200', text: 'text-red-700', dot: 'bg-red-500' },
 };
 
-export default function StatusBadge({ status, size = 'sm' }: StatusBadgeProps) {
+export default function StatusBadge({ status, size: _size = 'sm' }: StatusBadgeProps) {
   const style = STATUS_STYLES[status] || STATUS_STYLES.draft;
   const label = status.replace(/_/g, ' ');
 

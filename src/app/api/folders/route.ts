@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(folder, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
   }
 }
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
       orderBy: { sortOrder: 'asc' },
     });
     return NextResponse.json(folders);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
   }
 }

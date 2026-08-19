@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
     if (!contractor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(contractor);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch contractor' }, { status: 500 });
   }
 }
@@ -32,7 +32,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     });
     await logAudit(user, { action: 'contractor.update', method: 'PATCH', path: `/api/contractors/${params.id}`, entity: 'Contractor', entityId: params.id, metadata: { changedKeys: Object.keys(body) } });
     return NextResponse.json(contractor);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update contractor' }, { status: 500 });
   }
 }

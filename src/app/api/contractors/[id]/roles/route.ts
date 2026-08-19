@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin, requireAuth, isNextResponse } from '@/lib/auth';
+import { requireAuth, isNextResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 const ALLOWED_ROLES = [
@@ -33,7 +33,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
 
     return NextResponse.json(roles);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch roles' }, { status: 500 });
   }
 }
@@ -76,7 +76,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     });
 
     return NextResponse.json(contractorRole, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create role' }, { status: 500 });
   }
 }

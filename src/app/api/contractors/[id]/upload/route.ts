@@ -72,7 +72,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     await logAudit(user, { action: 'contractor.upload', method: 'POST', path: `/api/contractors/${params.id}/upload`, entity: 'Contractor', entityId: params.id, metadata: { field, size: file.size } });
 
     return NextResponse.json({ url });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

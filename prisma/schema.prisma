@@ -167,6 +167,20 @@ model Project {
   updatedAt     DateTime @updatedAt
 }
 
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, read])
+}
+
 model FileFolder {
   id            String   @id @default(uuid())
   clientId      String

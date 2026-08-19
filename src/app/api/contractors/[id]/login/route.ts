@@ -72,7 +72,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       name: contractor.name,
       message: 'Contractor login created.',
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create login' }, { status: 500 });
   }
 }

@@ -64,7 +64,9 @@ export default function AdminClientMediaPage() {
         setShowCreate(false);
         setForm({ name: '', icon: '📁', driveFolderId: '', driveFolderUrl: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -82,7 +84,9 @@ export default function AdminClientMediaPage() {
         setFolders(prev => prev.map(f => f.id === updated.id ? updated : f));
         setEditFolder(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

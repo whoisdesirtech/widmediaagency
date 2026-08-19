@@ -54,7 +54,9 @@ export default function AdminProjectDetailPage() {
         const updated = await res.json();
         setProject(updated);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

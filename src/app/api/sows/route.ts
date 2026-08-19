@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse, forbiddenResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(req: Request) {
   try {
@@ -31,8 +32,19 @@ export async function POST(req: Request) {
 
     await logAudit(user, { action: 'sow.create', method: 'POST', path: '/api/sows', entity: 'SOW', entityId: sow.id, metadata: { contractorId, rate: parseFloat(rate), rateType } });
 
+    const contractorUser = await prisma.user.findFirst({ where: { contractorId } });
+    if (contractorUser) {
+      await createNotification({
+        userId: contractorUser.id,
+        type: 'sow_created',
+        title: 'New Statement of Work',
+        message: 'A new Statement of Work has been created for you.',
+        link: '/contractor/sows',
+      });
+    }
+
     return NextResponse.json(sow, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create SOW' }, { status: 500 });
   }
 }
@@ -85,7 +97,7 @@ export async function PATCH(req: Request) {
     await logAudit(user, { action: 'sow.update', method: 'PATCH', path: '/api/sows', entity: 'SOW', entityId: id, metadata: { changedKeys: Object.keys(updateData) } });
 
     return NextResponse.json(sow);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update SOW' }, { status: 500 });
   }
 }
@@ -105,7 +117,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(sows);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

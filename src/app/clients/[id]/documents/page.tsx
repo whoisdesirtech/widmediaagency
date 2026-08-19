@@ -77,7 +77,9 @@ export default function AdminClientDocumentsPage() {
         setShowCreate(false);
         setForm({ name: '', type: 'document', status: 'available', fileUrl: '', date: '' });
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 
@@ -95,7 +97,9 @@ export default function AdminClientDocumentsPage() {
         setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d));
         setEditDoc(null);
       }
-    } catch {}
+    } catch {
+      // Intentionally ignored
+    }
     setSaving(false);
   };
 

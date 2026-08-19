@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(document, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create document' }, { status: 500 });
   }
 }
@@ -48,7 +48,7 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(documents);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch documents' }, { status: 500 });
   }
 }
