@@ -13,6 +13,9 @@ code quality tooling, and documentation reorganization.
 
 ### Added
 - ESLint + Prettier configuration for consistent code style enforcement.
+- Developer Training Document system — admin-only portal at `/admin/developer-training` with three tiers:
+  Full Developer (comprehensive), Intern (abbreviated), and Quick Reference (one-pager).
+  Downloadable HTML versions for offline sharing. PDF generation API route.
 - Vitest test framework with smoke tests for core imports and schema validation.
 - Client "Request Changes" workflow — clients can now request changes on
   deliverables awaiting approval, completing the contractor → admin → client
