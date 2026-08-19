@@ -1,12 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import FullDeveloperTraining from '@/lib/training-content';
 import InternTraining from '@/lib/training-content-intern';
 
-type Tab = 'full' | 'intern' | 'quick';
+type Tab = 'full' | 'intern' | 'quick' | 'progress';
+
+interface ContractorInfo { id: string; name: string; businessName: string | null; }
+interface ProgressAssignment {
+  id: string;
+  status: string;
+  assignedAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  progress: number;
+  completedSteps: number;
+  totalSteps: number;
+  contractor: ContractorInfo;
+  lesson: { id: string; slug: string; title: string; targetRole: string };
+  steps: { stepId: string; status: string; completedAt: string | null }[];
+}
+
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  assigned: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Not Started' },
+  in_progress: { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-700', label: 'In Progress' },
+  completed: { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Completed' },
+};
 
 export default function DeveloperTrainingPage() {
   const router = useRouter();
@@ -44,6 +65,7 @@ export default function DeveloperTrainingPage() {
     { key: 'full', label: 'Full Developer Training', description: 'Complete documentation for senior/contractor developers' },
     { key: 'intern', label: 'Intern Training', description: 'Abbreviated guide for interns making small features' },
     { key: 'quick', label: 'Quick Reference', description: 'Auth patterns, commands, and gotchas — one page' },
+    { key: 'progress', label: 'Contractor Progress', description: 'View all contractor training assignments and progress' },
   ];
 
   return (
@@ -60,22 +82,24 @@ export default function DeveloperTrainingPage() {
                   Choose a tier based on the developer&apos;s role and experience level
                 </p>
               </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleDownload('full')}
-                  disabled={downloading === 'full'}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-white transition-colors disabled:opacity-50"
-                >
-                  {downloading === 'full' ? 'Generating...' : '📥 Download Full PDF'}
-                </button>
-                <button
-                  onClick={() => handleDownload('intern')}
-                  disabled={downloading === 'intern'}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-white transition-colors disabled:opacity-50"
-                >
-                  {downloading === 'intern' ? 'Generating...' : '📥 Download Intern PDF'}
-                </button>
-              </div>
+              {activeTab !== 'progress' && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleDownload('full')}
+                    disabled={downloading === 'full'}
+                    className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-white transition-colors disabled:opacity-50"
+                  >
+                    {downloading === 'full' ? 'Generating...' : '📥 Download Full PDF'}
+                  </button>
+                  <button
+                    onClick={() => handleDownload('intern')}
+                    disabled={downloading === 'intern'}
+                    className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-white transition-colors disabled:opacity-50"
+                  >
+                    {downloading === 'intern' ? 'Generating...' : '📥 Download Intern PDF'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -113,6 +137,7 @@ export default function DeveloperTrainingPage() {
             {activeTab === 'full' && <FullDeveloperTraining />}
             {activeTab === 'intern' && <InternTraining />}
             {activeTab === 'quick' && <QuickReference />}
+            {activeTab === 'progress' && <ContractorProgress />}
           </div>
         </div>
       </main>
@@ -120,7 +145,163 @@ export default function DeveloperTrainingPage() {
   );
 }
 
-// Quick Reference inline component
+function ContractorProgress() {
+  const [assignments, setAssignments] = useState<ProgressAssignment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filterContractor, setFilterContractor] = useState<string>('');
+  const [lessons, setLessons] = useState<{ id: string; slug: string; title: string }[]>([]);
+  const [contractors, setContractors] = useState<ContractorInfo[]>([]);
+  const [assignContractorId, setAssignContractorId] = useState('');
+  const [assignLessonId, setAssignLessonId] = useState('');
+  const [assigning, setAssigning] = useState(false);
+
+  const loadData = useCallback(() => {
+    const url = filterContractor ? `/api/admin/training/progress?contractorId=${filterContractor}` : '/api/admin/training/progress';
+    fetch(url)
+      .then(r => r.json())
+      .then(data => { setAssignments(Array.isArray(data) ? data : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [filterContractor]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/training-lessons').then(r => r.json()),
+      fetch('/api/contractors').then(r => r.json()),
+    ]).then(([lessonsData, contractorsData]) => {
+      if (Array.isArray(lessonsData)) setLessons(lessonsData);
+      if (Array.isArray(contractorsData)) setContractors(contractorsData);
+    }).catch(() => {});
+  }, []);
+
+  const handleAssign = async () => {
+    if (!assignContractorId || !assignLessonId) return;
+    setAssigning(true);
+    try {
+      const res = await fetch('/api/admin/training/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contractorId: assignContractorId, lessonId: assignLessonId }),
+      });
+      if (res.ok) {
+        setAssignContractorId('');
+        setAssignLessonId('');
+        loadData();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to assign training');
+      }
+    } catch { alert('Failed to assign training'); }
+    setAssigning(false);
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Assign New Training */}
+      <section>
+        <h3 className="font-heading text-lg font-bold text-white mb-4">Assign Training</h3>
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <label className="block text-xs text-white/50 mb-1">Contractor</label>
+            <select
+              value={assignContractorId}
+              onChange={e => setAssignContractorId(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+            >
+              <option value="">Select contractor...</option>
+              {contractors.map(c => (
+                <option key={c.id} value={c.id}>{c.name}{c.businessName ? ` (${c.businessName})` : ''}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs text-white/50 mb-1">Lesson</label>
+            <select
+              value={assignLessonId}
+              onChange={e => setAssignLessonId(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+            >
+              <option value="">Select lesson...</option>
+              {lessons.map(l => (
+                <option key={l.id} value={l.id}>{l.title}</option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={handleAssign}
+            disabled={assigning || !assignContractorId || !assignLessonId}
+            className="px-5 py-2 gradient-bg text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {assigning ? 'Assigning...' : 'Assign'}
+          </button>
+        </div>
+      </section>
+
+      {/* Filter */}
+      <div>
+        <label className="block text-xs text-white/50 mb-1">Filter by contractor</label>
+        <select
+          value={filterContractor}
+          onChange={e => setFilterContractor(e.target.value)}
+          className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+        >
+          <option value="">All contractors</option>
+          {contractors.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Progress Table */}
+      {loading ? (
+        <p className="text-sm text-white/50">Loading...</p>
+      ) : assignments.length === 0 ? (
+        <p className="text-sm text-white/50">No training assignments found.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-3 text-white/70">Contractor</th>
+                <th className="text-left py-3 px-3 text-white/70">Lesson</th>
+                <th className="text-left py-3 px-3 text-white/70">Status</th>
+                <th className="text-left py-3 px-3 text-white/70">Progress</th>
+                <th className="text-left py-3 px-3 text-white/70">Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignments.map(a => {
+                const style = STATUS_STYLES[a.status] || STATUS_STYLES.assigned;
+                return (
+                  <tr key={a.id} className="border-b border-white/5">
+                    <td className="py-3 px-3 text-white/90 font-medium">{a.contractor.name}</td>
+                    <td className="py-3 px-3 text-white/70">{a.lesson.title}</td>
+                    <td className="py-3 px-3">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
+                        {style.label}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 bg-white/10 rounded-full h-2">
+                          <div className="h-2 rounded-full bg-miami-pink" style={{ width: `${a.progress}%` }} />
+                        </div>
+                        <span className="text-white/60 text-xs">{a.completedSteps}/{a.totalSteps}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3 text-white/50 text-xs">{new Date(a.assignedAt).toLocaleDateString()}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function QuickReference() {
   return (
     <div className="space-y-8">

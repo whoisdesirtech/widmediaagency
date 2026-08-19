@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import NotificationBell from '@/components/NotificationBell';
 
 const NAV_ITEMS = [
   { href: '/contractor/dashboard', label: 'Dashboard', icon: '📊' },
@@ -78,6 +79,9 @@ export default function ContractorSidebar({ user, contractorRoles }: { user?: { 
           <div className="flex-1 min-w-0">
             <div className="text-white text-xs font-semibold truncate">{user?.name || 'Contractor'}</div>
             <div className="text-white/40 text-[0.65rem] truncate">{user?.email || ''}</div>
+          </div>
+          <div className="text-white/60 hover:text-white">
+            <NotificationBell />
           </div>
         </div>
         <button

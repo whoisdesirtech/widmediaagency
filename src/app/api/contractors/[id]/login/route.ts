@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
+import { createNotification } from '@/lib/notifications';
 
 function generatePassword(length = 12) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
@@ -63,6 +64,37 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       where: { id: contractor.id },
       data: { userId: user.id },
     });
+
+    // Auto-assign contractor-onboarding lesson
+    const onboardingLesson = await prisma.trainingLesson.findUnique({ where: { slug: 'contractor-onboarding' } });
+    if (onboardingLesson && onboardingLesson.isActive) {
+      const existingAssignment = await prisma.trainingAssignment.findUnique({
+        where: { lessonId_contractorId: { lessonId: onboardingLesson.id, contractorId: contractor.id } },
+      });
+      if (!existingAssignment) {
+        const lessonSteps = (onboardingLesson.steps as Array<{ id: string; title: string; order: number }>) || [];
+        const assignment = await prisma.trainingAssignment.create({
+          data: {
+            lessonId: onboardingLesson.id,
+            contractorId: contractor.id,
+            steps: { create: lessonSteps.map(step => ({ stepId: step.id, status: 'not_started' })) },
+          },
+        });
+        await createNotification({
+          userId: user.id,
+          type: 'training_assigned',
+          title: 'New Training Assignment',
+          message: `${onboardingLesson.title} has been assigned to you.`,
+          link: '/contractor/training',
+        });
+        await logAudit(admin, {
+          action: 'training.assign', method: 'POST',
+          path: `/api/contractors/${params.id}/login`,
+          entity: 'TrainingAssignment', entityId: assignment.id,
+          metadata: { lessonSlug: 'contractor-onboarding', autoAssigned: true },
+        });
+      }
+    }
 
     await logAudit(admin, { action: 'contractor.login.create', method: 'POST', path: `/api/contractors/${params.id}/login`, entity: 'Contractor', entityId: params.id });
 

@@ -56,6 +56,7 @@ model Contractor {
   sows                SOW[]
   assembledContracts  AssembledContract[]
   roles               ContractorRole[]
+  trainingAssignments TrainingAssignment[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 }
@@ -296,4 +297,51 @@ model ContractorRole {
   approvedBy    String?
 
   @@unique([contractorId, role])
+}
+
+model TrainingLesson {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String?
+  version     Int      @default(1)
+  targetRole  String   // contractor | client | developer | intern
+  steps       Json     // [{ id: string, title: string, order: number }]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignments TrainingAssignment[]
+}
+
+model TrainingAssignment {
+  id           String    @id @default(uuid())
+  lessonId     String
+  lesson       TrainingLesson @relation(fields: [lessonId], references: [id])
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id])
+  status       String    @default("assigned") // assigned | in_progress | completed
+  assignedAt   DateTime  @default(now())
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  steps        TrainingStepProgress[]
+
+  @@unique([lessonId, contractorId])
+}
+
+model TrainingStepProgress {
+  id           String             @id @default(uuid())
+  assignmentId String
+  assignment   TrainingAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  stepId       String
+  status       String             @default("not_started") // not_started | in_progress | completed
+  completedAt  DateTime?
+  evidence     String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([assignmentId, stepId])
 }
