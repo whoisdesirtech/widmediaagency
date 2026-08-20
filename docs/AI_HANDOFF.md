@@ -65,12 +65,12 @@ TrainingStepProgress    (per-step completion tracking)
 
 ### Canonical Lessons (seeded via `prisma/seed-training.ts`)
 
-| Slug | Role | Steps | requiresGithub |
-|------|------|-------|----------------|
-| `contractor-onboarding` | contractor | 7 | false |
-| `developer-full` | developer | 16 | true |
-| `developer-intern` | intern | 12 | true |
-| `slack-fundamentals` | contractor | 7 | true |
+| Slug | Role | Steps | requiresGithub | requiresSlack |
+|------|------|-------|----------------|---------------|
+| `contractor-onboarding` | contractor | 7 | false | false |
+| `developer-full` | developer | 16 | true | false |
+| `developer-intern` | intern | 12 | true | false |
+| `slack-fundamentals` | contractor | 7 | false | true |
 
 ### Slack Fundamentals Current Steps (placeholder)
 
