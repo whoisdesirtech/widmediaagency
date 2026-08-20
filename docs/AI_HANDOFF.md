@@ -1,9 +1,9 @@
 # AI Handoff — WID Media Agency Platform
 
-**Last updated:** Phase 2 submitted  
+**Last updated:** Phase 3 submitted  
 **Repository:** https://github.com/whoisdesirtech/widmediaagency  
 **Branch:** main  
-**Database:** 23 Prisma models (PostgreSQL via Supabase)
+**Database:** 25 Prisma models (PostgreSQL via Supabase)
 
 ---
 
@@ -12,11 +12,11 @@
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 1 | **COMPLETE** | Individualized contractor training architecture |
-| Phase 2 | **SUBMITTED** | Individualized GitHub training repositories |
-| Phase 3 | **NEXT** | Individualized Slack training integration |
+| Phase 2 | **COMPLETE** | Individualized GitHub training repositories |
+| Phase 3 | **SUBMITTED** | Individualized Slack training integration |
 | Phase 4 | FUTURE | Advanced automation, verification, analytics |
 
-**Do NOT redesign or repeat Phases 1-2. Do NOT start Phase 4.**
+**Do NOT redesign or repeat Phases 1-3. Do NOT start Phase 4.**
 
 ---
 
@@ -199,221 +199,110 @@ Never log: tokens, secrets, OAuth credentials. Never block on audit failure.
 
 ---
 
-## Existing Slack Support: NONE
+## Existing Slack Support: IMPLEMENTED (Phase 3)
 
-**Zero Slack integration exists.** No packages, no env vars, no API calls, no SDK.
+**Slack integration is now built.** Bot token + email matching approach.
 
-All "Slack" references are textual: seed data strings (`['Slack', 'Email', 'ClickUp']`), UI labels, and the `slack-fundamentals` training lesson placeholder.
+### Architecture Decision
 
----
+- **Approach:** Bot Token + Email Matching (not OAuth)
+- **Service:** `src/lib/slack.ts` — `lookupSlackUser()`, `isSlackConfigured()`, `getWorkspaceUrl()`
+- **Verification:** If `SLACK_BOT_TOKEN` is set, auto-verifies via `users.lookupByEmail`; otherwise creates pending connection for admin manual verification
+- **No OAuth redirect needed** — simpler UX, no webhook infrastructure
 
-## Phase 3 Objective
-
-Build an individualized Slack training system.
-
-### Desired Flow
-
-```
-Contractor logs in
-    ↓
-Sees Slack Fundamentals assignment
-    ↓
-Opens Slack lesson
-    ↓
-Learns organization's Slack workflow
-    ↓
-Connects their Slack identity (or manually verifies)
-    ↓
-Completes Slack-specific training steps
-    ↓
-Portal records progress
-    ↓
-Admin can see Slack training status
-```
-
-### Architectural Principle
-
-```
-TrainingAssignment
-       ├── GitHubRepository   (Phase 2)
-       └── SlackConnection    (Phase 3)
-```
-
-NOT: `Contractor → SlackConnection`. The Slack connection belongs to the assignment, not the contractor directly. This allows multiple future training lessons to each have their own Slack verification.
-
----
-
-## Phase 3 Design Decisions (TO BE MADE BY IMPLEMENTER)
-
-The following are **recommendations, not mandates**. The implementer must inspect the repository and make their own decisions.
-
-### Slack Connection Model (recommended)
+### SlackConnection Model (`prisma/schema.prisma:370`)
 
 ```prisma
 model SlackConnection {
-  id             String             @id @default(uuid())
-  assignmentId   String
-  assignment     TrainingAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  slackUserId    String?
-  slackEmail     String?
-  workspaceId    String?
-  workspaceName  String?
-  teamId         String?
-  status         String             @default("pending") // pending | connected | verified | error
-  verifiedAt     DateTime?
-  verifiedBy     String?            // how it was verified
-  errorMessage   String?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  id               String             @id @default(uuid())
+  assignmentId     String
+  assignment       TrainingAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  slackUserId      String?
+  slackEmail       String
+  slackRealName    String?
+  slackDisplayName String?
+  workspaceId      String?
+  workspaceName    String?
+  status           String             @default("pending") // pending | connected | verified | error
+  verifiedAt       DateTime?
+  verifiedBy       String?            // manual | auto
+  errorMessage     String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
   @@unique([assignmentId])
 }
 ```
 
-**Note:** The implementer should evaluate whether additional fields are needed based on the actual Slack authentication approach chosen.
+### Slack Service (`src/lib/slack.ts`)
 
-### Slack Authentication Approach (options)
+- `lookupSlackUser(email)` — calls Slack `users.lookupByEmail` API
+- `isSlackConfigured()` — checks if `SLACK_BOT_TOKEN` is set
+- `getWorkspaceUrl()` — returns `SLACK_WORKSPACE_URL`
 
-The implementer must determine the appropriate approach:
+### Slack API Routes
 
-1. **Slack OAuth** — Contractor clicks "Connect Slack", redirected to Slack, authorizes app, callback stores identity. Requires `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET`, `SLACK_SIGNING_SECRET`.
+| Route | Auth | Purpose |
+|-------|------|---------|
+| `GET /api/training/slack?assignmentId=` | `requireContractor()` | Get Slack connection status |
+| `POST /api/training/slack` | `requireContractor()` | Connect Slack identity (auto-verify or pending) |
+| `POST /api/admin/training/slack/verify` | `requireAdminOrStaff()` | Admin manual verify/reject |
 
-2. **Admin-installed Slack App** — Workspace-level bot. Contractor's Slack identity verified via email matching or manual admin verification. Simpler but less automated.
+### Required Environment Variables (Phase 3)
 
-3. **Manual verification** — Contractor submits Slack profile info, admin verifies manually. No Slack API needed but no automation.
-
-**The implementer should choose based on:** whether a Slack workspace exists for the org, whether OAuth is feasible, and the desired level of automation.
-
-### Slack Verification (options)
-
-1. **Identity verification** — Confirm contractor's Slack account matches their portal email
-2. **Channel membership** — Verify contractor joined required channels
-3. **Activity verification** — Verify contractor posted messages, replied in threads
-4. **Manual admin verification** — Admin marks as verified
-
-**Recommendation:** Start with identity verification. Activity verification is Phase 4 territory.
-
-### Required Environment Variables (by name only, actual values not needed)
-
-Depending on chosen approach:
-- `SLACK_CLIENT_ID` — if using OAuth
-- `SLACK_CLIENT_SECRET` — if using OAuth
-- `SLACK_SIGNING_SECRET` — if using OAuth/webhooks
-- `SLACK_BOT_TOKEN` — if using bot API for verification
+- `SLACK_BOT_TOKEN` — workspace bot with `users:read` scope (optional; without it, falls back to manual admin verification)
 - `SLACK_WORKSPACE_URL` — workspace invite link for training content
 
 ---
 
-## Phase 3 API Routes (recommended)
+## Phase 3 Implementation (SUBMITTED)
 
-| Route | Auth | Purpose |
-|-------|------|---------|
-| `GET /api/training/slack` | `requireContractor()` | Get Slack connection status for assignment |
-| `POST /api/training/slack/connect` | `requireContractor()` | Initiate Slack OAuth or record connection |
-| `GET /api/training/slack/callback` | none (OAuth callback) | Handle Slack OAuth redirect |
-| `POST /api/training/slack/verify` | `requireAdminOrStaff()` | Admin manually verifies Slack identity |
-
-**Note:** These are recommendations. The implementer should design routes based on the chosen authentication approach. Not all routes may be needed.
-
----
-
-## Phase 3 UI Changes (recommended)
-
-### Contractor Training Page (`/contractor/training`)
-
-For Slack Fundamentals assignments, add a Slack Connection section:
+### Implemented Flow
 
 ```
-Slack Fundamentals
-3/7 complete
-
-Slack Connection:
-Not Connected
-
-[Connect Slack]
+Contractor opens Slack Fundamentals assignment
+    ↓
+Clicks "Connect Slack"
+    ↓
+System verifies email via Slack API (if bot token configured)
+    ↓
+If auto-verified → status: "verified"
+If no bot token → status: "connected" → awaits admin verification
+    ↓
+Admin can verify/reject via POST /api/admin/training/slack/verify
+    ↓
+Progress tracked via TrainingStepProgress (same as other lessons)
 ```
 
-After connection:
+### Contractor UI Changes
+
+- Slack status badge in assignment header (next to GitHub badge)
+- Slack Connection section in expanded assignment view
+- "Connect Slack" button (purple, Slack-branded)
+- Status display: Not Connected → Pending Verification → Verified ✓
+- Error states with retry capability
+
+### Admin UI Changes
+
+- Slack column in contractor progress table
+- Shows: Not Connected / Pending / Verified with name
+- Manual verify/reject via API
+
+### Audit Events
 
 ```
-Slack Connection:
-Connected
-Workspace: WID Media Agency
-Identity: wilmer@company.com
-
-[Verified ✓]
+slack.connection_started — contractor initiated connection
+slack.connection_verified — auto-verified via Slack API
+slack.connection_failed — Slack API lookup failed
+slack.verification_completed — admin manually verified
+slack.verification_failed — admin rejected
 ```
 
-### Admin Progress Table (`/admin/developer-training` → Contractor Progress)
+### Key Patterns (consistent with Phase 2)
 
-Add columns:
-
-```
-| Contractor | Lesson | Progress | GitHub | Slack |
-| Wilmer     | Slack Fundamentals | 3/7 | Ready | Connected |
-```
-
----
-
-## Security Requirements
-
-- Contractor identity from `requireContractor()` — never trust browser
-- `assignment.contractorId === user.contractorId` verified before any Slack operation
-- Cross-contractor access returns 403
-- Slack OAuth state parameter validated (if OAuth used)
-- Slack webhook signatures validated (if webhooks used)
-- No Slack tokens exposed to client-side
-- No Slack secrets in URLs, localStorage, or React state
-- No raw tokens stored in database unless encrypted
-
----
-
-## Audit Events (naming convention from Phase 2)
-
-```
-slack.connection_started
-slack.connection_completed
-slack.connection_failed
-slack.verification_completed
-slack.verification_failed
-```
-
----
-
-## Testing Checklist
-
-- [ ] Contractor can connect Slack identity
-- [ ] Connection belongs to their TrainingAssignment
-- [ ] Cross-contractor access returns 403
-- [ ] Duplicate connection attempts are idempotent
-- [ ] Slack identity verification works (or manual fallback)
-- [ ] TrainingStepProgress updates correctly
-- [ ] Notifications fire on connection events
-- [ ] AuditLog records Slack events
-- [ ] Admin can see Slack status in progress table
-- [ ] Contractor UI shows Slack connection status
-- [ ] Phase 1 training still works (regression)
-- [ ] Phase 2 GitHub still works (regression)
-- [ ] `prisma validate` passes
-- [ ] `npm run typecheck` passes
-- [ ] `npm run build` passes
-
----
-
-## Phase 3 Completion Criteria
-
-Phase 3 is complete only when:
-
-1. Contractor can securely connect their Slack identity
-2. Connection belongs to their TrainingAssignment
-3. Cross-contractor access is prevented
-4. Slack identity can be verified (automated or manual)
-5. TrainingStepProgress remains the canonical progress system
-6. Notifications work
-7. AuditLog works
-8. Admin can see Slack training status
-9. Contractor UI works
-10. Existing Phase 1+2 functionality continues working
-11. Production build passes
+- Idempotency: existing connection returned on repeated clicks
+- Error retry: delete error records, allow re-creation
+- Ownership: `assignment.contractorId === user.contractorId` verified server-side
+- Audit logging on all state changes
 
 ---
 
@@ -434,16 +323,19 @@ Do not implement Phase 4 unless explicitly approved.
 
 | File | Purpose |
 |------|---------|
-| `prisma/schema.prisma` | All 23 models including training + GitHub |
+| `prisma/schema.prisma` | All 25 models including training + GitHub + Slack |
 | `prisma/seed-training.ts` | Canonical lesson definitions |
 | `src/lib/auth.ts` | Session helpers, `requireContractor()`, `requireAdminOrStaff()` |
 | `src/lib/audit.ts` | `logAudit()` — best-effort audit logging |
 | `src/lib/notifications.ts` | `createNotification()` — notification creation |
 | `src/lib/github.ts` | GitHub service (Octokit PAT, template repos) |
+| `src/lib/slack.ts` | Slack service (Bot Token, email lookup) |
 | `src/app/api/training/progress/route.ts` | Contractor training progress GET + step completion POST |
 | `src/app/api/training/github/route.ts` | GitHub repo creation + status check |
+| `src/app/api/training/slack/route.ts` | Slack connection GET + POST |
 | `src/app/api/admin/training/assign/route.ts` | Admin lesson assignment |
 | `src/app/api/admin/training/progress/route.ts` | Admin progress view |
+| `src/app/api/admin/training/slack/verify/route.ts` | Admin Slack verify/reject |
 | `src/app/contractor/training/page.tsx` | Contractor training UI |
 | `src/app/admin/developer-training/page.tsx` | Admin training UI with progress tab |
 | `src/components/ContractorSidebar.tsx` | Contractor sidebar with NotificationBell |

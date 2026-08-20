@@ -9,6 +9,7 @@ const lessons = [
     description: 'Essential onboarding for new contractors — portal, SOW, contracts, Drive, and deliverables.',
     targetRole: 'contractor',
     requiresGithub: false,
+    requiresSlack: false,
     steps: [
       { id: 'login', title: 'How to Log In', order: 1 },
       { id: 'portal-overview', title: 'Portal Overview', order: 2 },
@@ -25,6 +26,7 @@ const lessons = [
     description: 'Complete developer training — architecture, auth, API routes, git workflow, and security.',
     targetRole: 'developer',
     requiresGithub: true,
+    requiresSlack: false,
     steps: [
       { id: 'welcome-project-overview', title: 'Welcome & Project Overview', order: 1 },
       { id: 'technology-stack', title: 'Technology Stack', order: 2 },
@@ -50,6 +52,7 @@ const lessons = [
     description: 'Abbreviated developer training for interns making small features.',
     targetRole: 'intern',
     requiresGithub: true,
+    requiresSlack: false,
     steps: [
       { id: 'what-is-this-project', title: 'What Is This Project?', order: 1 },
       { id: 'setup', title: 'Setup (5 minutes)', order: 2 },
@@ -70,7 +73,8 @@ const lessons = [
     title: 'Slack Fundamentals',
     description: 'Learn to use Slack for team communication — workspace, channels, messages, and threads.',
     targetRole: 'contractor',
-    requiresGithub: true,
+    requiresGithub: false,
+    requiresSlack: true,
     steps: [
       { id: 'join-workspace', title: 'Join the Slack Workspace', order: 1 },
       { id: 'profile', title: 'Complete Your Profile', order: 2 },
@@ -91,11 +95,16 @@ async function main() {
   for (const lesson of lessons) {
     const existing = await prisma.trainingLesson.findUnique({ where: { slug: lesson.slug } });
     if (existing) {
-      // Update requiresGithub if changed
-      if (existing.requiresGithub !== lesson.requiresGithub) {
+      // Update requiresGithub and requiresSlack if changed
+      const updates: { requiresGithub?: boolean; requiresSlack?: boolean } = {};
+      if (existing.requiresGithub !== lesson.requiresGithub) updates.requiresGithub = lesson.requiresGithub;
+      if ('requiresSlack' in lesson && existing.requiresSlack !== (lesson as { requiresSlack?: boolean }).requiresSlack) {
+        updates.requiresSlack = (lesson as { requiresSlack: boolean }).requiresSlack;
+      }
+      if (Object.keys(updates).length > 0) {
         await prisma.trainingLesson.update({
           where: { slug: lesson.slug },
-          data: { requiresGithub: lesson.requiresGithub },
+          data: updates,
         });
         updated++;
       } else {
@@ -110,7 +119,7 @@ async function main() {
   console.log(`\nTraining lessons: ${created} created, ${updated} updated, ${skipped} unchanged`);
   console.log('Canonical lessons:');
   for (const l of lessons) {
-    console.log(`  - ${l.slug} (${l.steps.length} steps, requiresGithub: ${l.requiresGithub})`);
+    console.log(`  - ${l.slug} (${l.steps.length} steps, requiresGithub: ${l.requiresGithub}, requiresSlack: ${(l as { requiresSlack?: boolean }).requiresSlack || false})`);
   }
 }
 

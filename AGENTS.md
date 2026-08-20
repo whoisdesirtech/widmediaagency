@@ -81,12 +81,25 @@ Lessons with `requiresGithub: true` can have individual GitHub repositories. Arc
 
 Required env vars: `GITHUB_TOKEN`, `GITHUB_ORG` (default: `whoisdesirtech`), `GITHUB_TEMPLATE_OWNER`, `GITHUB_TEMPLATE_REPO`
 
+### Slack Training Integration
+
+Lessons with `requiresSlack: true` can have individual Slack connections. Architecture: **Bot Token + Email Matching**.
+
+- **Service**: `src/lib/slack.ts` — `lookupSlackUser()`, `isSlackConfigured()`, `getWorkspaceUrl()`
+- **Endpoint**: `POST /api/training/slack` (contractor-authenticated, ownership-verified)
+- **Model**: `SlackConnection` — linked to `TrainingAssignment` via `@@unique([assignmentId])`
+- **Verification**: If `SLACK_BOT_TOKEN` is set, auto-verifies via `users.lookupByEmail`; otherwise creates pending connection for admin manual verification
+- **Admin verification**: `POST /api/admin/training/slack/verify` — admin can verify or reject
+- **Idempotency**: Existing connection returned on repeated clicks; error connections allow retry
+
+Required env vars (optional): `SLACK_BOT_TOKEN` (workspace bot with `users:read` scope), `SLACK_WORKSPACE_URL` (invite link)
+
 ### Canonical Lessons
 
-- `contractor-onboarding` (7 steps, no GitHub)
+- `contractor-onboarding` (7 steps, no GitHub, no Slack)
 - `developer-full` (16 steps, GitHub required)
 - `developer-intern` (12 steps, GitHub required)
-- `slack-fundamentals` (7 placeholder steps, GitHub required)
+- `slack-fundamentals` (7 steps, Slack required)
 
 ## Gotchas
 

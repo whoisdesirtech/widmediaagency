@@ -309,6 +309,7 @@ model TrainingLesson {
   steps          Json     // [{ id: string, title: string, order: number }]
   isActive       Boolean  @default(true)
   requiresGithub Boolean  @default(false)
+  requiresSlack  Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -330,6 +331,7 @@ model TrainingAssignment {
 
   steps            TrainingStepProgress[]
   githubRepository GitHubRepository?
+  slackConnection  SlackConnection?
 
   @@unique([lessonId, contractorId])
 }
@@ -361,6 +363,26 @@ model GitHubRepository {
   errorMessage         String?
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
+
+  @@unique([assignmentId])
+}
+
+model SlackConnection {
+  id             String             @id @default(uuid())
+  assignmentId   String
+  assignment     TrainingAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  slackUserId    String?
+  slackEmail     String
+  slackRealName  String?
+  slackDisplayName String?
+  workspaceId    String?
+  workspaceName  String?
+  status         String             @default("pending") // pending | connected | verified | error
+  verifiedAt     DateTime?
+  verifiedBy     String?            // manual | auto
+  errorMessage   String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
   @@unique([assignmentId])
 }

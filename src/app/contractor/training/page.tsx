@@ -8,6 +8,7 @@ import Link from 'next/link';
 interface StepDef { id: string; title: string; order: number; }
 interface StepProgress { id: string; stepId: string; status: string; completedAt: string | null; }
 interface GitHubRepo { id: string; repoName: string; repoUrl: string; status: string; defaultBranch: string; errorMessage: string | null; }
+interface SlackConn { id: string; slackEmail: string; slackRealName: string | null; slackDisplayName: string | null; workspaceName: string | null; status: string; verifiedAt: string | null; verifiedBy: string | null; errorMessage: string | null; }
 interface Assignment {
   id: string;
   status: string;
@@ -17,9 +18,10 @@ interface Assignment {
   progress: number;
   completedSteps: number;
   totalSteps: number;
-  lesson: { id: string; slug: string; title: string; description: string | null; targetRole: string; steps: StepDef[]; requiresGithub: boolean };
+  lesson: { id: string; slug: string; title: string; description: string | null; targetRole: string; steps: StepDef[]; requiresGithub: boolean; requiresSlack: boolean };
   steps: StepProgress[];
   githubRepository: GitHubRepo | null;
+  slackConnection: SlackConn | null;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -37,6 +39,13 @@ const GH_STATUS: Record<string, { bg: string; text: string; label: string }> = {
   archived: { bg: 'bg-gray-100', text: 'text-gray-500', label: 'Archived' },
 };
 
+const SLACK_STATUS: Record<string, { bg: string; text: string; label: string }> = {
+  pending: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Not Connected' },
+  connected: { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Pending Verification' },
+  verified: { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Verified' },
+  error: { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: 'Error' },
+};
+
 export default function ContractorTrainingPage() {
   const [user, setUser] = useState<{ name: string; email: string; contractorRole?: string; contractorRoles?: string[] } | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -44,6 +53,7 @@ export default function ContractorTrainingPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [completingStep, setCompletingStep] = useState<string | null>(null);
   const [creatingRepo, setCreatingRepo] = useState<string | null>(null);
+  const [connectingSlack, setConnectingSlack] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -89,6 +99,23 @@ export default function ContractorTrainingPage() {
     setCreatingRepo(null);
   };
 
+  const handleConnectSlack = async (assignmentId: string) => {
+    setConnectingSlack(assignmentId);
+    try {
+      const res = await fetch('/api/training/slack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignmentId }),
+      });
+      if (res.ok) loadAssignments();
+      else {
+        const err = await res.json();
+        alert(err.error || 'Failed to connect Slack');
+      }
+    } catch { alert('Failed to connect Slack'); }
+    setConnectingSlack(null);
+  };
+
   const isDeveloper = user?.contractorRoles?.includes('developer');
 
   return (
@@ -115,7 +142,9 @@ export default function ContractorTrainingPage() {
                   const style = STATUS_STYLES[a.status] || STATUS_STYLES.assigned;
                   const lessonSteps = a.lesson.steps || [];
                   const ghStatus = a.githubRepository ? GH_STATUS[a.githubRepository.status] || GH_STATUS.pending : null;
+                  const slackStatus = a.slackConnection ? SLACK_STATUS[a.slackConnection.status] || SLACK_STATUS.pending : null;
                   const isCreating = creatingRepo === a.id;
+                  const isConnecting = connectingSlack === a.id;
 
                   return (
                     <div key={a.id} className="glass-card overflow-hidden">
@@ -132,6 +161,11 @@ export default function ContractorTrainingPage() {
                             {a.lesson.requiresGithub && ghStatus && (
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${ghStatus.bg} ${ghStatus.text}`}>
                                 GH: {ghStatus.label}
+                              </span>
+                            )}
+                            {a.lesson.requiresSlack && slackStatus && (
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${slackStatus.bg} ${slackStatus.text}`}>
+                                Slack: {slackStatus.label}
                               </span>
                             )}
                           </div>
@@ -202,6 +236,52 @@ export default function ContractorTrainingPage() {
                                     </a>
                                   ) : a.githubRepository.status === 'creating' ? (
                                     <span className="px-4 py-2 bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg inline-block">Creating...</span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Slack Connection Section */}
+                          {a.lesson.requiresSlack && (
+                            <div className="mb-4 p-4 rounded-xl bg-gray-50 border border-muted-lighter">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className="text-sm font-bold text-dark">Slack Connection</h4>
+                                  {a.slackConnection ? (
+                                    <div className="mt-1">
+                                      {a.slackConnection.status === 'verified' ? (
+                                        <p className="text-sm text-emerald-700 font-medium">
+                                          Verified as {a.slackConnection.slackRealName || a.slackConnection.slackEmail}
+                                        </p>
+                                      ) : a.slackConnection.status === 'connected' ? (
+                                        <p className="text-sm text-blue-700">
+                                          Pending admin verification — your admin will confirm your Slack identity
+                                        </p>
+                                      ) : a.slackConnection.status === 'error' ? (
+                                        <p className="text-xs text-red-600 mt-1">{a.slackConnection.errorMessage || 'Connection failed. You can retry.'}</p>
+                                      ) : null}
+                                      {a.slackConnection.slackEmail && (
+                                        <p className="text-xs text-muted mt-1">{a.slackConnection.slackEmail}</p>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-muted mt-1">Not connected yet</p>
+                                  )}
+                                </div>
+                                <div>
+                                  {!a.slackConnection || a.slackConnection.status === 'error' ? (
+                                    <button
+                                      onClick={() => handleConnectSlack(a.id)}
+                                      disabled={isConnecting}
+                                      className="px-4 py-2 bg-[#4A154B] text-white text-xs font-semibold rounded-lg hover:bg-[#4A154B]/80 transition-colors disabled:opacity-50"
+                                    >
+                                      {isConnecting ? 'Connecting...' : 'Connect Slack'}
+                                    </button>
+                                  ) : a.slackConnection.status === 'verified' ? (
+                                    <span className="px-4 py-2 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg inline-block">Verified ✓</span>
+                                  ) : a.slackConnection.status === 'connected' ? (
+                                    <span className="px-4 py-2 bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg inline-block">Pending Verification</span>
                                   ) : null}
                                 </div>
                               </div>

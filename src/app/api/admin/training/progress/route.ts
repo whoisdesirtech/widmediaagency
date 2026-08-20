@@ -20,6 +20,7 @@ export async function GET(req: Request) {
         contractor: { select: { id: true, name: true, businessName: true } },
         steps: true,
         githubRepository: true,
+        slackConnection: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -46,6 +47,7 @@ export async function GET(req: Request) {
           title: a.lesson.title,
           targetRole: a.lesson.targetRole,
           requiresGithub: a.lesson.requiresGithub,
+          requiresSlack: a.lesson.requiresSlack,
         },
         steps: a.steps.map(s => ({
           stepId: s.stepId,
@@ -56,6 +58,12 @@ export async function GET(req: Request) {
           repoName: a.githubRepository.repoName,
           repoUrl: a.githubRepository.repoUrl,
           status: a.githubRepository.status,
+        } : null,
+        slackConnection: a.slackConnection ? {
+          slackEmail: a.slackConnection.slackEmail,
+          slackRealName: a.slackConnection.slackRealName,
+          status: a.slackConnection.status,
+          verifiedAt: a.slackConnection.verifiedAt,
         } : null,
       };
     });

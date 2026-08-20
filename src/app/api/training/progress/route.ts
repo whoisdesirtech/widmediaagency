@@ -14,6 +14,7 @@ export async function GET() {
         lesson: true,
         steps: { orderBy: { createdAt: 'asc' } },
         githubRepository: true,
+        slackConnection: true,
       },
       orderBy: { createdAt: 'asc' },
     });
@@ -41,6 +42,7 @@ export async function GET() {
           targetRole: a.lesson.targetRole,
           steps: a.lesson.steps,
           requiresGithub: a.lesson.requiresGithub,
+          requiresSlack: a.lesson.requiresSlack,
         },
         steps: a.steps.map(s => ({
           id: s.id,
@@ -55,6 +57,17 @@ export async function GET() {
           status: a.githubRepository.status,
           defaultBranch: a.githubRepository.defaultBranch,
           errorMessage: a.githubRepository.errorMessage,
+        } : null,
+        slackConnection: a.slackConnection ? {
+          id: a.slackConnection.id,
+          slackEmail: a.slackConnection.slackEmail,
+          slackRealName: a.slackConnection.slackRealName,
+          slackDisplayName: a.slackConnection.slackDisplayName,
+          workspaceName: a.slackConnection.workspaceName,
+          status: a.slackConnection.status,
+          verifiedAt: a.slackConnection.verifiedAt,
+          verifiedBy: a.slackConnection.verifiedBy,
+          errorMessage: a.slackConnection.errorMessage,
         } : null,
       };
     });

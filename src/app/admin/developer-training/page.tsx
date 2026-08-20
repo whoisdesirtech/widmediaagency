@@ -19,9 +19,10 @@ interface ProgressAssignment {
   completedSteps: number;
   totalSteps: number;
   contractor: ContractorInfo;
-  lesson: { id: string; slug: string; title: string; targetRole: string; requiresGithub: boolean };
+  lesson: { id: string; slug: string; title: string; targetRole: string; requiresGithub: boolean; requiresSlack: boolean };
   steps: { stepId: string; status: string; completedAt: string | null }[];
   githubRepository: { repoName: string; repoUrl: string; status: string } | null;
+  slackConnection: { slackEmail: string; slackRealName: string | null; status: string; verifiedAt: string | null } | null;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -269,6 +270,7 @@ function ContractorProgress() {
                 <th className="text-left py-3 px-3 text-white/70">Status</th>
                 <th className="text-left py-3 px-3 text-white/70">Progress</th>
                 <th className="text-left py-3 px-3 text-white/70">GitHub</th>
+                <th className="text-left py-3 px-3 text-white/70">Slack</th>
                 <th className="text-left py-3 px-3 text-white/70">Assigned</th>
               </tr>
             </thead>
@@ -308,6 +310,25 @@ function ContractorProgress() {
                           )
                         ) : (
                           <span className="text-xs text-white/40">Not Created</span>
+                        )
+                      ) : (
+                        <span className="text-xs text-white/30">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3">
+                      {a.lesson.requiresSlack ? (
+                        a.slackConnection ? (
+                          a.slackConnection.status === 'verified' ? (
+                            <span className="text-xs text-emerald-400">{a.slackConnection.slackRealName || a.slackConnection.slackEmail}</span>
+                          ) : a.slackConnection.status === 'connected' ? (
+                            <span className="text-xs text-blue-400">Pending</span>
+                          ) : a.slackConnection.status === 'error' ? (
+                            <span className="text-xs text-red-400">Error</span>
+                          ) : (
+                            <span className="text-xs text-white/40">{a.slackConnection.status}</span>
+                          )
+                        ) : (
+                          <span className="text-xs text-white/40">Not Connected</span>
                         )
                       ) : (
                         <span className="text-xs text-white/30">—</span>
