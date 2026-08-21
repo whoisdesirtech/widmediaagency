@@ -92,7 +92,16 @@ export default function ContractorDashboard() {
         <div className="glass-card p-12 text-center">
           <div className="text-4xl mb-3">🔗</div>
           <div className="font-heading font-bold text-dark-800 mb-1">No Contractor Profile</div>
-          <div className="text-muted text-sm">Your account is not linked to a contractor profile. Contact your agency admin.</div>
+          <div className="text-muted text-sm mb-4">Your account is not linked to a contractor profile.</div>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-left max-w-md mx-auto">
+            <p className="text-xs font-semibold text-amber-700 mb-2">How to fix this:</p>
+            <ol className="text-xs text-amber-800 space-y-1.5 list-decimal list-inside">
+              <li>Ask your admin to go to <strong>Admin → Contractors</strong></li>
+              <li>Click on your contractor name</li>
+              <li>Click <strong>&quot;Create Login&quot;</strong> to link your account</li>
+            </ol>
+            <p className="text-xs text-amber-600 mt-2">Or contact your agency admin directly.</p>
+          </div>
         </div>
       </main>
     </div>
