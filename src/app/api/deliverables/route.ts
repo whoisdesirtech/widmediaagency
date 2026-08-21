@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     if (isNextResponse(user)) return user;
 
     const body = await req.json();
-    const { clientId, projectId, contractorId, sowId, name, type, status, dueDate, description, sortOrder } = body;
+    const { clientId, projectId, contractorId, sowId, name, type, status, dueDate, description, sortOrder, taskId } = body;
 
     if (!clientId || !name) {
       return NextResponse.json({ error: 'Client ID and name are required' }, { status: 400 });
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
         projectId: projectId || null,
         contractorId: contractorId || null,
         sowId: sowId || null,
+        taskId: taskId || null,
         name,
         type: type || 'document',
         status: status || 'pending',

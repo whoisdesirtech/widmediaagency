@@ -33,6 +33,7 @@ model User {
   agency       Agency?   @relation(fields: [agencyId], references: [id])
   contractorId String?
   clientId     String?
+  reviews      TaskReview[]
   createdAt    DateTime @default(now())
 }
 
@@ -57,6 +58,7 @@ model Contractor {
   assembledContracts  AssembledContract[]
   roles               ContractorRole[]
   trainingAssignments TrainingAssignment[]
+  tasks               ProjectTask[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 }
@@ -166,8 +168,47 @@ model Project {
   deliverables  Int      @default(0)
   images        String   @default("[]") // JSON array of {url, name, uploadedAt} objects
   sortOrder     Int      @default(0)
+  tasks         ProjectTask[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model ProjectTask {
+  id            String    @id @default(uuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractorId  String?
+  contractor    Contractor? @relation(fields: [contractorId], references: [id])
+  title         String
+  description   String    @default("")
+  status        String    @default("pending") // pending | in_progress | in_review | completed | blocked
+  priority      String    @default("medium") // low | medium | high | urgent
+  dueDate       DateTime?
+  completedAt   DateTime?
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reviews       TaskReview[]
+
+  @@index([projectId])
+  @@index([contractorId])
+  @@index([status])
+}
+
+model TaskReview {
+  id          String    @id @default(uuid())
+  taskId      String
+  task        ProjectTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User      @relation(fields: [reviewerId], references: [id])
+  status      String    @default("pending") // pending | approved | changes_requested | rejected
+  feedback    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([taskId])
+  @@index([reviewerId])
 }
 
 model Notification {
@@ -205,12 +246,19 @@ model Deliverable {
   projectId     String?
   contractorId  String?
   sowId         String?
+  taskId        String?
   name          String
   type          String   @default("document") // image | video | document | design
-  status        String   @default("pending") // pending | in-progress | pending-approval | approved | changes-requested
+  status        String   @default("pending") // draft | pending | in-progress | pending-approval | approved | changes-requested
   dueDate       String?
   description   String   @default("")
   sortOrder     Int      @default(0)
+  submittedUrl  String?
+  submittedAt   DateTime?
+  attachments   String   @default("[]") // JSON array of {url, name, type, uploadedAt}
+  feedback      String?
+  reviewedBy    String?
+  reviewedAt    DateTime?
   approvedAt    DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

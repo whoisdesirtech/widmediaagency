@@ -18,7 +18,7 @@ Next.js (App Router) agency-management platform: contractor onboarding, SOWs, co
 ## Stack
 
 - Next.js 14 App Router, TypeScript (strict-ish; `any` used in places), Tailwind CSS
-- Prisma + PostgreSQL (see `prisma/schema.prisma`, 23 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
+- Prisma + PostgreSQL (see `prisma/schema.prisma`, 26 models). Connection via `DATABASE_URL`/`DIRECT_URL` env vars
 - NextAuth credentials strategy (`src/app/api/auth/[...nextauth]/route.ts`, options in `src/lib/auth.ts`)
 - Google Drive via service account (`src/lib/driveService.ts`), uploads to Drive, not local disk
 - GitHub via Octokit PAT (`src/lib/github.ts`), creates training repos from template or empty repos
@@ -28,7 +28,7 @@ Next.js (App Router) agency-management platform: contractor onboarding, SOWs, co
 - `src/app/api/` — all route handlers (37 files); auth pattern is uniform (see below)
 - `src/app/<role>/` — portals: `admin`+`dashboard` (admin/staff), `contractor/`, `client/`
 - `src/app/<role>s/[id]/` — admin-facing detail pages for a client/contractor
-- `src/lib/` — `auth.ts` (session helpers), `audit.ts` (audit logging), `storage.ts` (storage limits), `rateLimit.ts`, `prisma.ts`, `drive.ts`, `driveService.ts`, `proposal-generator.ts`
+- `src/lib/` — `auth.ts` (session helpers), `audit.ts` (audit logging), `storage.ts` (storage limits), `rateLimit.ts`, `prisma.ts`, `drive.ts`, `driveService.ts`, `proposal-generator.ts`, `role-training-config.ts` (role→lesson mapping)
 - `src/components/` — shared UI (Sidebar, ContractorSidebar, ClientSidebar, SignaturePad, StatusBadge, DraftBanner, CsrfProvider)
 - `src/middleware.ts` — CSRF double-submit protection (see below)
 - `docs/` — project documentation (architecture, version control, release checklist, session handoff, known issues)
@@ -100,6 +100,60 @@ Required env vars (optional): `SLACK_BOT_TOKEN` (workspace bot with `users:read`
 - `developer-full` (16 steps, GitHub required)
 - `developer-intern` (12 steps, GitHub required)
 - `slack-fundamentals` (7 steps, Slack required)
+
+## Phase 4A: Task & Review Foundation
+
+### New Models
+
+- `ProjectTask` — granular work items within projects. Fields: projectId (FK→Project), contractorId (FK?→Contractor), title, description, status (pending/in_progress/in_review/completed/blocked), priority (low/medium/high/urgent), dueDate, completedAt, sortOrder. Has-many TaskReview.
+- `TaskReview` — review history for tasks. Fields: taskId (FK→ProjectTask), reviewerId (FK→User), status (pending/approved/changes_requested/rejected), feedback, timestamps. Multiple reviews per task allowed (review rounds).
+
+### Extended Deliverable
+
+Added fields: `taskId` (FK?→ProjectTask, plain string), `submittedUrl`, `submittedAt`, `attachments` (JSON array), `feedback`, `reviewedBy`, `reviewedAt`. Status now includes `draft`.
+
+### Configuration
+
+- `src/lib/role-training-config.ts` — maps 12 roles to lessons, integrations, and deliverable types
+- Use `getRoleConfig()`, `getRequiredIntegrations()`, `getRoleLessons()` helpers
+- Use `computeReadiness()` for contractor readiness computation
+
+### Auto-Assignment on Role Approval
+
+When a `ContractorRole` is approved (PATCH `/api/contractors/[id]/roles/[roleId]`), the handler auto-assigns all lessons from `role-training-config.ts` for that role. Uses `@@unique([lessonId, contractorId])` for idempotency.
+
+### Workforce Dashboard
+
+- **API**: `GET /api/admin/workforce` — all contractors with readiness, training, integrations, projects, tasks
+- **UI**: `/admin/workforce` — admin-only page with stats cards + filterable contractor table
+- **Sidebar**: "Workforce Dashboard" link under admin-only items
+
+### Task Management (Phase 4C)
+
+- **Admin API**: `POST/GET /api/projects/[id]/tasks` — create and list tasks for a project
+- **Admin API**: `GET/PATCH/DELETE /api/projects/[id]/tasks/[taskId]` — manage individual tasks
+- **Contractor API**: `GET /api/contractor/tasks` — list tasks assigned to contractor
+- **Contractor API**: `PATCH /api/contractor/tasks/[taskId]` — update task status (in_progress, in_review, blocked)
+- **Admin UI**: `/admin/tasks` — create/assign/manage tasks across all projects
+- **Contractor UI**: `/contractor/tasks` — view and update assigned tasks
+- **Auto-progress**: When all tasks in a project are completed, project progress updates to 100% and status to "complete"
+- **Sidebar**: "Tasks" link in admin sidebar, "My Tasks" link in contractor sidebar
+
+### Deliverable Extensions (Phase 4D)
+
+- **Extended PATCH** (`/api/deliverables/[id]`): contractors can now submit with `submittedUrl`, `attachments` (JSON array of Google Drive URLs), `submittedAt`; admins can set `feedback`, `reviewedBy`, `reviewedAt`
+- **New statuses**: `draft` (contractor can set), `rejected` (admin can set)
+- **Review workflow**: admin review modal with feedback field — approve, request changes, or reject
+- **File upload**: contractors use existing `/api/drive/upload` endpoint, then pass URLs as `attachments` in PATCH body
+- **Admin UI**: review modal with feedback textarea, attachments display, submitted URL link, feedback display
+- **Contractor UI**: submit modal with URL input + file upload, attachments/feedback display on cards
+
+### Review Automation (Phase 4E)
+
+- **Auto-task advance**: contractor submits deliverable → linked task auto-advances to `in_review`; admin approves → linked task auto-completes; client/admin requests changes → linked task reverts to `in_progress`
+- **Auto-project progress**: when a linked task completes, project `progress` recalculates; if 100%, project status auto-sets to `complete`
+- **TaskReview records**: every admin review (approve/changes-requested/rejected) on a deliverable with a `taskId` creates a `TaskReview` record for audit trail
+- **Notifications**: project completion notification to admin when all tasks done
 
 ## Gotchas
 

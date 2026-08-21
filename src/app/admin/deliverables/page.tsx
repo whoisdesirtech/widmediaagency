@@ -4,11 +4,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Sidebar from '@/components/Sidebar';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  'draft': { label: 'Draft', color: 'text-gray-600', bg: 'bg-gray-50 border-gray-200' },
   'approved': { label: 'Approved', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
   'pending': { label: 'Pending', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
   'in-progress': { label: 'In Progress', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
   'pending-approval': { label: 'Awaiting Approval', color: 'text-miami-pink', bg: 'bg-pink-50 border-pink-200' },
   'changes-requested': { label: 'Changes Requested', color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
+  'rejected': { label: 'Rejected', color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
 };
 
 const TYPE_ICONS: Record<string, string> = {
@@ -30,6 +32,8 @@ export default function AdminDeliverablesPage() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterContractor, setFilterContractor] = useState('all');
   const [filterClient, setFilterClient] = useState('all');
+  const [reviewModal, setReviewModal] = useState<{ id: string; name: string; action: 'approve' | 'changes' | 'reject' } | null>(null);
+  const [reviewFeedback, setReviewFeedback] = useState('');
 
   const [form, setForm] = useState({
     clientId: '',
@@ -125,24 +129,42 @@ export default function AdminDeliverablesPage() {
     const res = await fetch(`/api/deliverables/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'approved' }),
+      body: JSON.stringify({ status: 'approved', feedback: reviewFeedback || null }),
     });
     if (res.ok) {
       const updated = await res.json();
       setDeliverables(prev => prev.map(d => d.id === id ? updated : d));
     }
+    setReviewModal(null);
+    setReviewFeedback('');
   };
 
   const handleRequestChanges = async (id: string) => {
     const res = await fetch(`/api/deliverables/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'changes-requested' }),
+      body: JSON.stringify({ status: 'changes-requested', feedback: reviewFeedback || null }),
     });
     if (res.ok) {
       const updated = await res.json();
       setDeliverables(prev => prev.map(d => d.id === id ? updated : d));
     }
+    setReviewModal(null);
+    setReviewFeedback('');
+  };
+
+  const handleReject = async (id: string) => {
+    const res = await fetch(`/api/deliverables/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'rejected', feedback: reviewFeedback || null }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setDeliverables(prev => prev.map(d => d.id === id ? updated : d));
+    }
+    setReviewModal(null);
+    setReviewFeedback('');
   };
 
   return (
@@ -232,23 +254,29 @@ export default function AdminDeliverablesPage() {
                         {d.status === 'pending-approval' && (
                           <>
                             <button
-                              onClick={() => handleApprove(d.id)}
+                              onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'approve' })}
                               className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
                             >
                               ✓ Approve
                             </button>
                             <button
-                              onClick={() => handleRequestChanges(d.id)}
+                              onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'changes' })}
                               className="px-3 py-1.5 bg-orange-400 text-white text-xs font-semibold rounded-lg hover:bg-orange-500 transition-colors"
                             >
                               ↻ Request Changes
+                            </button>
+                            <button
+                              onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'reject' })}
+                              className="px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                              ✕ Reject
                             </button>
                           </>
                         )}
 
                         {d.status === 'changes-requested' && (
                           <button
-                            onClick={() => handleApprove(d.id)}
+                            onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'approve' })}
                             className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
                           >
                             ✓ Re-approve
@@ -271,6 +299,36 @@ export default function AdminDeliverablesPage() {
                     </div>
                     {d.description && (
                       <p className="text-xs text-muted mt-2 ml-9">{d.description}</p>
+                    )}
+                    {d.submittedUrl && (
+                      <div className="mt-2 ml-9">
+                        <a href={d.submittedUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-miami-pink font-semibold hover:underline">
+                          View Submitted Work ↗
+                        </a>
+                      </div>
+                    )}
+                    {d.attachments && (() => {
+                      try {
+                        const atts = typeof d.attachments === 'string' ? JSON.parse(d.attachments) : d.attachments;
+                        if (Array.isArray(atts) && atts.length > 0) {
+                          return (
+                            <div className="mt-2 ml-9 flex flex-wrap gap-1.5">
+                              {atts.map((att: string, i: number) => (
+                                <a key={i} href={att} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-0.5 rounded bg-muted-lighter text-[0.6rem] font-semibold text-dark-800 hover:bg-muted transition-colors">
+                                  📎 Attachment {i + 1}
+                                </a>
+                              ))}
+                            </div>
+                          );
+                        }
+                      } catch { return null; }
+                      return null;
+                    })()}
+                    {d.feedback && (
+                      <div className="mt-2 ml-9 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
+                        <p className="text-[0.65rem] font-semibold text-amber-700 mb-0.5">Review Feedback</p>
+                        <p className="text-xs text-amber-800">{d.feedback}</p>
+                      </div>
                     )}
                   </div>
                 );
@@ -380,6 +438,66 @@ export default function AdminDeliverablesPage() {
                 <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {reviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+            <div className="p-6 border-b border-muted-lighter">
+              <div className="flex items-center justify-between">
+                <h3 className="font-heading font-bold text-dark-800 text-lg">
+                  {reviewModal.action === 'approve' ? 'Approve Deliverable' : reviewModal.action === 'reject' ? 'Reject Deliverable' : 'Request Changes'}
+                </h3>
+                <button onClick={() => { setReviewModal(null); setReviewFeedback(''); }} className="text-muted hover:text-dark-800 text-lg">✕</button>
+              </div>
+              <p className="text-sm text-muted mt-1">{reviewModal.name}</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Feedback (optional)</label>
+                <textarea
+                  value={reviewFeedback}
+                  onChange={e => setReviewFeedback(e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm resize-none"
+                  placeholder={reviewModal.action === 'approve' ? 'Any feedback for the contractor...' : reviewModal.action === 'reject' ? 'Why is this being rejected?' : 'What changes are needed?'}
+                />
+              </div>
+              <div className="flex gap-3">
+                {reviewModal.action === 'approve' && (
+                  <button
+                    onClick={() => handleApprove(reviewModal.id)}
+                    className="px-4 py-2 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
+                  >
+                    ✓ Approve
+                  </button>
+                )}
+                {reviewModal.action === 'changes' && (
+                  <button
+                    onClick={() => handleRequestChanges(reviewModal.id)}
+                    className="px-4 py-2 bg-orange-400 text-white text-sm font-semibold rounded-lg hover:bg-orange-500 transition-colors"
+                  >
+                    ↻ Request Changes
+                  </button>
+                )}
+                {reviewModal.action === 'reject' && (
+                  <button
+                    onClick={() => handleReject(reviewModal.id)}
+                    className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    ✕ Reject
+                  </button>
+                )}
+                <button
+                  onClick={() => { setReviewModal(null); setReviewFeedback(''); }}
+                  className="px-4 py-2 border-2 border-muted-lighter text-dark-800 text-sm font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

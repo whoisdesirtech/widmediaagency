@@ -7,6 +7,7 @@ import NotificationBell from '@/components/NotificationBell';
 const NAV_ITEMS = [
   { href: '/contractor/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/contractor/projects', label: 'Projects', icon: '📁' },
+  { href: '/contractor/tasks', label: 'My Tasks', icon: '✅' },
   { href: '/contractor/sows', label: 'My SOWs', icon: '📝' },
   { href: '/contractor/deliverables', label: 'Deliverables', icon: '📋' },
   { href: '/contractor/my-roles', label: 'My Roles', icon: '🏷️' },

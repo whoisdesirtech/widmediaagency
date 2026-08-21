@@ -2,6 +2,27 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isNextResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notifications';
+import { getRoleLessons } from '@/lib/role-training-config';
+
+async function autoAssignLessons(contractorId: string, role: string) {
+  const lessonSlugs = getRoleLessons(role);
+  if (!lessonSlugs.length) return;
+
+  const lessons = await prisma.trainingLesson.findMany({
+    where: { slug: { in: lessonSlugs }, isActive: true },
+  });
+
+  for (const lesson of lessons) {
+    const existing = await prisma.trainingAssignment.findFirst({
+      where: { lessonId: lesson.id, contractorId },
+    });
+    if (!existing) {
+      await prisma.trainingAssignment.create({
+        data: { lessonId: lesson.id, contractorId, status: 'assigned' },
+      });
+    }
+  }
+}
 
 export async function PATCH(req: Request, { params }: { params: { id: string; roleId: string } }) {
   try {
@@ -33,6 +54,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string; ro
       },
     });
 
+    if (status === 'approved') {
+      await autoAssignLessons(id, existing.role);
+    }
+
     const contractorUser = await prisma.user.findFirst({ where: { contractorId: id } });
     if (contractorUser) {
       await createNotification({
@@ -40,7 +65,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string; ro
         type: status === 'approved' ? 'role_approved' : 'role_rejected',
         title: status === 'approved' ? 'Role Approved' : 'Role Rejected',
         message: status === 'approved'
-          ? `Your role "${existing.role}" has been approved.`
+          ? `Your role "${existing.role}" has been approved. Training lessons have been assigned.`
           : `Your role "${existing.role}" has been rejected.`,
         link: '/contractor/dashboard',
       });

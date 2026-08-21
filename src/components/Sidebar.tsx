@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: '/contractors', label: 'Contractors', icon: '👥' },
   { href: '/clients', label: 'Clients', icon: '🏢' },
   { href: '/admin/projects', label: 'Projects', icon: '📁' },
+  { href: '/admin/tasks', label: 'Tasks', icon: '✅' },
   { href: '/admin/deliverables', label: 'Deliverables', icon: '📋' },
   { href: '/master-agreement', label: 'Master Agreement', icon: '📋' },
   { href: '/sow-builder', label: 'SOW Builder', icon: '📝' },
@@ -23,6 +24,7 @@ const ADMIN_ONLY_ITEMS = [
   { href: '/admin/audit', label: 'Audit Admin', icon: '🛡️' },
   { href: '/admin/audit-log', label: 'Audit Log', icon: '🧾' },
   { href: '/admin/developer-training', label: 'Developer Training', icon: '🎓' },
+  { href: '/admin/workforce', label: 'Workforce Dashboard', icon: '👷' },
 ];
 
 export default function Sidebar() {

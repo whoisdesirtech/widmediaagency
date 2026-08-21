@@ -1,9 +1,9 @@
 # AI Handoff — WID Media Agency Platform
 
-**Last updated:** Phase 3 submitted  
+**Last updated:** Phase 4A complete  
 **Repository:** https://github.com/whoisdesirtech/widmediaagency  
 **Branch:** main  
-**Database:** 25 Prisma models (PostgreSQL via Supabase)
+**Database:** 26 Prisma models (PostgreSQL via Supabase)
 
 ---
 
@@ -13,10 +13,12 @@
 |-------|--------|-------------|
 | Phase 1 | **COMPLETE** | Individualized contractor training architecture |
 | Phase 2 | **COMPLETE** | Individualized GitHub training repositories |
-| Phase 3 | **SUBMITTED** | Individualized Slack training integration |
-| Phase 4 | FUTURE | Advanced automation, verification, analytics |
-
-**Do NOT redesign or repeat Phases 1-3. Do NOT start Phase 4.**
+| Phase 3 | **COMPLETE** | Individualized Slack training integration |
+| Phase 4A | **COMPLETE** | Task & review foundation (ProjectTask, TaskReview, Deliverable extensions, role config) |
+| Phase 4B | **COMPLETE** | Role-based auto-assignment, readiness computation, workforce dashboard |
+| Phase 4C | **COMPLETE** | Task management API + UI (admin create/assign, contractor view/update) |
+| Phase 4D | **COMPLETE** | Deliverable extensions: submittedUrl, attachments (Google Drive), review feedback, draft/rejected statuses |
+| Phase 4E | **COMPLETE** | Review automation: auto-task advance, auto-project progress, TaskReview records, project completion notification |
 
 ---
 
@@ -306,16 +308,255 @@ slack.verification_failed — admin rejected
 
 ---
 
-## Phase 4 (FUTURE — do not implement)
+## Phase 4A Implementation (COMPLETE)
 
-Phase 4 may include:
-- Advanced Slack activity verification (channel membership, message counts)
-- Automated training completion based on Slack evidence
-- Contractor scoring and analytics
-- AI-graded training assessments
-- Broader integration automation
+### New Models
 
-Do not implement Phase 4 unless explicitly approved.
+**ProjectTask** (`prisma/schema.prisma:183`)
+```prisma
+model ProjectTask {
+  id            String    @id @default(uuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractorId  String?
+  contractor    Contractor? @relation(fields: [contractorId], references: [id])
+  title         String
+  description   String    @default("")
+  status        String    @default("pending") // pending | in_progress | in_review | completed | blocked
+  priority      String    @default("medium") // low | medium | high | urgent
+  dueDate       DateTime?
+  completedAt   DateTime?
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  reviews       TaskReview[]
+  @@index([projectId])
+  @@index([contractorId])
+  @@index([status])
+}
+```
+
+**TaskReview** (`prisma/schema.prisma:205`)
+```prisma
+model TaskReview {
+  id          String    @id @default(uuid())
+  taskId      String
+  task        ProjectTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User      @relation(fields: [reviewerId], references: [id])
+  status      String    @default("pending") // pending | approved | changes_requested | rejected
+  feedback    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  @@index([taskId])
+  @@index([reviewerId])
+}
+```
+
+### Extended Deliverable
+
+Added fields:
+- `taskId` (String?) — FK to ProjectTask
+- `submittedUrl` (String?) — URL to submitted file
+- `submittedAt` (DateTime?) — when submitted
+- `attachments` (String, default "[]") — JSON array of {url, name, type, uploadedAt}
+- `feedback` (String?) — review feedback
+- `reviewedBy` (String?) — reviewer userId
+- `reviewedAt` (DateTime?) — when reviewed
+
+Status now includes `draft`: `draft | pending | in-progress | pending-approval | approved | changes-requested`
+
+### Role Training Config
+
+`src/lib/role-training-config.ts` — maps 12 roles to:
+- `lessons`: lesson slugs to auto-assign
+- `integrations`: ['github', 'slack'] or ['slack']
+- `deliverableTypes`: ['code', 'document', 'design', etc.]
+
+Helpers: `getRoleConfig()`, `getRequiredIntegrations()`, `getRoleLessons()`
+
+### Database Changes
+
+- `prisma db push` — additive only, no data loss
+- All new fields nullable or with defaults
+- Existing projects, deliverables, training assignments preserved
+
+---
+
+## Phase 4B Implementation (COMPLETE)
+
+### Auto-Assignment on Role Approval
+
+When a `ContractorRole` is approved via PATCH `/api/contractors/[id]/roles/[roleId]`, the handler now calls `autoAssignLessons()` which:
+1. Looks up the role in `role-training-config.ts`
+2. Finds all active lessons matching the role's lesson slugs
+3. Creates `TrainingAssignment` records (idempotent via `@@unique`)
+
+### Readiness Computation
+
+`computeReadiness()` in `src/lib/role-training-config.ts` returns:
+- `trained`: boolean (all lessons complete + all integrations verified)
+- `trainingProgress`: 0-100%
+- `integrationsVerified`: { github, slack }
+- `currentProject`: string | null
+- `activeTasks`: number
+- `status`: 'ready' | 'in_training' | 'not_started'
+
+### Workforce Dashboard
+
+**API**: `GET /api/admin/workforce` (admin/staff only)
+- Returns all contractors with computed readiness data
+- Includes: roles, training progress, step counts, integration status, project assignments, active task counts
+- Stats: total/ready/inTraining/notStarted
+
+**UI**: `/admin/workforce`
+- Stats cards at top (4-card grid)
+- Filter tabs: All, Ready, In Training, Not Started
+- Table columns: Contractor, Role, Training (progress bar), Integrations (GH/SL), Project, Tasks, Status
+
+**Sidebar**: "Workforce Dashboard" link added to ADMIN_ONLY_ITEMS
+
+### New Files
+- `src/app/api/admin/workforce/route.ts` — workforce data API
+- `src/app/admin/workforce/page.tsx` — workforce dashboard UI
+
+### Modified Files
+- `src/app/api/contractors/[id]/roles/[roleId]/route.ts` — added auto-assign hook
+- `src/lib/role-training-config.ts` — added `computeReadiness()` and `ContractorReadiness` type
+- `src/components/Sidebar.tsx` — added workforce link
+
+---
+
+## Phase 4C Implementation (COMPLETE)
+
+### Task Management API
+
+**Admin endpoints** (requireAdminOrStaff):
+- `POST /api/projects/[id]/tasks` — create task (title, description, contractorId, priority, dueDate)
+- `GET /api/projects/[id]/tasks` — list tasks for project
+- `GET/PATCH/DELETE /api/projects/[id]/tasks/[taskId]` — manage individual tasks
+
+**Contractor endpoints** (requireContractor):
+- `GET /api/contractor/tasks` — list tasks assigned to contractor (with project info)
+- `PATCH /api/contractor/tasks/[taskId]` — update status (in_progress, in_review, blocked only)
+
+### Task Status Workflow
+
+```
+pending → in_progress → in_review → completed
+                         ↓
+                      blocked → in_progress (revise)
+```
+
+Admins can set any status. Contractors can only set: in_progress, in_review, blocked.
+
+### Auto-Project Progress
+
+When a task is marked `completed`, the project's `progress` field is recalculated as `completedTasks / totalTasks * 100`. If progress reaches 100%, project status auto-sets to `complete`.
+
+### Notifications
+
+- Task assignment sends notification to contractor: "New Task Assigned"
+
+### New Files
+- `src/app/api/projects/[id]/tasks/route.ts` — task CRUD (list + create)
+- `src/app/api/projects/[id]/tasks/[taskId]/route.ts` — task detail/update/delete
+- `src/app/api/contractor/tasks/route.ts` — contractor task list
+- `src/app/api/contractor/tasks/[taskId]/route.ts` — contractor task status update
+- `src/app/admin/tasks/page.tsx` — admin task management UI
+- `src/app/contractor/tasks/page.tsx` — contractor tasks UI
+
+### Modified Files
+- `src/components/Sidebar.tsx` — added "Tasks" link
+- `src/components/ContractorSidebar.tsx` — added "My Tasks" link
+
+---
+
+## Phase 4D Implementation (COMPLETE)
+
+### Deliverable Extended PATCH
+
+**New fields** (admin can set):
+- `submittedUrl` — link to external work (Figma, Google Docs, etc.)
+- `submittedAt` — timestamp of submission
+- `attachments` — JSON array of Google Drive URLs
+- `feedback` — admin review feedback text
+- `reviewedBy` — user ID of reviewer (auto-set on approve/reject)
+- `reviewedAt` — timestamp of review (auto-set on approve/reject)
+
+**New statuses**:
+- `draft` — contractor can set (work in progress, not yet started)
+- `rejected` — admin can set (deliverable rejected entirely)
+
+### Contractor Submit Workflow
+
+1. Contractor clicks "Submit" or "Revise" → opens submit modal
+2. Contractor can paste a URL (Figma, Google Docs, Canva, etc.)
+3. Contractor can upload files via existing `/api/drive/upload` → files go to Google Drive
+4. On submit: PATCH deliverable with `status: pending-approval`, `submittedUrl`, `attachments`, `submittedAt`
+5. Notifications sent to client + admins
+
+### Admin Review Workflow
+
+1. Admin sees deliverable with status `pending-approval`
+2. Admin clicks Approve, Request Changes, or Reject → opens review modal
+3. Admin can optionally add feedback text
+4. On action: PATCH deliverable with new status, `feedback`, `reviewedBy`, `reviewedAt`
+5. Notifications sent to contractor
+
+### Files Modified
+- `src/app/api/deliverables/[id]/route.ts` — extended PATCH handler for all new fields
+- `src/app/api/deliverables/route.ts` — POST now accepts `taskId`
+- `src/app/admin/deliverables/page.tsx` — review modal, attachments display, feedback display, draft/rejected statuses
+- `src/app/contractor/deliverables/page.tsx` — submit modal with URL + file upload, attachments/feedback display
+
+---
+
+## Phase 4E Implementation (COMPLETE)
+
+### Auto-Task Advance
+
+When a deliverable is linked to a task via `taskId`, status changes auto-advance the task:
+
+| Deliverable Action | Task Status Change |
+|---|---|
+| Contractor submits (`pending-approval`) | `in_progress` → `in_review` |
+| Admin approves | any → `completed` |
+| Client/admin requests changes | `in_review` → `in_progress` |
+
+### Auto-Project Progress
+
+When a linked task completes:
+1. Count total tasks and completed tasks for the project
+2. Recalculate `progress = Math.round((completed / total) * 100)`
+3. If progress reaches 100%, set project status to `complete`
+4. Send project completion notification to admin
+
+### TaskReview Records
+
+Every admin review action on a deliverable with a `taskId` creates a `TaskReview` record:
+- `taskId` — the linked task
+- `reviewerId` — the reviewing user
+- `status` — `approved`, `changes_requested`, or `rejected`
+- `feedback` — optional feedback text
+- `createdAt` — timestamp
+
+### Files Modified
+- `src/app/api/deliverables/[id]/route.ts` — added auto-task advance, auto-project progress, TaskReview creation
+
+---
+
+## Phase 4 Complete
+
+All Phase 4A-4E are now **COMPLETE**. Summary:
+
+| Phase | Status | Features |
+|-------|--------|----------|
+| 4A | ✅ | ProjectTask + TaskReview models, Deliverable extensions, role-training-config.ts |
+| 4B | ✅ | Auto-assignment on role approval, readiness computation, workforce dashboard |
+| 4C | ✅ | Task CRUD API + UI (admin create/assign, contractor view/update) |
+| 4D | ✅ | Deliverable extensions: submittedUrl, attachments, review feedback, draft/rejected |
+| 4E | ✅ | Review automation: auto-task advance, auto-project progress, TaskReview records |
 
 ---
 
@@ -323,21 +564,30 @@ Do not implement Phase 4 unless explicitly approved.
 
 | File | Purpose |
 |------|---------|
-| `prisma/schema.prisma` | All 25 models including training + GitHub + Slack |
+| `prisma/schema.prisma` | All 26 models including training + GitHub + Slack + ProjectTask + TaskReview |
 | `prisma/seed-training.ts` | Canonical lesson definitions |
 | `src/lib/auth.ts` | Session helpers, `requireContractor()`, `requireAdminOrStaff()` |
 | `src/lib/audit.ts` | `logAudit()` — best-effort audit logging |
 | `src/lib/notifications.ts` | `createNotification()` — notification creation |
 | `src/lib/github.ts` | GitHub service (Octokit PAT, template repos) |
 | `src/lib/slack.ts` | Slack service (Bot Token, email lookup) |
+| `src/lib/role-training-config.ts` | Role → lesson mapping (12 roles) |
 | `src/app/api/training/progress/route.ts` | Contractor training progress GET + step completion POST |
 | `src/app/api/training/github/route.ts` | GitHub repo creation + status check |
 | `src/app/api/training/slack/route.ts` | Slack connection GET + POST |
 | `src/app/api/admin/training/assign/route.ts` | Admin lesson assignment |
 | `src/app/api/admin/training/progress/route.ts` | Admin progress view |
 | `src/app/api/admin/training/slack/verify/route.ts` | Admin Slack verify/reject |
+| `src/app/api/admin/workforce/route.ts` | Workforce dashboard data API |
+| `src/app/api/projects/[id]/tasks/route.ts` | Task list + create |
+| `src/app/api/projects/[id]/tasks/[taskId]/route.ts` | Task detail/update/delete |
+| `src/app/api/contractor/tasks/route.ts` | Contractor task list |
+| `src/app/api/contractor/tasks/[taskId]/route.ts` | Contractor task status update |
 | `src/app/contractor/training/page.tsx` | Contractor training UI |
 | `src/app/admin/developer-training/page.tsx` | Admin training UI with progress tab |
+| `src/app/admin/workforce/page.tsx` | Workforce dashboard UI |
+| `src/app/admin/tasks/page.tsx` | Admin task management UI |
+| `src/app/contractor/tasks/page.tsx` | Contractor tasks UI |
 | `src/components/ContractorSidebar.tsx` | Contractor sidebar with NotificationBell |
 | `src/components/NotificationBell.tsx` | Notification bell component (30s polling) |
 | `AGENTS.md` | Project conventions and architecture |
