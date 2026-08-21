@@ -38,6 +38,7 @@ const talks = [
     tags: ['AI', 'Finance', 'Live Demo'],
     date: '[DATE TBD]',
     featured: true,
+    article: '/articles/creative-hub-ai-live-demo.html',
   },
   {
     title: 'AI in Marketing: What Actually Works',
@@ -46,6 +47,7 @@ const talks = [
       'Panel discussion on AI applications in digital marketing — content generation, audience segmentation, and predictive analytics.',
     tags: ['Marketing', 'Panel'],
     date: '2025',
+    article: '/articles/ai-in-marketing-panel.html',
   },
   {
     title: 'Practical AI Workflows for Entrepreneurs',
@@ -54,6 +56,7 @@ const talks = [
       'Walked entrepreneurs through AI tools for customer service, content production, bookkeeping, and operations.',
     tags: ['Webinar', 'AI Tools'],
     date: '2025',
+    article: '/articles/practical-ai-workflows-entrepreneurs.html',
   },
   {
     title: 'Building Your Brand with Digital Media',
@@ -62,6 +65,7 @@ const talks = [
       'Workshop on digital media strategy and using AI-assisted tools to scale content production.',
     tags: ['Workshop', 'Content'],
     date: '2024',
+    article: '/articles/building-your-brand-digital-media.html',
   },
 ]
 
@@ -267,7 +271,8 @@ function PastTalks() {
           </h2>
           <p className="text-muted font-body max-w-2xl mx-auto">
             Featured keynotes, panels, and workshops. The Creative Hub AI demo is the headline
-            AI talk; adjacent experience rounds out the record.
+            AI talk; adjacent experience rounds out the record. Every talk has a written
+            recap — open the first paragraph free, create a free account to read the rest.
           </p>
         </div>
 
@@ -287,35 +292,55 @@ function PastTalks() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {talks.map(talk => (
-            <div
-              key={talk.title}
-              className="p-5 rounded-2xl bg-dark-800/50 border border-white/5 hover:border-miami-pink/20 transition-all duration-300"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <span className="text-xs text-muted/50 font-mono">{talk.date}</span>
-                {talk.featured && (
-                  <span className="text-[10px] uppercase tracking-wider text-miami-pink font-semibold px-2 py-0.5 rounded-full border border-miami-pink/30">
-                    Featured
-                  </span>
-                )}
+          {talks.map(talk => {
+            const cardClasses =
+              'group/card flex flex-col p-5 rounded-2xl bg-dark-800/50 border border-white/5 hover:border-miami-pink/20 transition-all duration-300'
+            const cardContent = (
+              <>
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-xs text-muted/50 font-mono">{talk.date}</span>
+                  {talk.featured && (
+                    <span className="text-[10px] uppercase tracking-wider text-miami-pink font-semibold px-2 py-0.5 rounded-full border border-miami-pink/30">
+                      Featured
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-base font-heading font-bold text-white mb-1">
+                  {talk.title}
+                </h3>
+                <p className="text-xs text-muted/60 mb-2">{talk.subtitle}</p>
+                <p className="text-xs text-muted/70 leading-relaxed mb-3">
+                  {talk.description}
+                </p>
+                <div className="mt-auto">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {talk.tags.map(tag => (
+                      <span key={tag} className="text-[10px] text-muted bg-dark-700 px-2 py-0.5 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {talk.article && (
+                    <span className="inline-flex items-center gap-1 text-xs font-heading font-semibold text-miami-pink group-hover/card:text-miami-pink-soft transition-colors">
+                      Read the recap
+                      <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover/card:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </span>
+                  )}
+                </div>
+              </>
+            )
+            return talk.article ? (
+              <a key={talk.title} href={talk.article} className={`${cardClasses} cursor-pointer`}>
+                {cardContent}
+              </a>
+            ) : (
+              <div key={talk.title} className={cardClasses}>
+                {cardContent}
               </div>
-              <h3 className="text-base font-heading font-bold text-white mb-1">
-                {talk.title}
-              </h3>
-              <p className="text-xs text-muted/60 mb-2">{talk.subtitle}</p>
-              <p className="text-xs text-muted/70 leading-relaxed mb-3">
-                {talk.description}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {talk.tags.map(tag => (
-                  <span key={tag} className="text-[10px] text-muted bg-dark-700 px-2 py-0.5 rounded-full">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
