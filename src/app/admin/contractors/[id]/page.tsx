@@ -57,6 +57,7 @@ export default function AdminContractorDetailPage() {
   const [driveFolderUrl, setDriveFolderUrl] = useState('');
   const [savingFolder, setSavingFolder] = useState(false);
   const [folderMessage, setFolderMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/contractors/${id}`)
@@ -177,6 +178,7 @@ export default function AdminContractorDetailPage() {
 
   const handleGenerateLogin = async () => {
     setGeneratingLogin(true);
+    setLoginError(null);
     try {
       const res = await fetch(`/api/contractors/${id}/login`, {
         method: 'POST',
@@ -184,9 +186,13 @@ export default function AdminContractorDetailPage() {
         body: JSON.stringify({ email: contractorEmail || undefined }),
       });
       const data = await res.json();
-      if (res.ok) setLoginCredentials(data);
-    } catch {
-      // Intentionally ignored
+      if (res.ok) {
+        setLoginCredentials(data);
+      } else {
+        setLoginError(data.error || 'Failed to generate login');
+      }
+    } catch (e: any) {
+      setLoginError(e?.message || 'Network error — please try again');
     }
     setGeneratingLogin(false);
   };
@@ -382,6 +388,11 @@ export default function AdminContractorDetailPage() {
                 >
                   {generatingLogin ? 'Generating...' : loginCredentials ? '🔄 Reset Password' : '🔑 Generate Contractor Login'}
                 </button>
+                {loginError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+                    {loginError}
+                  </div>
+                )}
                 {contractorEmail && (
                   <button
                     onClick={handleResetPassword}
