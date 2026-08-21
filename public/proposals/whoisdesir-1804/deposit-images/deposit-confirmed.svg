@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0A0D1A"/>
+      <stop offset="50%" style="stop-color:#12152A"/>
+      <stop offset="100%" style="stop-color:#1a1040"/>
+    </linearGradient>
+    <linearGradient id="check" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="text-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ED145A"/>
+      <stop offset="100%" style="stop-color:#18D8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
+  <circle cx="650" cy="80" r="200" fill="#ED145A" opacity="0.08"/>
+  <circle cx="150" cy="400" r="175" fill="#18D8F0" opacity="0.08"/>
+  <circle cx="400" cy="170" r="50" fill="url(#check)"/>
+  <text x="400" y="185" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" font-weight="bold" fill="white">✓</text>
+  <text x="400" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="url(#text-grad)">WHOISDÉSIR® MEDIA × 1804 HAITIAN PIZZA</text>
+  <text x="400" y="290" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" font-weight="900" fill="white">Deposit Received</text>
+  <text x="400" y="325" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="rgba(255,255,255,0.6)"><tspan font-weight="700" font-size="22" fill="white">$75</tspan> of $150 — 50% Paid</text>
+  <text x="400" y="355" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="rgba(255,255,255,0.35)">Grand Opening &amp; FIFA World Cup Showcase — July 18, 2026</text>
+</svg>
