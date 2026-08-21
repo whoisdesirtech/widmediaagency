@@ -179,19 +179,23 @@ export default function AdminContractorDetailPage() {
   const handleGenerateLogin = async () => {
     setGeneratingLogin(true);
     setLoginError(null);
+    console.log('Generate login clicked for contractor:', id);
     try {
       const res = await fetch(`/api/contractors/${id}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: contractorEmail || undefined }),
       });
+      console.log('Response status:', res.status);
       const data = await res.json();
+      console.log('Response data:', data);
       if (res.ok) {
         setLoginCredentials(data);
       } else {
-        setLoginError(data.error || 'Failed to generate login');
+        setLoginError(data.error || `Failed (${res.status})`);
       }
     } catch (e: any) {
+      console.error('Login generation error:', e);
       setLoginError(e?.message || 'Network error — please try again');
     }
     setGeneratingLogin(false);
