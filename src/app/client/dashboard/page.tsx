@@ -261,6 +261,25 @@ export default function ClientDashboard() {
 
             {/* Quick Actions */}
             <div className="space-y-6">
+              {/* Proposal */}
+              <div className="glass-card p-6 border-l-4 border-miami-pink">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted font-semibold mb-1">PROPOSAL</div>
+                    <div className="font-heading font-bold text-dark-800">WhoIsDésir 1804</div>
+                    <div className="text-xs text-muted mt-1">View your project proposal</div>
+                  </div>
+                  <a
+                    href="/proposals/whoisdesir-1804/index.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-miami-pink text-white text-xs font-semibold rounded-lg hover:bg-miami-pink/90 transition-colors whitespace-nowrap"
+                  >
+                    View Proposal →
+                  </a>
+                </div>
+              </div>
+
               {/* Approvals */}
               <div className="glass-card p-6">
                 <h3 className="font-heading font-bold text-dark-800 mb-4">Approvals</h3>
