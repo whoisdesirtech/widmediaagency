@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(project, { status: 201 });
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
   }
 }
@@ -53,6 +53,10 @@ export async function GET(req: Request) {
     } else {
       if (clientId) where.clientId = clientId;
       if (contractorId) where.contractorId = contractorId;
+      
+      if (user.agencyId) {
+        where.client = { agencyId: user.agencyId };
+      }
     }
 
     const projects = await prisma.project.findMany({
@@ -61,7 +65,7 @@ export async function GET(req: Request) {
       orderBy: { sortOrder: 'asc' },
     });
     return NextResponse.json(projects);
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
   }
 }
