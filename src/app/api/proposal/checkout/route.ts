@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, clientKey, tooManyRequests } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!rateLimit(`proposal-checkout:${clientKey(request)}`, 10, 60 * 60 * 1000)) return tooManyRequests();
     const data = await request.json();
     
     // Check if Stripe API Keys are present in env for production payment flow

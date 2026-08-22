@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateProposal, ProposalData } from "@/lib/proposal-generator";
 import JSZip from "jszip";
+import { rateLimit, clientKey, tooManyRequests } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!rateLimit(`proposal-download:${clientKey(request)}`, 10, 60 * 60 * 1000)) return tooManyRequests();
     const data: ProposalData = await request.json();
 
     if (!data.clientName || !data.eventTitle) {
