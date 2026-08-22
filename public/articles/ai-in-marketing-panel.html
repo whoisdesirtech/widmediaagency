@@ -8,22 +8,22 @@
   <!-- WhoIsDésir Media Articles Network -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* "Signal Over Noise" Panel Brand Theme: Stage Ink */
-      --bg-primary: #0d0b14;         /* Ink Violet Black */
-      --bg-secondary: #15121f;       /* Backstage Panel */
-      --bg-surface: #1e1930;         /* Spotlight Slate */
-      --color-violet: #7c3aed;       /* Stage Violet (primary accent) */
-      --color-violet-glow: rgba(124, 58, 237, 0.35);
-      --color-magenta: #ec4899;      /* Signal Magenta */
-      --color-lime: #a3e635;         /* Verdict Lime */
-      --text-light: #f4f2fa;
-      --text-muted: #9d94b8;
-      --text-dark: #0d0b14;
-      --font-heading: 'Sora', sans-serif;
+      /* WhoIsDésir® Media House Theme — "Signal Over Noise" Panel */
+      --bg-primary: #0A0D1A;         /* Midnight Navy */
+      --bg-secondary: #12152A;       /* Deep Space Panel */
+      --bg-surface: #1E2233;         /* Navy Card */
+      --color-violet: #18D8F0;       /* Electric Blue (structural accent) */
+      --color-violet-glow: rgba(24, 216, 240, 0.28);
+      --color-magenta: #ED145A;      /* Miami Pink (signal accent) */
+      --color-lime: #F090C0;         /* Soft Pink (verdict accent) */
+      --text-light: #E2E6EF;
+      --text-muted: #8891A5;
+      --text-dark: #0A0D1A;
+      --font-heading: 'Outfit', sans-serif;
       --font-body: 'Inter', sans-serif;
       --border-radius: 16px;
       --border-radius-pill: 8000px;
@@ -69,8 +69,8 @@
       text-align: center;
       padding: 60px 24px;
       background:
-        radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.22) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 15% 15%, rgba(24, 216, 240, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(237, 20, 90, 0.18) 0%, transparent 45%),
         linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: var(--border-radius);
@@ -126,8 +126,8 @@
       color: var(--color-magenta);
     }
     article h2:first-of-type { margin-top: 0; }
-    article p { line-height: 1.75; color: #cdc7dd; margin-bottom: 16px; font-size: 1rem; }
-    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #cdc7dd; }
+    article p { line-height: 1.75; color: #C5CBD9; margin-bottom: 16px; font-size: 1rem; }
+    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #C5CBD9; }
     article li { margin-bottom: 8px; }
     article strong { color: var(--text-light); }
     .free-teaser { font-size: 1.1rem; color: var(--text-light); }
@@ -161,11 +161,11 @@
       display: inline-block; width: 100%; padding: 14px 35px;
       font-family: var(--font-heading); font-size: 14px; font-weight: 700;
       color: #fff;
-      background: linear-gradient(90deg, var(--color-violet), var(--color-magenta));
+      background: linear-gradient(135deg, var(--color-magenta), var(--color-violet));
       border: none; border-radius: var(--border-radius-pill);
       text-transform: uppercase; letter-spacing: 1px;
       transition: var(--transition);
-      box-shadow: 0 5px 20px var(--color-violet-glow);
+      box-shadow: 0 5px 20px rgba(237, 20, 90, 0.30);
       cursor: pointer;
     }
     .btn-brand:hover { filter: brightness(1.15); transform: translateY(-2px); }
@@ -249,7 +249,7 @@
     }
     .dot { width: 9px; height: 9px; border-radius: 50%; }
     .dot.works { background: var(--color-lime); }
-    .dot.hype { background: var(--color-magenta); }
+    .dot.hype { background: var(--text-muted); }
     .dot.soon { background: var(--color-violet); }
 
     .toast {
@@ -354,7 +354,7 @@
         </div>
         <div class="strategy-card">
           <h3>Visual Motif</h3>
-          <p>Spotlit stage darkness: violet washes, magenta signal lines, verdict chips in lime. Editorial conference energy.</p>
+          <p>Spotlit stage darkness on midnight navy: Miami pink signal lines, electric blue washes, verdict chips in soft pink.</p>
         </div>
         <div class="strategy-card">
           <h3>Audience</h3>
@@ -366,29 +366,29 @@
     <section class="kit">
       <h2>Color Palette (Click to Copy HEX)</h2>
       <div class="color-grid">
-        <div class="color-card" onclick="copyHex('#7C3AED')">
-          <div class="color-swatch" style="background:#7C3AED;"></div>
-          <div class="color-info"><span class="color-name">Stage Violet</span><span class="color-hex">#7C3AED</span><span class="color-desc">Primary accent — glows, borders, gradients.</span></div>
+        <div class="color-card" onclick="copyHex('#ED145A')">
+          <div class="color-swatch" style="background:#ED145A;"></div>
+          <div class="color-info"><span class="color-name">Miami Pink</span><span class="color-hex">#ED145A</span><span class="color-desc">Primary signal — headlines accents, key callouts, links.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#EC4899')">
-          <div class="color-swatch" style="background:#EC4899;"></div>
-          <div class="color-info"><span class="color-name">Signal Magenta</span><span class="color-hex">#EC4899</span><span class="color-desc">Headlines accents, key callouts, links.</span></div>
+        <div class="color-card" onclick="copyHex('#18D8F0')">
+          <div class="color-swatch" style="background:#18D8F0;"></div>
+          <div class="color-info"><span class="color-name">Electric Blue</span><span class="color-hex">#18D8F0</span><span class="color-desc">Structural accent — glows, borders, gradients.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#A3E635')">
-          <div class="color-swatch" style="background:#A3E635;"></div>
-          <div class="color-info"><span class="color-name">Verdict Lime</span><span class="color-hex">#A3E635</span><span class="color-desc">"It works" confirmations, positive chips.</span></div>
+        <div class="color-card" onclick="copyHex('#F090C0')">
+          <div class="color-swatch" style="background:#F090C0;"></div>
+          <div class="color-info"><span class="color-name">Soft Pink</span><span class="color-hex">#F090C0</span><span class="color-desc">Verdict highlights, positive chips, metadata.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#0D0B14')">
-          <div class="color-swatch" style="background:#0D0B14; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
-          <div class="color-info"><span class="color-name">Ink Violet Black</span><span class="color-hex">#0D0B14</span><span class="color-desc">Primary background — house lights down.</span></div>
+        <div class="color-card" onclick="copyHex('#0A0D1A')">
+          <div class="color-swatch" style="background:#0A0D1A; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
+          <div class="color-info"><span class="color-name">Midnight Navy</span><span class="color-hex">#0A0D1A</span><span class="color-desc">Primary background — house lights down.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#15121F')">
-          <div class="color-swatch" style="background:#15121F;"></div>
-          <div class="color-info"><span class="color-name">Backstage Panel</span><span class="color-hex">#15121F</span><span class="color-desc">Cards, sections, elevated surfaces.</span></div>
+        <div class="color-card" onclick="copyHex('#12152A')">
+          <div class="color-swatch" style="background:#12152A;"></div>
+          <div class="color-info"><span class="color-name">Deep Space</span><span class="color-hex">#12152A</span><span class="color-desc">Cards, sections, elevated surfaces.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#F4F2FA')">
-          <div class="color-swatch" style="background:#F4F2FA;"></div>
-          <div class="color-info"><span class="color-name">Spotlight White</span><span class="color-hex">#F4F2FA</span><span class="color-desc">Primary text, reverse typography.</span></div>
+        <div class="color-card" onclick="copyHex('#E2E6EF')">
+          <div class="color-swatch" style="background:#E2E6EF;"></div>
+          <div class="color-info"><span class="color-name">Cloud White</span><span class="color-hex">#E2E6EF</span><span class="color-desc">Primary text, reverse typography.</span></div>
         </div>
       </div>
     </section>
@@ -397,7 +397,7 @@
       <h2>Typography</h2>
       <div class="typo-showcase">
         <div class="typo-row">
-          <div class="typo-label">Heading Font</div>
+          <div class="typo-label">Heading Font (Outfit)</div>
           <div class="typo-sample-h1">SIGNAL OVER NOISE</div>
         </div>
         <div class="typo-row">

@@ -8,22 +8,21 @@
   <!-- WhoIsDésir Media Articles Network -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* "Founder Stack" Webinar Brand Theme: Workshop Daylight */
-      --bg-primary: #faf7f2;         /* Warm Paper */
-      --bg-secondary: #ffffff;       /* Clean Card */
-      --bg-surface: #f1ece3;         /* Kraft Surface */
-      --color-teal: #0f766e;         /* Builder Teal (primary accent) */
-      --color-teal-glow: rgba(15, 118, 110, 0.18);
-      --color-amber: #d97706;        /* Momentum Amber */
-      --color-ink: #1c1917;          /* Notebook Ink */
+      /* WhoIsDésir® Media House Theme — "Founder Stack" Webinar */
+      --bg-primary: #0A0D1A;         /* Midnight Navy */
+      --bg-secondary: #12152A;       /* Deep Space Panel */
+      --bg-surface: #1E2233;         /* Navy Card */
+      --color-teal: #ED145A;         /* Miami Pink (primary accent) */
+      --color-teal-glow: rgba(237, 20, 90, 0.30);
+      --color-amber: #18D8F0;        /* Electric Blue (momentum accent) */
       --text-light: #ffffff;
-      --text-dark: #1c1917;
-      --text-muted: #6b6257;
-      --font-heading: 'Plus Jakarta Sans', sans-serif;
+      --text-dark: #E2E6EF;
+      --text-muted: #8891A5;
+      --font-heading: 'Outfit', sans-serif;
       --font-body: 'Inter', sans-serif;
       --border-radius: 16px;
       --border-radius-pill: 8000px;
@@ -52,19 +51,19 @@
     }
     .topnav a { color: var(--text-muted); text-decoration: none; transition: var(--transition); }
     .topnav a:hover { color: var(--color-teal); }
-    .brandmark { color: var(--text-dark); font-weight: 800; }
+    .brandmark { color: var(--text-light); font-weight: 700; }
     .brandmark span { color: var(--color-teal); }
 
     header {
       text-align: center;
       padding: 60px 24px;
       background:
-        radial-gradient(circle at 12% 20%, rgba(217, 119, 6, 0.10) 0%, transparent 45%),
-        radial-gradient(circle at 88% 80%, rgba(15, 118, 110, 0.10) 0%, transparent 45%),
-        linear-gradient(160deg, #ffffff 0%, var(--bg-primary) 100%);
-      border: 1px solid rgba(28, 25, 23, 0.08);
+        radial-gradient(circle at 12% 20%, rgba(24, 216, 240, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 88% 80%, rgba(237, 20, 90, 0.14) 0%, transparent 45%),
+        linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--border-radius);
-      box-shadow: 0 15px 35px rgba(28, 25, 23, 0.06);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     }
     .event-tag {
       display: inline-block;
@@ -76,7 +75,7 @@
       padding: 6px 16px; margin-bottom: 20px;
     }
     h1 { font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.14; margin-bottom: 14px; letter-spacing: -0.5px; }
-    h1 em { font-style: normal; color: var(--color-teal); }
+    h1 em { font-style: normal; background: linear-gradient(90deg, var(--color-teal), var(--color-amber)); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .standfirst { color: var(--text-muted); max-width: 640px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6; }
     .meta-row {
       display: flex; justify-content: center; gap: 18px; flex-wrap: wrap;
@@ -87,10 +86,10 @@
 
     article {
       background-color: var(--bg-secondary);
-      border: 1px solid rgba(28, 25, 23, 0.07);
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: var(--border-radius);
       padding: 40px;
-      box-shadow: 0 10px 30px rgba(28, 25, 23, 0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
     article h2 {
       font-family: var(--font-heading);
@@ -98,11 +97,11 @@
       color: var(--color-teal);
     }
     article h2:first-of-type { margin-top: 0; }
-    article p { line-height: 1.75; color: #44403a; margin-bottom: 16px; font-size: 1rem; }
-    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #44403a; }
+    article p { line-height: 1.75; color: #C5CBD9; margin-bottom: 16px; font-size: 1rem; }
+    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #C5CBD9; }
     article li { margin-bottom: 8px; }
-    article strong { color: var(--text-dark); }
-    .free-teaser { font-size: 1.1rem; color: var(--text-dark); }
+    article strong { color: var(--text-light); }
+    .free-teaser { font-size: 1.1rem; color: var(--text-light); }
 
     .gate-wrap { position: relative; }
     .gate-blur { filter: blur(6px); user-select: none; pointer-events: none; opacity: 0.5; }
@@ -113,25 +112,25 @@
     }
     .gate-card { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
     .gate-inner {
-      background: linear-gradient(160deg, #ffffff, var(--bg-surface));
+      background: linear-gradient(160deg, var(--bg-surface), var(--bg-secondary));
       border: 1px solid var(--color-teal);
-      box-shadow: 0 0 40px var(--color-teal-glow), 0 15px 35px rgba(28,25,23,0.08);
+      box-shadow: 0 0 40px var(--color-teal-glow), 0 15px 35px rgba(0,0,0,0.35);
       border-radius: var(--border-radius);
       padding: 36px 40px; max-width: 420px; width: 100%; text-align: center;
     }
-    .gate-inner h3 { font-family: var(--font-heading); font-size: 1.3rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dark); }
+    .gate-inner h3 { font-family: var(--font-heading); font-size: 1.3rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); }
     .gate-inner p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
     .gate-inner input {
       width: 100%; padding: 13px 18px; margin-bottom: 12px;
-      border-radius: 12px; border: 1px solid rgba(28,25,23,0.15);
-      background: #fff; color: var(--text-dark);
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
+      background: var(--bg-primary); color: var(--text-light);
       font-family: var(--font-body); font-size: 0.95rem; outline: none;
     }
     .gate-inner input:focus { border-color: var(--color-teal); }
     .btn-brand {
       display: inline-block; width: 100%; padding: 14px 35px;
       font-family: var(--font-heading); font-size: 14px; font-weight: 700;
-      color: var(--text-light); background: var(--color-teal);
+      color: var(--text-light); background: linear-gradient(135deg, var(--color-teal), var(--color-amber));
       border: none; border-radius: var(--border-radius-pill);
       text-transform: uppercase; letter-spacing: 1px;
       transition: var(--transition);
@@ -151,10 +150,10 @@
 
     section.kit {
       background-color: var(--bg-secondary);
-      border: 1px solid rgba(28, 25, 23, 0.07);
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: var(--border-radius);
       padding: 35px;
-      box-shadow: 0 10px 30px rgba(28, 25, 23, 0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
     section.kit > h2 {
       font-family: var(--font-heading);
@@ -168,58 +167,58 @@
     .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
     .strategy-card {
       background-color: var(--bg-primary);
-      border: 1px solid rgba(28, 25, 23, 0.07);
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 20px; transition: var(--transition);
     }
     .strategy-card:hover { transform: translateY(-5px); border-color: var(--color-teal); }
-    .strategy-card h3 { font-family: var(--font-heading); font-size: 1.05rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dark); }
+    .strategy-card h3 { font-family: var(--font-heading); font-size: 1.05rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); }
     .strategy-card p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.55; }
 
     .color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
     .color-card {
       background-color: var(--bg-secondary);
-      border: 1px solid rgba(28, 25, 23, 0.07);
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: var(--border-radius);
       overflow: hidden; cursor: pointer; transition: var(--transition);
-      box-shadow: 0 5px 15px rgba(28,25,23,0.04);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.25);
     }
     .color-card:hover { transform: scale(1.03); border-color: var(--color-teal); }
     .color-swatch { height: 110px; width: 100%; }
     .color-info { padding: 15px; display: flex; flex-direction: column; gap: 5px; }
-    .color-name { font-family: var(--font-heading); text-transform: uppercase; font-size: 0.9rem; font-weight: 700; color: var(--text-dark); }
+    .color-name { font-family: var(--font-heading); text-transform: uppercase; font-size: 0.9rem; font-weight: 700; color: var(--text-light); }
     .color-hex { font-family: monospace; font-size: 0.85rem; color: var(--color-teal); font-weight: 600; }
     .color-desc { font-size: 0.73rem; color: var(--text-muted); }
 
     .typo-showcase { display: flex; flex-direction: column; gap: 25px; }
-    .typo-row { display: flex; align-items: baseline; gap: 20px; border-bottom: 1px solid rgba(28,25,23,0.07); padding-bottom: 15px; flex-wrap: wrap; }
+    .typo-row { display: flex; align-items: baseline; gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 15px; flex-wrap: wrap; }
     .typo-row:last-child { border: none; padding: 0; }
     .typo-label { width: 170px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-family: monospace; }
-    .typo-sample-h1 { font-family: var(--font-heading); font-size: 2.1rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
+    .typo-sample-h1 { font-family: var(--font-heading); font-size: 2.1rem; font-weight: 800; color: var(--text-light); letter-spacing: -0.5px; }
     .typo-sample-body { font-size: 1rem; color: var(--text-muted); line-height: 1.6; max-width: 700px; }
 
     .components-showcase { display: flex; flex-direction: column; gap: 30px; }
     .preview-box {
       background-color: var(--bg-primary);
-      border: 1px solid rgba(28, 25, 23, 0.07);
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: var(--border-radius);
       padding: 30px; display: flex; justify-content: center; align-items: stretch; gap: 20px; flex-wrap: wrap;
     }
     .btn-outline {
       display: inline-block; padding: 14px 35px;
       font-family: var(--font-heading); font-size: 14px; font-weight: 700;
-      color: var(--text-dark); background: transparent;
-      border: 2px solid rgba(28,25,23,0.18);
+      color: var(--text-light); background: transparent;
+      border: 2px solid rgba(255,255,255,0.18);
       border-radius: var(--border-radius-pill);
       text-transform: uppercase; transition: var(--transition); cursor: pointer;
     }
     .btn-outline:hover { border-color: var(--color-teal); color: var(--color-teal); }
     .workflow-chip {
-      background: #fff; border: 1px solid rgba(28,25,23,0.09);
+      background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px; padding: 16px 22px; text-align: left; min-width: 170px;
-      box-shadow: 0 4px 12px rgba(28,25,23,0.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
     .workflow-chip .num { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 800; color: var(--color-amber); text-transform: uppercase; letter-spacing: 1px; }
-    .workflow-chip .name { font-family: var(--font-heading); font-weight: 700; color: var(--text-dark); margin-top: 4px; font-size: 0.95rem; }
+    .workflow-chip .name { font-family: var(--font-heading); font-weight: 700; color: var(--text-light); margin-top: 4px; font-size: 0.95rem; }
     .workflow-chip .save { font-size: 0.75rem; color: var(--color-teal); margin-top: 4px; font-weight: 600; }
 
     .toast {
@@ -327,7 +326,7 @@
         </div>
         <div class="strategy-card">
           <h3>Visual Motif</h3>
-          <p>Workshop daylight: warm paper textures, builder teal, momentum amber highlights, notebook clarity.</p>
+          <p>Miami studio dark: midnight navy canvases, builder-pink CTAs, electric-blue momentum markers, notebook clarity.</p>
         </div>
         <div class="strategy-card">
           <h3>Audience</h3>
@@ -339,29 +338,29 @@
     <section class="kit">
       <h2>Color Palette (Click to Copy HEX)</h2>
       <div class="color-grid">
-        <div class="color-card" onclick="copyHex('#0F766E')">
-          <div class="color-swatch" style="background:#0F766E;"></div>
-          <div class="color-info"><span class="color-name">Builder Teal</span><span class="color-hex">#0F766E</span><span class="color-desc">Primary accent — CTAs, headings, links.</span></div>
+        <div class="color-card" onclick="copyHex('#ED145A')">
+          <div class="color-swatch" style="background:#ED145A;"></div>
+          <div class="color-info"><span class="color-name">Miami Pink</span><span class="color-hex">#ED145A</span><span class="color-desc">Primary accent — CTAs, headings, links.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#D97706')">
-          <div class="color-swatch" style="background:#D97706;"></div>
-          <div class="color-info"><span class="color-name">Momentum Amber</span><span class="color-hex">#D97706</span><span class="color-desc">Energy highlights, numbers, progress markers.</span></div>
+        <div class="color-card" onclick="copyHex('#18D8F0')">
+          <div class="color-swatch" style="background:#18D8F0;"></div>
+          <div class="color-info"><span class="color-name">Electric Blue</span><span class="color-hex">#18D8F0</span><span class="color-desc">Momentum highlights, numbers, progress markers.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#FAF7F2')">
-          <div class="color-swatch" style="background:#FAF7F2; border-bottom:1px solid rgba(0,0,0,0.06);"></div>
-          <div class="color-info"><span class="color-name">Warm Paper</span><span class="color-hex">#FAF7F2</span><span class="color-desc">Primary background — approachable daylight.</span></div>
+        <div class="color-card" onclick="copyHex('#0A0D1A')">
+          <div class="color-swatch" style="background:#0A0D1A; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
+          <div class="color-info"><span class="color-name">Midnight Navy</span><span class="color-hex">#0A0D1A</span><span class="color-desc">Primary background canvas.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#FFFFFF')">
-          <div class="color-swatch" style="background:#FFFFFF; border-bottom:1px solid rgba(0,0,0,0.06);"></div>
-          <div class="color-info"><span class="color-name">Clean Card</span><span class="color-hex">#FFFFFF</span><span class="color-desc">Sections, cards, elevated surfaces.</span></div>
+        <div class="color-card" onclick="copyHex('#12152A')">
+          <div class="color-swatch" style="background:#12152A;"></div>
+          <div class="color-info"><span class="color-name">Deep Space</span><span class="color-hex">#12152A</span><span class="color-desc">Sections, cards, elevated surfaces.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#F1ECE3')">
-          <div class="color-swatch" style="background:#F1ECE3;"></div>
-          <div class="color-info"><span class="color-name">Kraft Surface</span><span class="color-hex">#F1ECE3</span><span class="color-desc">Secondary panels, inputs, chips.</span></div>
+        <div class="color-card" onclick="copyHex('#1E2233')">
+          <div class="color-swatch" style="background:#1E2233;"></div>
+          <div class="color-info"><span class="color-name">Navy Card</span><span class="color-hex">#1E2233</span><span class="color-desc">Secondary panels, inputs, chips.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#1C1917')">
-          <div class="color-swatch" style="background:#1C1917;"></div>
-          <div class="color-info"><span class="color-name">Notebook Ink</span><span class="color-hex">#1C1917</span><span class="color-desc">Primary text, headings, footers.</span></div>
+        <div class="color-card" onclick="copyHex('#E2E6EF')">
+          <div class="color-swatch" style="background:#E2E6EF;"></div>
+          <div class="color-info"><span class="color-name">Cloud White</span><span class="color-hex">#E2E6EF</span><span class="color-desc">Primary text, headings, footers.</span></div>
         </div>
       </div>
     </section>
@@ -370,7 +369,7 @@
       <h2>Typography</h2>
       <div class="typo-showcase">
         <div class="typo-row">
-          <div class="typo-label">Heading Font</div>
+          <div class="typo-label">Heading Font (Outfit)</div>
           <div class="typo-sample-h1">BUILD THE LEVERAGE</div>
         </div>
         <div class="typo-row">

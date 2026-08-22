@@ -332,7 +332,7 @@ function PastTalks() {
               </>
             )
             return talk.article ? (
-              <a key={talk.title} href={talk.article} className={`${cardClasses} cursor-pointer`}>
+              <a key={talk.title} href={talk.article} target="_blank" rel="noopener noreferrer" className={`${cardClasses} cursor-pointer`}>
                 {cardContent}
               </a>
             ) : (

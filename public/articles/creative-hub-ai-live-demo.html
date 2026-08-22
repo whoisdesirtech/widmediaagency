@@ -8,23 +8,23 @@
   <!-- WhoIsDésir Media Articles Network -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* Creative Hub AI Brand Theme: Market Terminal Dark */
-      --bg-primary: #0a0e1a;        /* Deep Space Navy */
-      --bg-secondary: #101626;      /* Terminal Panel */
-      --bg-surface: #1a2236;        /* Slate Card */
-      --color-mint: #00d9a6;        /* Bull Run Mint (primary accent) */
-      --color-mint-glow: rgba(0, 217, 166, 0.25);
-      --color-signal-green: #16c784;/* Market Up */
+      /* WhoIsDésir® Media House Theme — Market Terminal accent */
+      --bg-primary: #0A0D1A;        /* Midnight Navy */
+      --bg-secondary: #12152A;      /* Deep Space */
+      --bg-surface: #1E2233;        /* Navy Card */
+      --color-mint: #ED145A;        /* Miami Pink (primary accent) */
+      --color-mint-glow: rgba(237, 20, 90, 0.30);
+      --color-signal-green: #18D8F0;/* Electric Blue (positive signal) */
       --color-loss-red: #ea3943;    /* Market Down */
-      --color-gold: #f0b90b;        /* Insight Gold */
-      --text-light: #eef2fa;
-      --text-muted: #8b95ad;
-      --text-dark: #0a0e1a;
-      --font-heading: 'Space Grotesk', sans-serif;
+      --color-gold: #F090C0;        /* Soft Pink (metadata highlights) */
+      --text-light: #E2E6EF;
+      --text-muted: #8891A5;
+      --text-dark: #0A0D1A;
+      --font-heading: 'Outfit', sans-serif;
       --font-body: 'Inter', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
       --border-radius: 16px;
@@ -89,8 +89,8 @@
       text-align: center;
       padding: 60px 24px;
       background:
-        radial-gradient(circle at 20% 20%, rgba(0, 217, 166, 0.12) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(240, 185, 11, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 20% 20%, rgba(237, 20, 90, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(24, 216, 240, 0.10) 0%, transparent 50%),
         linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: var(--border-radius);
@@ -115,7 +115,7 @@
       line-height: 1.15;
       margin-bottom: 14px;
     }
-    h1 em { font-style: normal; color: var(--color-mint); }
+    h1 em { font-style: normal; background: linear-gradient(90deg, var(--color-mint), var(--color-signal-green)); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .standfirst {
       color: var(--text-muted);
       max-width: 640px;
@@ -152,8 +152,8 @@
       color: var(--color-mint);
     }
     article h2:first-of-type { margin-top: 0; }
-    article p { line-height: 1.75; color: #c7cfdf; margin-bottom: 16px; font-size: 1rem; }
-    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #c7cfdf; }
+    article p { line-height: 1.75; color: #C5CBD9; margin-bottom: 16px; font-size: 1rem; }
+    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #C5CBD9; }
     article li { margin-bottom: 8px; }
     article strong { color: var(--text-light); }
     .free-teaser { font-size: 1.1rem; color: var(--text-light); }
@@ -208,8 +208,8 @@
       font-family: var(--font-heading);
       font-size: 14px;
       font-weight: 700;
-      color: var(--text-dark);
-      background: var(--color-mint);
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--color-mint), var(--color-signal-green));
       border: none;
       border-radius: var(--border-radius-pill);
       text-transform: uppercase;
@@ -218,7 +218,7 @@
       box-shadow: 0 5px 20px var(--color-mint-glow);
       cursor: pointer;
     }
-    .btn-brand:hover { filter: brightness(1.1); transform: translateY(-2px); }
+    .btn-brand:hover { filter: brightness(1.12); transform: translateY(-2px); }
     .gate-note { font-size: 0.72rem !important; margin-top: 14px !important; }
     .unlocked-badge {
       display: none;
@@ -344,7 +344,7 @@
       bottom: 30px; left: 50%;
       transform: translateX(-50%) translateY(100px);
       background-color: var(--color-mint);
-      color: var(--text-dark);
+      color: #ffffff;
       font-weight: bold;
       padding: 12px 24px;
       border-radius: var(--border-radius-pill);
@@ -464,7 +464,7 @@
         </div>
         <div class="strategy-card">
           <h3>Visual Motif</h3>
-          <p>Market-terminal dark mode: glowing mint signals on deep navy, monospace data readouts, upward-tick geometry.</p>
+          <p>Miami neon on midnight navy: electric pink-to-cyan gradients, monospace data readouts, upward-tick geometry.</p>
         </div>
         <div class="strategy-card">
           <h3>Audience</h3>
@@ -476,29 +476,29 @@
     <section class="kit">
       <h2>Color Palette (Click to Copy HEX)</h2>
       <div class="color-grid">
-        <div class="color-card" onclick="copyHex('#00D9A6')">
-          <div class="color-swatch" style="background:#00D9A6;"></div>
-          <div class="color-info"><span class="color-name">Bull Run Mint</span><span class="color-hex">#00D9A6</span><span class="color-desc">Primary accent — CTAs, highlights, positive signal.</span></div>
+        <div class="color-card" onclick="copyHex('#ED145A')">
+          <div class="color-swatch" style="background:#ED145A;"></div>
+          <div class="color-info"><span class="color-name">Miami Pink</span><span class="color-hex">#ED145A</span><span class="color-desc">Primary accent — CTAs, highlights, positive signal.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#0A0E1A')">
-          <div class="color-swatch" style="background:#0A0E1A; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
-          <div class="color-info"><span class="color-name">Deep Space Navy</span><span class="color-hex">#0A0E1A</span><span class="color-desc">Primary background — terminal canvas.</span></div>
+        <div class="color-card" onclick="copyHex('#18D8F0')">
+          <div class="color-swatch" style="background:#18D8F0;"></div>
+          <div class="color-info"><span class="color-name">Electric Blue</span><span class="color-hex">#18D8F0</span><span class="color-desc">Secondary accent — gradients, gains, unlocked states.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#101626')">
-          <div class="color-swatch" style="background:#101626;"></div>
-          <div class="color-info"><span class="color-name">Terminal Panel</span><span class="color-hex">#101626</span><span class="color-desc">Cards, sections, elevated surfaces.</span></div>
+        <div class="color-card" onclick="copyHex('#F090C0')">
+          <div class="color-swatch" style="background:#F090C0;"></div>
+          <div class="color-info"><span class="color-name">Soft Pink</span><span class="color-hex">#F090C0</span><span class="color-desc">Metadata, premium callouts, hover states.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#16C784')">
-          <div class="color-swatch" style="background:#16C784;"></div>
-          <div class="color-info"><span class="color-name">Market Up Green</span><span class="color-hex">#16C784</span><span class="color-desc">Positive deltas, gains, unlocked states.</span></div>
+        <div class="color-card" onclick="copyHex('#0A0D1A')">
+          <div class="color-swatch" style="background:#0A0D1A; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
+          <div class="color-info"><span class="color-name">Midnight Navy</span><span class="color-hex">#0A0D1A</span><span class="color-desc">Primary background — terminal canvas.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#EA3943')">
-          <div class="color-swatch" style="background:#EA3943;"></div>
-          <div class="color-info"><span class="color-name">Market Down Red</span><span class="color-hex">#EA3943</span><span class="color-desc">Negative deltas, risk flags, drawdowns.</span></div>
+        <div class="color-card" onclick="copyHex('#12152A')">
+          <div class="color-swatch" style="background:#12152A;"></div>
+          <div class="color-info"><span class="color-name">Deep Space</span><span class="color-hex">#12152A</span><span class="color-desc">Cards, sections, elevated surfaces.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#F0B90B')">
-          <div class="color-swatch" style="background:#F0B90B;"></div>
-          <div class="color-info"><span class="color-name">Insight Gold</span><span class="color-hex">#F0B90B</span><span class="color-desc">Key metadata, premium callouts.</span></div>
+        <div class="color-card" onclick="copyHex('#E2E6EF')">
+          <div class="color-swatch" style="background:#E2E6EF;"></div>
+          <div class="color-info"><span class="color-name">Cloud White</span><span class="color-hex">#E2E6EF</span><span class="color-desc">Primary text, reverse typography.</span></div>
         </div>
       </div>
     </section>
@@ -507,7 +507,7 @@
       <h2>Typography</h2>
       <div class="typo-showcase">
         <div class="typo-row">
-          <div class="typo-label">Heading Font</div>
+          <div class="typo-label">Heading Font (Outfit)</div>
           <div class="typo-sample-h1">ANALYZE AT MARKET SPEED</div>
         </div>
         <div class="typo-row">

@@ -8,21 +8,22 @@
   <!-- WhoIsDésir Media Articles Network -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* WhoIsDésir® Media House Theme: Dark Luxury Gold */
-      --bg-primary: #141414;        /* Jet Black */
-      --bg-secondary: #252525;      /* Deep Charcoal */
-      --bg-surface: #323232;        /* Slate */
-      --color-gold: #ffa200;        /* Miami Gold */
-      --color-gold-hover: #ffb733;
-      --color-gold-glow: rgba(255, 162, 0, 0.28);
-      --text-light: #ffffff;
-      --text-muted: #c5c5c5;
-      --text-dark: #141414;
-      --font-heading: 'Oswald', sans-serif;
+      /* WhoIsDésir® Media House Theme */
+      --bg-primary: #0A0D1A;        /* Midnight Navy */
+      --bg-secondary: #12152A;      /* Deep Space Panel */
+      --bg-surface: #1E2233;        /* Navy Card */
+      --color-gold: #ED145A;        /* Miami Pink (primary accent) */
+      --color-gold-hover: #FF3D79;
+      --color-gold-glow: rgba(237, 20, 90, 0.30);
+      --color-blue: #18D8F0;        /* Electric Blue (secondary accent) */
+      --text-light: #E2E6EF;
+      --text-muted: #8891A5;
+      --text-dark: #0A0D1A;
+      --font-heading: 'Outfit', sans-serif;
       --font-body: 'Inter', sans-serif;
       --border-radius: 16px;
       --border-radius-premium: 25px;
@@ -58,8 +59,9 @@
       text-align: center;
       padding: 60px 24px;
       background:
-        radial-gradient(circle at 50% 0%, rgba(255, 162, 0, 0.14) 0%, transparent 55%),
-        linear-gradient(160deg, #2b2b2b 0%, var(--bg-primary) 100%);
+        radial-gradient(circle at 50% 0%, rgba(237, 20, 90, 0.15) 0%, transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(24, 216, 240, 0.10) 0%, transparent 50%),
+        linear-gradient(160deg, var(--bg-surface) 0%, var(--bg-primary) 100%);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--border-radius);
       box-shadow: 0 15px 35px rgba(0,0,0,0.4);
@@ -81,7 +83,7 @@
       line-height: 1.12; margin-bottom: 14px;
       text-transform: uppercase; letter-spacing: 0.03em;
     }
-    h1 em { font-style: normal; color: var(--color-gold); }
+    h1 em { font-style: normal; background: linear-gradient(135deg, var(--color-gold), var(--color-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .standfirst { color: var(--text-muted); max-width: 640px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6; }
     .meta-row {
       display: flex; justify-content: center; gap: 18px; flex-wrap: wrap;
@@ -104,8 +106,8 @@
       text-transform: uppercase; letter-spacing: 0.04em;
     }
     article h2:first-of-type { margin-top: 0; }
-    article p { line-height: 1.75; color: #d8d8d8; margin-bottom: 16px; font-size: 1rem; }
-    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #d8d8d8; }
+    article p { line-height: 1.75; color: #C5CBD9; margin-bottom: 16px; font-size: 1rem; }
+    article ul { margin: 0 0 16px 22px; line-height: 1.75; color: #C5CBD9; }
     article li { margin-bottom: 8px; }
     article strong { color: var(--text-light); }
     .free-teaser { font-size: 1.1rem; color: var(--text-light); }
@@ -129,7 +131,7 @@
     .gate-inner p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
     .gate-inner input {
       width: 100%; padding: 13px 18px; margin-bottom: 12px;
-      border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
       background: var(--bg-secondary); color: var(--text-light);
       font-family: var(--font-body); font-size: 0.95rem; outline: none;
     }
@@ -137,14 +139,14 @@
     .btn-premium {
       display: inline-block; width: 100%; padding: 14px 35px;
       font-family: var(--font-heading); font-size: 15px;
-      color: var(--text-dark); background: var(--color-gold);
+      color: #ffffff; background: linear-gradient(135deg, var(--color-gold), var(--color-blue));
       border: none; border-radius: var(--border-radius-premium);
       text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
       transition: var(--transition);
       box-shadow: 0 5px 15px var(--color-gold-glow);
       cursor: pointer;
     }
-    .btn-premium:hover { background: var(--text-light); transform: translateY(-2px); }
+    .btn-premium:hover { filter: brightness(1.12); transform: translateY(-2px); }
     .gate-note { font-size: 0.72rem !important; margin-top: 14px !important; }
     .unlocked-badge {
       display: none; text-align: center;
@@ -229,7 +231,7 @@
     .toast {
       position: fixed; bottom: 30px; left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background-color: var(--color-gold); color: var(--text-dark);
+      background-color: var(--color-gold); color: #ffffff;
       font-weight: bold; padding: 12px 24px;
       border-radius: var(--border-radius-premium);
       box-shadow: 0 5px 15px rgba(0,0,0,0.4);
@@ -333,7 +335,7 @@
         </div>
         <div class="strategy-card">
           <h3>Visual Motif</h3>
-          <p>Dark luxury gold: jet black canvases, Miami Gold accents, compressed uppercase headlines, pill-shaped actions.</p>
+          <p>Midnight navy canvases, Miami Pink accents with electric blue highlights, compressed uppercase headlines, pill-shaped actions.</p>
         </div>
         <div class="strategy-card">
           <h3>Audience</h3>
@@ -345,29 +347,29 @@
     <section class="kit">
       <h2>Color Palette (Click to Copy HEX)</h2>
       <div class="color-grid">
-        <div class="color-card" onclick="copyHex('#FFA200')">
-          <div class="color-swatch" style="background:#FFA200;"></div>
-          <div class="color-info"><span class="color-name">Miami Gold</span><span class="color-hex">#FFA200</span><span class="color-desc">Primary accent — CTAs, highlights, prestige marks.</span></div>
+        <div class="color-card" onclick="copyHex('#ED145A')">
+          <div class="color-swatch" style="background:#ED145A;"></div>
+          <div class="color-info"><span class="color-name">Miami Pink</span><span class="color-hex">#ED145A</span><span class="color-desc">Primary accent — CTAs, highlights, prestige marks.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#FFB733')">
-          <div class="color-swatch" style="background:#FFB733;"></div>
-          <div class="color-info"><span class="color-name">Brightened Gold</span><span class="color-hex">#FFB733</span><span class="color-desc">Hover states, secondary glow.</span></div>
+        <div class="color-card" onclick="copyHex('#18D8F0')">
+          <div class="color-swatch" style="background:#18D8F0;"></div>
+          <div class="color-info"><span class="color-name">Electric Blue</span><span class="color-hex">#18D8F0</span><span class="color-desc">Secondary accent — gradients, hover glow.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#141414')">
-          <div class="color-swatch" style="background:#141414; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
-          <div class="color-info"><span class="color-name">Jet Black</span><span class="color-hex">#141414</span><span class="color-desc">Primary canvas — headers, cards, depth.</span></div>
+        <div class="color-card" onclick="copyHex('#0A0D1A')">
+          <div class="color-swatch" style="background:#0A0D1A; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
+          <div class="color-info"><span class="color-name">Midnight Navy</span><span class="color-hex">#0A0D1A</span><span class="color-desc">Primary canvas — headers, cards, depth.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#252525')">
-          <div class="color-swatch" style="background:#252525;"></div>
-          <div class="color-info"><span class="color-name">Deep Charcoal</span><span class="color-hex">#252525</span><span class="color-desc">Main background surface.</span></div>
+        <div class="color-card" onclick="copyHex('#12152A')">
+          <div class="color-swatch" style="background:#12152A;"></div>
+          <div class="color-info"><span class="color-name">Deep Space</span><span class="color-hex">#12152A</span><span class="color-desc">Main background surface.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#323232')">
-          <div class="color-swatch" style="background:#323232;"></div>
-          <div class="color-info"><span class="color-name">Slate</span><span class="color-hex">#323232</span><span class="color-desc">Forms, interactive fields, chips.</span></div>
+        <div class="color-card" onclick="copyHex('#1E2233')">
+          <div class="color-swatch" style="background:#1E2233;"></div>
+          <div class="color-info"><span class="color-name">Navy Card</span><span class="color-hex">#1E2233</span><span class="color-desc">Forms, interactive fields, chips.</span></div>
         </div>
-        <div class="color-card" onclick="copyHex('#C5C5C5')">
-          <div class="color-swatch" style="background:#C5C5C5;"></div>
-          <div class="color-info"><span class="color-name">Muted Silver</span><span class="color-hex">#C5C5C5</span><span class="color-desc">Secondary text, borders, captions.</span></div>
+        <div class="color-card" onclick="copyHex('#8891A5')">
+          <div class="color-swatch" style="background:#8891A5;"></div>
+          <div class="color-info"><span class="color-name">Steel Muted</span><span class="color-hex">#8891A5</span><span class="color-desc">Secondary text, borders, captions.</span></div>
         </div>
       </div>
     </section>
@@ -376,7 +378,7 @@
       <h2>Typography</h2>
       <div class="typo-showcase">
         <div class="typo-row">
-          <div class="typo-label">Heading Font</div>
+          <div class="typo-label">Heading Font (Outfit)</div>
           <div class="typo-sample-h1">SCALE THE SIGNAL</div>
         </div>
         <div class="typo-row">
