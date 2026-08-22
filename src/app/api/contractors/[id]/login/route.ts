@@ -46,19 +46,36 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     const email = customEmail || `${contractor.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@whodesir.com`;
+
+    const existingByEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingByEmail && existingByEmail.role !== 'contractor') {
+      return NextResponse.json({ error: 'Email is already used by a non-contractor account' }, { status: 409 });
+    }
+    if (existingByEmail && existingByEmail.agencyId && existingByEmail.agencyId !== contractor.agencyId) {
+      return NextResponse.json({ error: 'Email is already used in another agency' }, { status: 409 });
+    }
+    if (existingByEmail && existingByEmail.contractorId && existingByEmail.contractorId !== contractor.id) {
+      return NextResponse.json({ error: 'Email is already linked to another contractor' }, { status: 409 });
+    }
+
     const tempPassword = generatePassword();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        name: contractor.name,
-        role: 'contractor',
-        agencyId: contractor.agencyId,
-        contractorId: contractor.id,
-      },
-    });
+    const user = existingByEmail
+      ? await prisma.user.update({
+          where: { id: existingByEmail.id },
+          data: { passwordHash, contractorId: contractor.id },
+        })
+      : await prisma.user.create({
+          data: {
+            email,
+            passwordHash,
+            name: contractor.name,
+            role: 'contractor',
+            agencyId: contractor.agencyId,
+            contractorId: contractor.id,
+          },
+        });
 
     await prisma.contractor.update({
       where: { id: contractor.id },
@@ -96,13 +113,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       }
     }
 
-    await logAudit(admin, { action: 'contractor.login.create', method: 'POST', path: `/api/contractors/${params.id}/login`, entity: 'Contractor', entityId: params.id });
+    await logAudit(admin, { action: 'contractor.login.create', method: 'POST', path: `/api/contractors/${params.id}/login`, entity: 'Contractor', entityId: params.id, metadata: existingByEmail ? { linkedExistingUser: true } : undefined });
 
     return NextResponse.json({
       email,
       password: tempPassword,
       name: contractor.name,
-      message: 'Contractor login created.',
+      message: existingByEmail ? 'Existing account linked. New credentials generated.' : 'Contractor login created.',
     });
   } catch (err) {
     console.error(`[contractor-login] Failed for contractor ${params.id}:`, err);
