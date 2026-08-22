@@ -82,3 +82,38 @@ Client → Deliverable (1:many, via clientId)
 4. **Audit logging** — all state mutations tracked
 5. **Storage limits** — per-contractor upload caps
 6. **File type whitelisting** — uploads restricted by extension and size
+
+## Proposal Creator Suite — Cross-Project Context
+
+A separate development effort is building a **Proposal Creator Suite** (a.k.a. the new Proposal Generator): a pre-sales system covering prospect research, social audits, creative mockups, AI-generated proposals, and acceptance. It will integrate into this platform under `Sales` (Sales → Proposals, Sales → Prospects → Proposal). Assume it exists when making future changes here.
+
+### Stage Split (DECIDED 2026-08-22)
+
+| Stage | Owner | Tool |
+|---|---|---|
+| Pre-sales (prospect → lead → proposal → acceptance) | New suite | Proposal Creator Suite |
+| Post-deposit onboarding (light engagement/pricing docs for small deals) | This repo | Existing `src/lib/proposal-generator.ts` |
+| Formal post-sale contracting | This repo | `MasterAgreement`/`Addendum`/`SOW` → `AssembledContract` → `Signature` |
+
+The existing template generator (`proposal-generator.ts`, currently powering `/api/proposal` and static pages under `/public/proposals/{slug}/`) is **not** redundant under this plan — it is repurposed as the onboarding-document tool after deposits. Do not delete or rename it until the suite reaches integration parity.
+
+### Entity Mapping (target → current)
+
+| Target concept | Current state |
+|---|---|
+| Organization | ❌ none — `Client` is de-facto org; decide promote-vs-new before integration |
+| Lead / Pipeline | ⚠️ partial — `BookingInquiry`, `PluginDownloadLead` capture forms only |
+| Prospect Intelligence / Social Audits | ❌ none on main (PR #2's `InfluencerAudit` is influencer-focused, not this) |
+| Client Account | ✅ `Client` + client portal |
+| Project / Tasks / Deliverables / Files / Approvals | ✅ `Project`, `ProjectTask`, `TaskReview`, `Deliverable`, `FileFolder`, review workflow |
+| Contractors / Agreements / Payments | ✅ `Contractor`, `ContractorRole`, SOW stack, `Invoice` |
+| Vendors | ❌ none |
+
+### Integration Principles
+
+1. Never duplicate `Lead`, `Organization`, `User`, `Client`, or `Project` concepts that already exist.
+2. Conversion chain stays clean: Prospect → Lead → Contact → Organization → Client Account → Project. Conversion = link/convert, never duplicate.
+3. A prospect is not a client; a lead is not a platform user; a proposal does not auto-create an account.
+4. Prospect research, scoring, and internal notes stay internal; client-facing artifacts are intentionally separated (existing pattern: standalone pages in `/public/proposals/{slug}/`).
+5. New suite entities must carry `agencyId` (multi-tenant ready) and reuse existing auth/authz/db patterns.
+6. No architectural changes to this repo solely to accommodate the suite without checking existing models first.
