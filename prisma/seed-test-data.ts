@@ -153,9 +153,9 @@ async function main() {
   // Create a test user for the contractor
   const passwordHash = await bcrypt.hash('test1234', 10);
 
-  await prisma.user.upsert({
+  const contractorUser = await prisma.user.upsert({
     where: { id: 'test-user-contractor-001' },
-    update: {},
+    update: { contractorId: contractor.id },
     create: {
       id: 'test-user-contractor-001',
       email: 'developer@test.com',
@@ -163,7 +163,14 @@ async function main() {
       name: 'Test Developer',
       role: 'contractor',
       agencyId: agency.id,
+      contractorId: contractor.id,
     },
+  });
+
+  // Link contractor → user (mirrors POST /api/contractors/[id]/login)
+  await prisma.contractor.update({
+    where: { id: contractor.id },
+    data: { userId: contractorUser.id },
   });
 
   // Create a test user for the client
