@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { normalizeDriveId } from '@/lib/drive';
 import { uploadFileToFolder, driveConfigured } from '@/lib/driveService';
 import { requireAuth, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
       uploaded.push(result);
     }
 
+    await logAudit(user, { action: 'drive.upload', method: 'POST', path: '/api/drive/upload', entity: 'DriveFile', entityId: folderId, metadata: { count: uploaded.length, folderId } });
     return NextResponse.json({ files: uploaded });
   } catch (error: any) {
     const message = error?.message || 'Failed to upload to Google Drive';

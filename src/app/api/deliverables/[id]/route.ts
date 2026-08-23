@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { createNotification } from '@/lib/notifications';
+import { logAudit } from '@/lib/audit';
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -58,9 +59,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         }
       }
 
+      await logAudit(user, { action: 'deliverable.submit', method: 'PATCH', path: `/api/deliverables/${params.id}`, entity: 'Deliverable', entityId: params.id, metadata: { status: deliverable.status } });
       return NextResponse.json(deliverable);
     }
-
     if (user.role === 'client') {
       const existing = await prisma.deliverable.findUnique({ where: { id } });
       if (!existing || existing.clientId !== user.clientId) {
@@ -100,6 +101,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
           }
         }
 
+        await logAudit(user, { action: 'deliverable.requestChanges', method: 'PATCH', path: `/api/deliverables/${params.id}`, entity: 'Deliverable', entityId: params.id, metadata: { feedback: body.feedback || null } });
         return NextResponse.json(deliverable);
       }
       return NextResponse.json({ error: 'Clients can only request changes on pending-approval deliverables' }, { status: 400 });
@@ -202,6 +204,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       });
     }
 
+    await logAudit(user, { action: 'deliverable.update', method: 'PATCH', path: `/api/deliverables/${params.id}`, entity: 'Deliverable', entityId: params.id, metadata: { status: data.status as string | undefined } });
     return NextResponse.json(deliverable);
   } catch {
     return NextResponse.json({ error: 'Failed to update deliverable' }, { status: 500 });
@@ -214,6 +217,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     if (isNextResponse(user)) return user;
 
     await prisma.deliverable.delete({ where: { id: params.id } });
+    await logAudit(user, { action: 'deliverable.delete', method: 'DELETE', path: `/api/deliverables/${params.id}`, entity: 'Deliverable', entityId: params.id });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Failed to delete deliverable' }, { status: 500 });

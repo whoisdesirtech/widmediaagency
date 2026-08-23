@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, requireContractor, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import { createNotification } from '@/lib/notifications';
 
 export async function GET(req: Request, { params }: { params: { id: string; taskId: string } }) {
@@ -93,6 +94,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string; ta
       }
     }
 
+    await logAudit(user, { action: 'projectTask.update', method: 'PATCH', path: `/api/projects/${params.id}/tasks/${params.taskId}`, entity: 'ProjectTask', entityId: params.taskId, metadata: { fields: Object.keys(updateData) } });
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
@@ -113,6 +115,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string; t
     }
 
     await prisma.projectTask.delete({ where: { id: params.taskId } });
+    await logAudit(user, { action: 'projectTask.delete', method: 'DELETE', path: `/api/projects/${params.id}/tasks/${params.taskId}`, entity: 'ProjectTask', entityId: params.taskId, metadata: { title: existing.title } });
 
     const totalTasks = await prisma.projectTask.count({ where: { projectId: params.id } });
     const completedTasks = await prisma.projectTask.count({ where: { projectId: params.id, status: 'completed' } });

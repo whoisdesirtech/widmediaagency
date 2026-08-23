@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
 import { requireAuth, requireAdminOrStaff, isNextResponse, forbiddenResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'folder.create', method: 'POST', path: '/api/folders', entity: 'FileFolder', entityId: folder.id, metadata: { clientId: folder.clientId } });
     return NextResponse.json(folder, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
