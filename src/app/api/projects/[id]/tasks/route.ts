@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { createNotification } from '@/lib/notifications';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -64,6 +65,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       }
     }
 
+    await logAudit(user, { action: 'projectTask.create', method: 'POST', path: `/api/projects/${params.id}/tasks`, entity: 'ProjectTask', entityId: task.id, metadata: { title, contractorId: contractorId || null } });
     return NextResponse.json(task, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });

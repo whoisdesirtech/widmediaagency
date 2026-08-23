@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'invoice.create', method: 'POST', path: '/api/invoices', entity: 'Invoice', entityId: invoice.id, metadata: { clientId: invoice.clientId } });
     return NextResponse.json(invoice, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });

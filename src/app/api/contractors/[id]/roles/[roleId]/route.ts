@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isNextResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notifications';
+import { logAudit } from '@/lib/audit';
 import { getRoleLessons } from '@/lib/role-training-config';
 
 async function autoAssignLessons(contractorId: string, role: string) {
@@ -71,6 +72,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string; ro
       });
     }
 
+    await logAudit(user, { action: `contractorRole.${status}`, method: 'PATCH', path: `/api/contractors/${id}/roles/${roleId}`, entity: 'ContractorRole', entityId: roleId, metadata: { contractorId: id, role: existing.role } });
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Failed to update role' }, { status: 500 });
@@ -103,7 +105,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string; r
     }
 
     await prisma.contractorRole.delete({ where: { id: roleId } });
-
+    await logAudit(user, { action: 'contractorRole.remove', method: 'DELETE', path: `/api/contractors/${id}/roles/${roleId}`, entity: 'ContractorRole', entityId: roleId, metadata: { contractorId: id, role: existing.role } });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Failed to delete role' }, { status: 500 });

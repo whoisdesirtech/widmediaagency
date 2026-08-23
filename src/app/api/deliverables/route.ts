@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'deliverable.create', method: 'POST', path: '/api/deliverables', entity: 'Deliverable', entityId: deliverable.id, metadata: { name, clientId } });
     return NextResponse.json(deliverable, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create deliverable' }, { status: 500 });

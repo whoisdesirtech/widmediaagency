@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -31,6 +32,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       where: { id: params.id },
       data: body,
     });
+    await logAudit(user, { action: 'project.update', method: 'PATCH', path: `/api/projects/${params.id}`, entity: 'Project', entityId: params.id, metadata: { fields: Object.keys(body) } });
     return NextResponse.json(project);
   } catch {
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
@@ -43,6 +45,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     if (isNextResponse(user)) return user;
 
     await prisma.project.delete({ where: { id: params.id } });
+    await logAudit(user, { action: 'project.delete', method: 'DELETE', path: `/api/projects/${params.id}`, entity: 'Project', entityId: params.id });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });

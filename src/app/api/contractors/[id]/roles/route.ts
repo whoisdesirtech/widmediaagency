@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, isNextResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { logAudit } from '@/lib/audit';
 
 const ALLOWED_ROLES = [
   'photography',
@@ -75,6 +76,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       },
     });
 
+    await logAudit(user, { action: 'contractorRole.request', method: 'POST', path: `/api/contractors/${id}/roles`, entity: 'ContractorRole', entityId: contractorRole.id, metadata: { contractorId: id, role } });
     return NextResponse.json(contractorRole, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create role' }, { status: 500 });

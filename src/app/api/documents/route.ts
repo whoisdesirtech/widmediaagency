@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'document.create', method: 'POST', path: '/api/documents', entity: 'Document', entityId: document.id, metadata: { clientId: document.clientId } });
     return NextResponse.json(document, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create document' }, { status: 500 });

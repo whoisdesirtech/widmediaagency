@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { getUnreadCount } from '@/lib/notifications';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(req: Request) {
   try {
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
       data: { userId, type, title, message, link },
     });
 
+    await logAudit(user, { action: 'notification.create', method: 'POST', path: '/api/notifications', entity: 'Notification', entityId: notification.id, metadata: { targetUserId: userId, type } });
     return NextResponse.json(notification, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create notification' }, { status: 500 });

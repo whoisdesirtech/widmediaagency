@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireContractor, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function PATCH(req: Request, { params }: { params: { taskId: string } }) {
   try {
@@ -35,6 +36,7 @@ export async function PATCH(req: Request, { params }: { params: { taskId: string
       data: updateData,
     });
 
+    await logAudit(user, { action: 'projectTask.progress', method: 'PATCH', path: `/api/contractor/tasks/${params.taskId}`, entity: 'ProjectTask', entityId: params.taskId, metadata: { fields: Object.keys(updateData) } });
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });

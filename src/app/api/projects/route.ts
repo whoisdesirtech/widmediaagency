@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function POST(req: Request) {
   try {
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(user, { action: 'project.create', method: 'POST', path: '/api/projects', entity: 'Project', entityId: project.id, metadata: { name, clientId } });
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });

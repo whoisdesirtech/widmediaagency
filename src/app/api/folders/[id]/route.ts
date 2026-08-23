@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { normalizeDriveId, driveFolderUrl } from '@/lib/drive';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -19,6 +20,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       where: { id: params.id },
       data,
     });
+    await logAudit(user, { action: 'FileFolder.update', method: 'PATCH', path: `/api/folders/${params.id}`, entity: 'FileFolder', entityId: params.id, metadata: { fields: Object.keys(body) } });
     return NextResponse.json(folder);
   } catch {
     return NextResponse.json({ error: 'Failed to update folder' }, { status: 500 });
@@ -31,6 +33,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     if (isNextResponse(user)) return user;
 
     await prisma.fileFolder.delete({ where: { id: params.id } });
+    await logAudit(user, { action: 'folder.delete', method: 'DELETE', path: `/api/folders/${params.id}`, entity: 'FileFolder', entityId: params.id });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 });

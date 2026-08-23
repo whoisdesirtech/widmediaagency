@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { saveFile, removeFile } from '@/lib/fileStorage';
+import { logAudit } from '@/lib/audit';
 
 const ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 const MAX_SIZE = 15 * 1024 * 1024;
@@ -57,6 +58,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       data: { images: JSON.stringify([...existingImages, ...newImages]) },
     });
 
+    await logAudit(user, { action: 'projectImage.upload', method: 'POST', path: `/api/projects/${params.id}/images`, entity: 'Project', entityId: params.id, metadata: { count: newImages.length } });
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Failed to upload images' }, { status: 500 });
@@ -93,6 +95,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       data: { images: JSON.stringify(filtered) },
     });
 
+    await logAudit(user, { action: 'projectImage.delete', method: 'DELETE', path: `/api/projects/${params.id}/images`, entity: 'Project', entityId: params.id, metadata: { imageUrl } });
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Failed to delete image' }, { status: 500 });
