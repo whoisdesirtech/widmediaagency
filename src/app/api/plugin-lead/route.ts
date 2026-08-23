@@ -21,7 +21,7 @@ function validate(data: Record<string, unknown>): string | null {
 
 export async function POST(req: Request) {
   try {
-    if (!rateLimit(`lead:${clientKey(req)}`, 20, 60 * 60 * 1000)) return tooManyRequests();
+    if (!(await rateLimit(`lead:${clientKey(req)}`, 20, 60 * 60 * 1000))) return tooManyRequests();
 
     const body = await req.json();
     const validationError = validate(body);

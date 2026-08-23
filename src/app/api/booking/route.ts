@@ -15,7 +15,7 @@ function validate(data: Record<string, unknown>): string | null {
 
 export async function POST(req: Request) {
   try {
-    if (!rateLimit(`booking:${clientKey(req)}`, 10, 60 * 60 * 1000)) return tooManyRequests();
+    if (!(await rateLimit(`booking:${clientKey(req)}`, 10, 60 * 60 * 1000))) return tooManyRequests();
 
     const body = await req.json();
     const error = validate(body);

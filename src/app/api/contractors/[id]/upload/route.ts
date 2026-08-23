@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { prisma } from '@/lib/prisma';
 import { requireAuth, isNextResponse, forbiddenResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 import { storageLimitBytes, dirBytes } from '@/lib/storage';
+import { saveFile, storageBackend } from '@/lib/fileStorage';
 
 const ALLOWED_FIELDS = ['taxFormUrl', 'insuranceProofUrl', 'licensingProofUrl'];
 const ALLOWED_EXTS = ['pdf', 'jpg', 'jpeg', 'png'];
@@ -41,28 +41,24 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
-    const uploadDir = path.resolve(process.cwd(), 'public', 'uploads', params.id);
-    await mkdir(uploadDir, { recursive: true });
-
-    const used = await dirBytes(uploadDir);
-    const limit = storageLimitBytes();
-    if (used + file.size > limit) {
-      return NextResponse.json(
-        { error: `Storage limit exceeded (max ${Math.round(limit / 1048576)}MB per contractor)` },
-        { status: 413 }
-      );
-    }
-
     const filename = `${field}.${ext}`;
-    const filepath = path.join(uploadDir, filename);
-    if (!filepath.startsWith(uploadDir + path.sep)) {
-      return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+
+    // Local backend enforces the per-contractor quota by measuring disk usage.
+    // Supabase backend caps usage structurally (3 whitelisted fields x 10MB max).
+    if (storageBackend() === 'local') {
+      const uploadDir = path.resolve(process.cwd(), 'public', 'uploads', params.id);
+      const used = await dirBytes(uploadDir);
+      const limit = storageLimitBytes();
+      if (used + file.size > limit) {
+        return NextResponse.json(
+          { error: `Storage limit exceeded (max ${Math.round(limit / 1048576)}MB per contractor)` },
+          { status: 413 }
+        );
+      }
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filepath, buffer);
-
-    const url = `/uploads/${params.id}/${filename}`;
+    const { url } = await saveFile(params.id, filename, buffer, file.type || `application/${ext}`);
 
     await prisma.contractor.update({
       where: { id: params.id },
