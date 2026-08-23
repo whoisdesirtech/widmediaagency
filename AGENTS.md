@@ -44,7 +44,7 @@ const user = await requireAuth(['admin', 'staff', 'contractor']); // any list
 if (isNextResponse(user)) return user;       // always check after a guard
 ```
 
-Roles: `admin`, `staff`, `contractor`, `client` (column on `User`). Session user carries `agencyId`, `contractorId`, `clientId` — use these for ownership checks (e.g. contractor may only see/sign their own contracts).
+Roles: `admin`, `staff`, `contractor`, `client` (column on `User`). The Developer Portal suite (see docs) adds extended staff-side roles: `manager`, `reviewer`, `developer`, `intern` — helpers in `src/lib/auth.ts` (`requireManagerOrAbove`, `canApprove`, etc.). Session user carries `agencyId`, `contractorId`, `clientId` — use these for ownership checks (e.g. contractor may only see/sign their own contracts).
 
 - Shared GET routes are role-scoped: clients/contractors must be forced to their own records (`where.clientId = user.clientId`), never trust query params from them.
 - Public by design: `api/booking`, `api/plugin-lead`, `api/auth/reset-password`. All are rate-limited via `src/lib/rateLimit.ts` and reset-password must NEVER return the new password or confirm account existence.
@@ -102,6 +102,11 @@ Required env vars (optional): `SLACK_BOT_TOKEN` (workspace bot with `users:read`
 - `slack-fundamentals` (7 steps, Slack required)
 
 ## Phase 4A: Task & Review Foundation
+
+### Two task systems (do not conflate)
+
+- `ProjectTask` — contractor-facing work items inside the SOW/deliverable pipeline (Phase 4A/4C below). API: `/api/projects/[id]/tasks`, `/api/contractor/tasks`.
+- `PortalTask` — internal team work items for the Developer Portal suite: assigned to platform `User`s, optional portfolio link, review workflow (`reviewStatus`, `reviewerId`). API: `/api/tasks` (ported from PR #2; model renamed from `Task` to avoid the collision).
 
 ### New Models
 

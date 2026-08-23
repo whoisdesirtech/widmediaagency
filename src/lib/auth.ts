@@ -142,6 +142,52 @@ export async function requireClient(): Promise<SessionUser | NextResponse> {
   return requireAuth(['client']);
 }
 
+// --- Role-based permission helpers (Developer Portal suite) ---
+
+export async function requireManagerOrAbove(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['admin', 'staff', 'manager']);
+}
+
+export async function requireReviewerOrAbove(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['admin', 'staff', 'manager', 'reviewer']);
+}
+
+export async function requireDeveloperOrAbove(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['admin', 'staff', 'manager', 'reviewer', 'developer']);
+}
+
+export async function requireIntern(): Promise<SessionUser | NextResponse> {
+  return requireAuth(['admin', 'staff', 'manager', 'reviewer', 'developer', 'intern']);
+}
+
+export function canDelete(user: SessionUser): boolean {
+  return ['admin', 'staff', 'manager'].includes(user.role);
+}
+
+export function canApprove(user: SessionUser): boolean {
+  return ['admin', 'staff', 'manager', 'reviewer'].includes(user.role);
+}
+
+export function canPublish(user: SessionUser): boolean {
+  return ['admin', 'staff', 'manager'].includes(user.role);
+}
+
+export function canModifyConfig(user: SessionUser): boolean {
+  return ['admin'].includes(user.role);
+}
+
+export function canViewAssignedWork(user: SessionUser): boolean {
+  return ['admin', 'staff', 'manager', 'reviewer', 'developer', 'intern', 'contractor'].includes(user.role);
+}
+
+export function canSubmitDeliverables(user: SessionUser): boolean {
+  return ['admin', 'staff', 'manager', 'reviewer', 'developer', 'intern'].includes(user.role);
+}
+
+export function canUpdateTaskProgress(user: SessionUser): boolean {
+  return ['admin', 'staff', 'manager', 'reviewer', 'developer', 'intern'].includes(user.role);
+}
+
 export function isNextResponse(value: SessionUser | NextResponse): value is NextResponse {
   return value instanceof NextResponse;
 }

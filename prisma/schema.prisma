@@ -28,12 +28,20 @@ model User {
   email        String    @unique
   passwordHash String
   name         String
-  role         String    @default("contractor") // admin | staff | contractor | client
+  role         String    @default("contractor") // admin | staff | contractor | client | manager | reviewer | developer | intern
+
   agencyId     String?
   agency       Agency?   @relation(fields: [agencyId], references: [id])
   contractorId String?
   clientId     String?
   reviews      TaskReview[]
+  reviewedBrandKits  BrandKit[]        @relation("BrandKitReviewer")
+  auditedInfluencers Influencer[]
+  auditsConducted    InfluencerAudit[] @relation("AuditAuditor")
+  portfolioItems     PortfolioItem[]
+  portalReviews      Review[]          @relation("ReviewReviewer")
+  assignedPortalTasks PortalTask[]     @relation("PortalTaskAssignee")
+  reviewedPortalTasks PortalTask[]     @relation("PortalTaskReviewer")
   createdAt    DateTime @default(now())
 }
 
@@ -170,6 +178,7 @@ model Project {
   images        String   @default("[]") // JSON array of {url, name, uploadedAt} objects
   sortOrder     Int      @default(0)
   tasks         ProjectTask[]
+  portalTasks   PortalTask[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -435,3 +444,218 @@ model SlackConnection {
 
   @@unique([assignmentId])
 }
+model PortalTask {
+  id              String         @id @default(uuid())
+  title           String
+  description     String         @default("")
+  assignedUserId  String?
+  projectId       String?
+  status          String         @default("not-started")
+  priority        String         @default("medium")
+  dueDate         DateTime?
+  createdDate     DateTime       @default(now())
+  completedDate   DateTime?
+  estimatedEffort String         @default("")
+  actualEffort    String         @default("")
+  deliverable     String         @default("")
+  notes           String         @default("")
+  reviewStatus    String         @default("pending")
+  reviewerId      String?
+  portfolioItemId String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  assignedUser    User?          @relation("PortalTaskAssignee", fields: [assignedUserId], references: [id])
+  portfolioItem   PortfolioItem? @relation(fields: [portfolioItemId], references: [id])
+  project         Project?       @relation(fields: [projectId], references: [id])
+  reviewer        User?          @relation("PortalTaskReviewer", fields: [reviewerId], references: [id])
+}
+
+model PortfolioItem {
+  id                 String    @id @default(uuid())
+  title              String
+  description        String    @default("")
+  category           String    @default("web-development")
+  assignedUserId     String?
+  contributors       String    @default("[]")
+  status             String    @default("planned")
+  priority           String    @default("medium")
+  startDate          DateTime?
+  completionDate     DateTime?
+  technologies       String    @default("[]")
+  skillsDemonstrated String    @default("[]")
+  deliverables       String    @default("[]")
+  githubRepo         String    @default("")
+  liveUrl            String    @default("")
+  screenshots        String    @default("[]")
+  documentation      String    @default("")
+  relatedPortalTaskIds     String    @default("[]")
+  relatedAuditIds    String    @default("[]")
+  relatedBrandKitIds String    @default("[]")
+  completionPercent  Int       @default(0)
+  notes              String    @default("")
+  isDemo             Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  assignedUser       User?     @relation(fields: [assignedUserId], references: [id])
+  tasks              PortalTask[]
+}
+
+model Influencer {
+  id                  String            @id @default(uuid())
+  name                String
+  creatorName         String            @default("")
+  platform            String            @default("instagram")
+  username            String            @default("")
+  profileUrl          String            @default("")
+  niche               String            @default("")
+  audienceDescription String            @default("")
+  followerCount       Int               @default(0)
+  engagementRate      Float             @default(0)
+  contentCategories   String            @default("[]")
+  postingFrequency    String            @default("")
+  visualIdentity      String            @default("")
+  bioQuality          String            @default("")
+  profileOptimization String            @default("")
+  contentConsistency  String            @default("")
+  brandConsistency    String            @default("")
+  audienceAlignment   String            @default("")
+  growthOpportunities String            @default("")
+  strengths           String            @default("[]")
+  weaknesses          String            @default("[]")
+  recommendations     String            @default("[]")
+  overallScore        Float             @default(0)
+  auditDate           DateTime?
+  auditorId           String?
+  status              String            @default("new")
+  relatedAuditId      String?
+  relatedBrandKitId   String?
+  isDemo              Boolean           @default(false)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  brandKits           BrandKit[]
+  auditor             User?             @relation(fields: [auditorId], references: [id])
+  audits              InfluencerAudit[]
+}
+
+model InfluencerAudit {
+  id                             String       @id @default(uuid())
+  influencerId                   String
+  auditorId                      String?
+  auditDate                      DateTime     @default(now())
+  status                         String       @default("in-progress")
+  overallScore                   Float        @default(0)
+  profileOptimizationScore       Float        @default(0)
+  brandIdentityScore             Float        @default(0)
+  contentQualityScore            Float        @default(0)
+  contentConsistencyScore        Float        @default(0)
+  audienceAlignmentScore         Float        @default(0)
+  engagementScore                Float        @default(0)
+  discoverabilityScore           Float        @default(0)
+  professionalReadinessScore     Float        @default(0)
+  brandPartnershipReadinessScore Float        @default(0)
+  findings                       String       @default("[]")
+  recommendations                String       @default("[]")
+  aiGenerated                    Boolean      @default(false)
+  aiModel                        String       @default("")
+  notes                          String       @default("")
+  brandKitId                     String?
+  isDemo                         Boolean      @default(false)
+  createdAt                      DateTime     @default(now())
+  updatedAt                      DateTime     @updatedAt
+  scores                         AuditScore[]
+  auditor                        User?        @relation("AuditAuditor", fields: [auditorId], references: [id])
+  brandKit                       BrandKit?    @relation("AuditBrandKit", fields: [brandKitId], references: [id])
+  influencer                     Influencer   @relation(fields: [influencerId], references: [id])
+}
+
+model AuditScore {
+  id             String          @id @default(uuid())
+  auditId        String
+  category       String
+  score          Float           @default(0)
+  evidence       String          @default("")
+  recommendation String          @default("")
+  weight         Float           @default(1.0)
+  createdAt      DateTime        @default(now())
+  audit          InfluencerAudit @relation(fields: [auditId], references: [id])
+}
+
+model BrandKit {
+  id                     String            @id @default(uuid())
+  influencerId           String
+  name                   String            @default("")
+  tagline                String            @default("")
+  mission                String            @default("")
+  positioning            String            @default("")
+  niche                  String            @default("")
+  targetAudience         String            @default("")
+  brandPersonality       String            @default("")
+  primaryColor           String            @default("#000000")
+  secondaryColor         String            @default("#FFFFFF")
+  accentColor            String            @default("#ED145A")
+  backgroundColor        String            @default("#FFFFFF")
+  textColor              String            @default("#1E2233")
+  headingFont            String            @default("Outfit")
+  bodyFont               String            @default("Inter")
+  logoUsage              String            @default("")
+  photographyDirection   String            @default("")
+  graphicStyle           String            @default("")
+  iconography            String            @default("")
+  instagramBio           String            @default("")
+  tiktokBio              String            @default("")
+  youtubeDescription     String            @default("")
+  linkedinDescription    String            @default("")
+  usernameStrategy       String            @default("")
+  profileImageGuidance   String            @default("")
+  coverBannerGuidance    String            @default("")
+  ctaStrategy            String            @default("")
+  contentPillars         String            @default("[]")
+  voice                  String            @default("")
+  tone                   String            @default("")
+  vocabulary             String            @default("")
+  captionStyle           String            @default("")
+  hookStyle              String            @default("")
+  ctaStyle               String            @default("")
+  storytellingApproach   String            @default("")
+  visualContentDirection String            @default("")
+  brandConsistencyRules  String            @default("")
+  status                 String            @default("draft")
+  completionPercent      Int               @default(0)
+  reviewerId             String?
+  reviewNotes            String            @default("")
+  isDemo                 Boolean           @default(false)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  influencer             Influencer        @relation(fields: [influencerId], references: [id])
+  reviewer               User?             @relation("BrandKitReviewer", fields: [reviewerId], references: [id])
+  sections               BrandKitSection[]
+  audits                 InfluencerAudit[] @relation("AuditBrandKit")
+  reviews                Review[]
+}
+
+model BrandKitSection {
+  id          String   @id @default(uuid())
+  brandKitId  String
+  sectionType String
+  title       String
+  content     String   @default("{}")
+  isCompleted Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  brandKit    BrandKit @relation(fields: [brandKitId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  brandKitId String
+  reviewerId String?
+  status     String   @default("pending")
+  comments   String   @default("[]")
+  score      Float?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  brandKit   BrandKit @relation(fields: [brandKitId], references: [id])
+  reviewer   User?    @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+}
+
