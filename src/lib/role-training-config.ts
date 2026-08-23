@@ -6,12 +6,12 @@ export type RoleTrainingConfig = {
 
 export const ROLE_TRAINING: Record<string, RoleTrainingConfig> = {
   'developer': {
-    lessons: ['developer-full', 'slack-fundamentals'],
+    lessons: ['developer-full', 'secret-key-rotation', 'slack-fundamentals'],
     integrations: ['github', 'slack'],
     deliverableTypes: ['code', 'document'],
   },
   'developer-intern': {
-    lessons: ['developer-intern', 'slack-fundamentals'],
+    lessons: ['developer-intern', 'secret-key-rotation', 'slack-fundamentals'],
     integrations: ['github', 'slack'],
     deliverableTypes: ['code', 'document'],
   },
