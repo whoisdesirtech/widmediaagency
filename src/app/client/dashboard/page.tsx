@@ -32,7 +32,6 @@ interface Project {
   progress: number;
   timeline: string;
   deliverables: number;
-  images: string;
 }
 
 interface Folder {
@@ -141,7 +140,7 @@ export default function ClientDashboard() {
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Pending Approvals</div>
                   <div className="font-heading text-3xl font-black text-dark-800">
-                    {projects.filter(p => p.status === 'review').length || 2}
+                    {projects.filter(p => p.status === 'review').length}
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-lg">⏳</div>
@@ -150,18 +149,9 @@ export default function ClientDashboard() {
             <div className="glass-card p-5">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-muted text-xs font-semibold mb-1">Media Files</div>
+                  <div className="text-muted text-xs font-semibold mb-1">Media Folders</div>
                   <div className="font-heading text-3xl font-black text-dark-800">
-                    {(() => {
-                      if (!client.googleDriveFolderId) return '—';
-                      let count = 0;
-                      for (const p of projects) {
-                        try { count += JSON.parse(p.images || '[]').length; } catch {
-          // Intentionally ignored
-        }
-                      }
-                      return count;
-                    })()}
+                    {folders.length}
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg">🖼️</div>
@@ -171,7 +161,7 @@ export default function ClientDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Messages</div>
-                  <div className="font-heading text-3xl font-black text-dark-800">4</div>
+                  <div className="font-heading text-3xl font-black text-dark-800">—</div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-lg">💬</div>
               </div>
@@ -261,25 +251,6 @@ export default function ClientDashboard() {
 
             {/* Quick Actions */}
             <div className="space-y-6">
-              {/* Proposal */}
-              <div className="glass-card p-6 border-l-4 border-miami-pink">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-muted font-semibold mb-1">PROPOSAL</div>
-                    <div className="font-heading font-bold text-dark-800">WhoIsDésir 1804</div>
-                    <div className="text-xs text-muted mt-1">View your project proposal</div>
-                  </div>
-                  <a
-                    href="/proposals/whoisdesir-1804/index.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-miami-pink text-white text-xs font-semibold rounded-lg hover:bg-miami-pink/90 transition-colors whitespace-nowrap"
-                  >
-                    View Proposal →
-                  </a>
-                </div>
-              </div>
-
               {/* Approvals */}
               <div className="glass-card p-6">
                 <h3 className="font-heading font-bold text-dark-800 mb-4">Approvals</h3>
