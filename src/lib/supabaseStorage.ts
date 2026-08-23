@@ -7,6 +7,9 @@ export function supabaseStorageConfigured(): boolean {
 function headers(extra: Record<string, string> = {}): Record<string, string> {
   return {
     Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+    // New-style opaque keys (sb_secret_...) are rejected by Storage unless also
+    // passed as apikey; legacy JWT keys accept both headers identically.
+    apikey: process.env.SUPABASE_SERVICE_ROLE_KEY as string,
     ...extra,
   };
 }
