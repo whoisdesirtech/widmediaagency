@@ -54,11 +54,17 @@ export async function GET() {
     const user = await requireAdminOrStaff();
     if (isNextResponse(user)) return user;
 
+    const where: any = {};
+    if (user.agencyId) {
+      where.agencyId = user.agencyId;
+    }
+
     const clients = await prisma.client.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(clients);
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 });
   }
 }

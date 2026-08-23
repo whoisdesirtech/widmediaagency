@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     await logAudit(user, { action: 'contractor.create', method: 'POST', path: '/api/contractors', entity: 'Contractor', entityId: contractor.id, metadata: { role } });
 
     return NextResponse.json(contractor, { status: 201 });
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: 'Failed to create contractor' }, { status: 500 });
   }
 }
@@ -46,12 +46,18 @@ export async function GET() {
     const user = await requireAdminOrStaff();
     if (isNextResponse(user)) return user;
 
+    const where: any = {};
+    if (user.agencyId) {
+      where.agencyId = user.agencyId;
+    }
+
     const contractors = await prisma.contractor.findMany({
+      where,
       include: { sows: true, _count: { select: { sows: true, assembledContracts: true } } },
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(contractors);
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch contractors' }, { status: 500 });
   }
 }
