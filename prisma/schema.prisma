@@ -130,6 +130,7 @@ model Signature {
   signerName   String
   signerEmail  String
   signatureData String           // base64 signature image
+  signatureHash String?           // sha256 of signature payload for tamper-evidence
   signedAt     DateTime          @default(now())
 }
 
