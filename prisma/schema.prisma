@@ -316,6 +316,12 @@ model PluginDownloadLead {
   createdAt DateTime @default(now())
 }
 
+model RateLimitBucket {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
+}
+
 model AuditLog {
   id        String   @id @default(uuid())
   userId    String?
