@@ -33,8 +33,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid signer role' }, { status: 400 });
     }
 
+    const signedAt = new Date();
     const signatureHash = createHash('sha256')
-      .update(JSON.stringify({ contractId, signerRole, signerName, signerEmail, signatureData, signedAt: new Date().toISOString() }))
+      .update(JSON.stringify({ contractId, signerRole, signerName, signerEmail, signatureData, signedAt: signedAt.toISOString() }))
       .digest('hex');
 
     const signature = await prisma.signature.create({
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
         signerEmail: signerEmail || '',
         signatureData,
         signatureHash,
+        signedAt,
       },
     });
 
