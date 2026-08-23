@@ -15,7 +15,7 @@ const GENERIC_MESSAGE = 'If an account exists for that email, a new password has
 
 export async function POST(req: Request) {
   try {
-    if (!rateLimit(`reset:${clientKey(req)}`, 5, 15 * 60 * 1000)) return tooManyRequests();
+    if (!(await rateLimit(`reset:${clientKey(req)}`, 5, 15 * 60 * 1000))) return tooManyRequests();
 
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });

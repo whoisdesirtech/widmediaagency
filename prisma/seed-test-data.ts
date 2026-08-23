@@ -76,6 +76,22 @@ async function main() {
   });
   console.log('✓ ContractorRoles: developer (approved), photography (approved), videography (pending)');
 
+  // Heavy fake dataset (project, SOW, deliverables) is opt-in so that running
+  // this seed against a shared/prod database does not recreate demo work data.
+  const fullDataset = process.env.SEED_FULL_TEST_DATA === '1';
+
+  if (!fullDataset) {
+    const passwordHash = await bcrypt.hash('test1234', 10);
+    await ensureTestUsers(agency.id, contractor.id, passwordHash);
+    console.log('\n--- Test Data Summary (accounts only) ---');
+    console.log('Client:      Test Client Corp (test-client-001)');
+    console.log('Contractor:  Test Developer — developer + photography (approved), videography (pending)');
+    console.log('Login as contractor: developer@test.com / test1234');
+    console.log('Login as client:     client@test.com / test1234');
+    console.log('(Set SEED_FULL_TEST_DATA=1 to also create the demo project/SOW/deliverables.)');
+    return;
+  }
+
   // Create a project
   const project = await prisma.project.upsert({
     where: { id: 'test-project-001' },
@@ -152,41 +168,7 @@ async function main() {
 
   // Create a test user for the contractor
   const passwordHash = await bcrypt.hash('test1234', 10);
-
-  const contractorUser = await prisma.user.upsert({
-    where: { id: 'test-user-contractor-001' },
-    update: { contractorId: contractor.id },
-    create: {
-      id: 'test-user-contractor-001',
-      email: 'developer@test.com',
-      passwordHash,
-      name: 'Test Developer',
-      role: 'contractor',
-      agencyId: agency.id,
-      contractorId: contractor.id,
-    },
-  });
-
-  // Link contractor → user (mirrors POST /api/contractors/[id]/login)
-  await prisma.contractor.update({
-    where: { id: contractor.id },
-    data: { userId: contractorUser.id },
-  });
-
-  // Create a test user for the client
-  await prisma.user.upsert({
-    where: { id: 'test-user-client-001' },
-    update: {},
-    create: {
-      id: 'test-user-client-001',
-      email: 'client@test.com',
-      passwordHash,
-      name: 'Test Client',
-      role: 'client',
-      agencyId: agency.id,
-    },
-  });
-  console.log('✓ Test users: developer@test.com / test1234, client@test.com / test1234');
+  await ensureTestUsers(agency.id, contractor.id, passwordHash);
 
   console.log('\n--- Test Data Summary ---');
   console.log('Client:      Test Client Corp (test-client-001)');
@@ -201,3 +183,40 @@ async function main() {
 main()
   .catch(e => { console.error(e); process.exit(1); })
   .finally(() => prisma.$disconnect());
+
+async function ensureTestUsers(agencyId: string, contractorId: string, passwordHash: string) {
+  const contractorUser = await prisma.user.upsert({
+    where: { id: 'test-user-contractor-001' },
+    update: { contractorId },
+    create: {
+      id: 'test-user-contractor-001',
+      email: 'developer@test.com',
+      passwordHash,
+      name: 'Test Developer',
+      role: 'contractor',
+      agencyId,
+      contractorId,
+    },
+  });
+
+  // Link contractor → user (mirrors POST /api/contractors/[id]/login)
+  await prisma.contractor.update({
+    where: { id: contractorId },
+    data: { userId: contractorUser.id },
+  });
+
+  await prisma.user.upsert({
+    where: { id: 'test-user-client-001' },
+    update: { clientId: 'test-client-001' },
+    create: {
+      id: 'test-user-client-001',
+      email: 'client@test.com',
+      passwordHash,
+      name: 'Test Client',
+      role: 'client',
+      agencyId,
+      clientId: 'test-client-001',
+    },
+  });
+  console.log('✓ Test users: developer@test.com / test1234, client@test.com / test1234');
+}

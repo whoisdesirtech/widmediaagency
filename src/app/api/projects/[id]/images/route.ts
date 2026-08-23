@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { writeFile } from 'fs/promises';
-import path from 'path';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
+import { saveFile, removeFile } from '@/lib/fileStorage';
 import { logAudit } from '@/lib/audit';
 
 const ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
@@ -29,8 +28,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const existingImages = JSON.parse(project.images || '[]');
     const newImages = [];
 
-    const uploadDir = path.resolve(process.cwd(), 'public', 'uploads', 'projects');
-
     for (const file of files) {
       if (file.size > MAX_SIZE) {
         return NextResponse.json({ error: 'File too large (max 15MB)' }, { status: 400 });
@@ -46,15 +43,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
       const safeName = projectName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
       const filename = `${safeName}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const filepath = path.join(uploadDir, filename);
-      if (!filepath.startsWith(uploadDir + path.sep)) {
-        return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
-      }
 
-      await writeFile(filepath, buffer);
+      const { url } = await saveFile('projects', filename, buffer, file.type || `image/${ext}`);
 
       newImages.push({
-        url: `/uploads/projects/${filename}`,
+        url,
         name: file.name,
         uploadedAt: new Date().toISOString(),
       });
@@ -90,7 +83,12 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     const images = JSON.parse(project.images || '[]');
+    const target = images.find((img: any) => img.url === imageUrl);
     const filtered = images.filter((img: any) => img.url !== imageUrl);
+
+    if (target && typeof target.url === 'string' && (target.url.startsWith('/api/files/') || target.url.startsWith('/uploads/'))) {
+      await removeFile(target.url.replace(/^\/(api\/files|uploads)\//, ''));
+    }
 
     const updated = await prisma.project.update({
       where: { id: params.id },
