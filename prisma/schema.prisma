@@ -21,6 +21,7 @@ model Agency {
   masterAgreements     MasterAgreement[]
   contractors          Contractor[]
   clients              Client[]
+  prospects            Prospect[]
 }
 
 model User {
@@ -42,6 +43,8 @@ model User {
   portalReviews      Review[]          @relation("ReviewReviewer")
   assignedPortalTasks PortalTask[]     @relation("PortalTaskAssignee")
   reviewedPortalTasks PortalTask[]     @relation("PortalTaskReviewer")
+  ownedProspects     Prospect[]       @relation("ProspectOwner")
+  reviewedGtmAnalyses  GTMAnalysis[]    @relation("GTMReviewedBy")
   createdAt    DateTime @default(now())
 }
 
@@ -323,6 +326,64 @@ model PluginDownloadLead {
   plugin    String   @default("amazon-associates-snippets")
   version   String   @default("1.1.0")
   createdAt DateTime @default(now())
+}
+
+model Prospect {
+  id                String   @id @default(uuid())
+  agencyId          String
+  agency            Agency   @relation(fields: [agencyId], references: [id])
+  name              String
+  websiteUrl        String?
+  instagramHandle   String?
+  tiktokHandle      String?
+  linkedinUrl       String?
+  primaryContactName String?
+  primaryContactEmail String?
+  primaryContactPhone String?
+  industry          String?
+  category          String?
+  source            String?
+  status            String   @default("new") // new | researching | qualified | proposal | accepted | lost
+  ownerId           String?
+  owner             User?    @relation("ProspectOwner", fields: [ownerId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  intelligence      ProspectIntelligence?
+}
+
+model ProspectIntelligence {
+  id              String   @id @default(uuid())
+  prospectId      String   @unique
+  prospect        Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  researchNotes   String   @default("")
+  socialProfileData Json?    // structured social media data (followers, engagement, content themes)
+  marketFitScore  Float?
+  budgetIndicators Json?    // structured budget signals (event history, sponsorships, etc.)
+  decisionMakers  Json?    // structured decision maker info
+  riskFlags       Json?    // structured risk flags
+  competitiveLandscape Json?
+  lastResearchedAt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  gtmAnalysis     GTMAnalysis?
+}
+
+model GTMAnalysis {
+  id                     String             @id @default(uuid())
+  prospectIntelligenceId String             @unique
+  prospectIntelligence   ProspectIntelligence @relation(fields: [prospectIntelligenceId], references: [id], onDelete: Cascade)
+  strategySummary        String             @default("")
+  pricingRecommendations Json?              // structured pricing tiers/packages
+  staffingPlan           Json?              // recommended roles, capacity, timeline
+  timelineEstimate       Json?              // phases, milestones, durations
+  keyRisks               Json?              // identified risks and mitigations
+  assumptions            Json?              // key assumptions
+  status                 String             @default("draft") // draft | reviewed | approved
+  reviewedById           String?
+  reviewedBy             User?              @relation("GTMReviewedBy", fields: [reviewedById], references: [id])
+  reviewedAt             DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
 }
 
 model RateLimitBucket {
