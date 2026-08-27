@@ -100,6 +100,8 @@ Required env vars (optional): `SLACK_BOT_TOKEN` (workspace bot with `users:read`
 - `developer-full` (16 steps, GitHub required)
 - `developer-intern` (12 steps, GitHub required)
 - `slack-fundamentals` (7 steps, Slack required)
+- `secret-key-rotation` (8 steps, no GitHub, no Slack)
+- `google-calendar-setup` (10 steps, GitHub required) — wires the messaging Google Calendar integration
 
 ## Phase 4A: Task & Review Foundation
 
