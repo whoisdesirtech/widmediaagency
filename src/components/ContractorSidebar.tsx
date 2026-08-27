@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: '/contractor/tasks', label: 'My Tasks', icon: '✅' },
   { href: '/contractor/sows', label: 'My SOWs', icon: '📝' },
   { href: '/contractor/deliverables', label: 'Deliverables', icon: '📋' },
+  { href: '/contractor/messages', label: 'Messages', icon: '💬' },
   { href: '/contractor/my-roles', label: 'My Roles', icon: '🏷️' },
   { href: '/contractor/contracts', label: 'My Contracts', icon: '📑' },
   { href: '/contractor/onboarding', label: 'Onboarding', icon: '📄' },

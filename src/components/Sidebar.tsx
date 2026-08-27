@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/clients', label: 'Clients', icon: '🏢' },
   { href: '/admin/projects', label: 'Projects', icon: '📁' },
   { href: '/admin/tasks', label: 'Tasks', icon: '✅' },
+  { href: '/admin/messages', label: 'Messages', icon: '💬' },
   { href: '/admin/deliverables', label: 'Deliverables', icon: '📋' },
   { href: '/master-agreement', label: 'Master Agreement', icon: '📋' },
   { href: '/sow-builder', label: 'SOW Builder', icon: '📝' },

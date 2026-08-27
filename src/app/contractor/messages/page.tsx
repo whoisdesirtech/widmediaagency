@@ -2,12 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import ClientSidebar from '@/components/ClientSidebar';
-
-interface ThreadParticipant {
-  id: string;
-  name: string;
-}
+import ContractorSidebar from '@/components/ContractorSidebar';
 
 interface Message {
   id: string;
@@ -23,14 +18,14 @@ interface Message {
 interface Thread {
   id: string;
   title: string;
-  client: ThreadParticipant;
-  contractor: ThreadParticipant | null;
-  project: ThreadParticipant | null;
+  client: { id: string; name: string };
+  contractor: { id: string; name: string } | null;
+  project: { id: string; name: string } | null;
   lastMessageAt: string;
   messages: Message[];
 }
 
-export default function ClientMessagesPage() {
+export default function ContractorMessagesPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -112,50 +107,46 @@ export default function ClientMessagesPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F8F9FC]">
-      <ClientSidebar user={user || undefined} />
-      <main className="flex-1 ml-64 p-8">
-        <div className="max-w-5xl mx-auto">
+    <div className="flex min-h-screen bg-dark">
+      <ContractorSidebar user={user || undefined} />
+      <main className="ml-64 flex-1">
+        <div className="max-w-5xl mx-auto px-8 py-8">
           <div className="mb-8">
-            <h1 className="font-heading text-2xl font-black text-dark-800">Messages</h1>
-            <p className="text-muted text-sm mt-1">Simple chat — no more long email chains</p>
+            <h1 className="font-heading text-2xl font-bold text-white">Messages</h1>
+            <p className="text-white/50 text-sm mt-1">Client conversations about your work</p>
           </div>
 
           {loading ? (
-            <div className="text-center text-muted py-20">Loading conversations...</div>
+            <div className="text-center text-white/40 py-20">Loading conversations...</div>
           ) : threads.length === 0 ? (
-            <div className="glass-card rounded-2xl p-16 text-center">
-              <div className="text-4xl mb-4">💬</div>
-              <h3 className="font-heading font-bold text-dark-800 mb-1">No conversations yet</h3>
-              <p className="text-muted text-sm">
-                When our team reaches out about your project, it will appear here.
-              </p>
+            <div className="text-center text-white/40 py-20">
+              No conversations yet. When the team adds you to a thread, it will appear here.
             </div>
           ) : (
-            <div className="glass-card overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
+            <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
               <div className="flex h-full">
-                <div className="w-80 border-r border-muted-lighter flex flex-col">
-                  <div className="p-4 border-b border-muted-lighter">
-                    <h3 className="font-heading font-bold text-dark-800 text-sm">Conversations</h3>
+                <div className="w-80 border-r border-white/10 flex flex-col">
+                  <div className="p-4 border-b border-white/10">
+                    <h3 className="text-white font-semibold text-sm">Conversations</h3>
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     {threads.map((thread) => (
                       <button
                         key={thread.id}
                         onClick={() => handleSelect(thread)}
-                        className={`w-full p-4 text-left border-b border-muted-lighter/50 hover:bg-white/50 transition-colors ${activeThread?.id === thread.id ? 'bg-miami-pink/5 border-l-2 border-l-miami-pink' : ''}`}
+                        className={`w-full p-4 text-left border-b border-white/5 hover:bg-white/5 transition-colors ${activeThread?.id === thread.id ? 'bg-miami-pink/10 border-l-2 border-l-miami-pink' : ''}`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">💬</span>
+                          <span className="text-lg">💬</span>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-semibold text-dark-800">{thread.title}</span>
-                              <span className="text-[0.6rem] text-muted">{lastTime(thread)}</span>
+                              <span className="text-sm font-semibold text-white truncate">{thread.title}</span>
+                              <span className="text-[0.6rem] text-white/40">{lastTime(thread)}</span>
                             </div>
-                            <p className="text-xs text-muted truncate mt-0.5">
-                              {thread.contractor ? `${thread.contractor.name} · ` : ''}
-                              {lastMessage(thread)}
+                            <p className="text-xs text-white/50 truncate mt-0.5">
+                              {thread.client.name}
                             </p>
+                            <p className="text-xs text-white/40 truncate mt-0.5">{lastMessage(thread)}</p>
                           </div>
                         </div>
                       </button>
@@ -166,38 +157,32 @@ export default function ClientMessagesPage() {
                 <div className="flex-1 flex flex-col">
                   {activeThread ? (
                     <>
-                      <div className="p-4 border-b border-muted-lighter flex items-center gap-3">
-                        <span className="text-xl">💬</span>
-                        <div>
-                          <span className="font-heading font-bold text-dark-800 text-sm block">{activeThread.title}</span>
-                          <span className="text-xs text-muted">
-                            {activeThread.contractor ? `With ${activeThread.contractor.name}` : 'With WhoIsDésir® Media team'}
-                          </span>
-                        </div>
+                      <div className="p-4 border-b border-white/10">
+                        <span className="text-white font-semibold text-sm">{activeThread.title}</span>
+                        <span className="text-xs text-white/50 ml-2">
+                          {activeThread.client.name}
+                          {activeThread.project ? ` · ${activeThread.project.name}` : ''}
+                        </span>
                       </div>
                       <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         {activeThread.messages.length === 0 && (
-                          <div className="text-center text-muted text-sm py-10">No messages yet. Say hello!</div>
+                          <div className="text-center text-white/40 text-sm py-10">No messages yet.</div>
                         )}
                         {activeThread.messages.map((msg) => {
-                          const mine = msg.senderType === 'client';
+                          const mine = msg.senderType === 'contractor';
                           return (
                             <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                               <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
                                 mine
-                                  ? 'bg-miami-pink text-white rounded-br-md'
-                                  : 'bg-white border border-muted-lighter text-dark-800 rounded-bl-md'
+                                  ? 'bg-miami-blue-light text-white rounded-br-md'
+                                  : 'bg-white/10 border border-white/10 text-white rounded-bl-md'
                               }`}>
                                 {!mine && (
-                                  <p className={`text-[0.6rem] mb-1 font-semibold ${mine ? '' : 'text-dark-500'}`}>
-                                    {msg.senderName}
-                                  </p>
+                                  <p className="text-[0.6rem] mb-1 font-semibold text-white/50">{msg.senderName}</p>
                                 )}
                                 <p>{msg.body}</p>
                                 {msg.calendarEventTitle && (
-                                  <div className={`mt-2 px-3 py-2 rounded-lg text-xs ${
-                                    mine ? 'bg-white/15 text-white' : 'bg-miami-pink/5 text-dark-600'
-                                  }`}>
+                                  <div className="mt-2 px-3 py-2 rounded-lg text-xs bg-white/15 text-white">
                                     <p className="font-semibold">📅 {msg.calendarEventTitle}</p>
                                     {msg.calendarEventStartsAt && (
                                       <p className="mt-0.5">
@@ -208,29 +193,22 @@ export default function ClientMessagesPage() {
                                       </p>
                                     )}
                                     {msg.calendarEventUrl && (
-                                      <a
-                                        href={msg.calendarEventUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={`inline-block mt-1 underline ${mine ? 'text-white/80' : 'text-miami-pink'}`}
-                                      >
+                                      <a href={msg.calendarEventUrl} target="_blank" rel="noopener noreferrer"
+                                        className="inline-block mt-1 underline text-white/80">
                                         View in Google Calendar
                                       </a>
                                     )}
                                   </div>
                                 )}
-                                <p className={`text-[0.6rem] mt-1 ${mine ? 'text-white/60' : 'text-muted'}`}>
-                                  {new Date(msg.createdAt).toLocaleTimeString(undefined, {
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                  })}
+                                <p className={`text-[0.6rem] mt-1 ${mine ? 'text-white/60' : 'text-white/40'}`}>
+                                  {new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
                                 </p>
                               </div>
                             </div>
                           );
                         })}
                       </div>
-                      <div className="p-4 border-t border-muted-lighter">
+                      <div className="p-4 border-t border-white/10">
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -238,16 +216,20 @@ export default function ClientMessagesPage() {
                             onChange={e => setNewMessage(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') handleSend(); }}
                             placeholder="Type a message..."
-                            className="flex-1 px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
+                            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 text-sm focus:border-miami-blue-light focus:outline-none focus:ring-1 focus:ring-miami-blue-light"
                           />
-                          <button onClick={handleSend} disabled={sending} className="btn-primary px-6 disabled:opacity-50">
+                          <button
+                            onClick={handleSend}
+                            disabled={sending}
+                            className="px-4 py-2 text-sm font-medium text-white bg-miami-blue-light hover:bg-miami-blue-light/80 rounded-lg transition-colors disabled:opacity-50"
+                          >
                             {sending ? 'Sending...' : 'Send'}
                           </button>
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="flex-1 flex items-center justify-center text-muted text-sm">
+                    <div className="flex-1 flex items-center justify-center text-white/40 text-sm">
                       Select a conversation to start chatting
                     </div>
                   )}
