@@ -204,3 +204,57 @@ AI agents must NOT:
 - Delete branches
 - Rewrite Git history
 - Deploy to production without authorization
+
+## 3B. When Files From Another Project Are Found
+
+If files belonging to another project are discovered inside the current project:
+
+### STOP
+
+Do not:
+
+* Delete the files
+* Commit the files
+* Stage the files
+* Rename the files
+* Modify the files
+* Move the files based on a guessed location
+
+### Verify Ownership
+
+Determine:
+
+1. Which project the files belong to
+2. The absolute source path
+3. The absolute destination path
+4. The Git repository or workspace that owns the destination
+5. Whether duplicate files already exist at the destination
+
+### Lead Developer Approval
+
+The developer or AI coding agent must show the Lead Developer:
+
+* Source path
+* Destination path
+* Files being moved
+* Destination repository
+* Any duplicate files
+* Any existing changes in the destination repository
+
+The files may only be moved after the Lead Developer approves the proposed operation.
+
+### After the Move
+
+Verify:
+
+* Files exist at the destination
+* Files no longer exist at the source
+* No unrelated files were moved
+* Source repository Git status
+* Destination repository Git status
+
+### Important
+
+A file being physically located inside a project folder does **not** automatically mean it belongs to that project.
+
+Repository ownership must be verified before files are moved, modified, staged, or committed.
