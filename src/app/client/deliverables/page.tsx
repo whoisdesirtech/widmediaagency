@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import ClientSidebar from '@/components/ClientSidebar';
+import { DELIVERABLE_STATUS_CONFIG } from '@/lib/deliverable-lifecycle';
+
+const STATUS_CONFIG = DELIVERABLE_STATUS_CONFIG;
 
 interface Deliverable {
   id: string;
@@ -22,14 +25,6 @@ interface Contractor {
   name: string;
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  'approved': { label: '✅ Approved', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  'in-progress': { label: '🔄 In Progress', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  'pending-approval': { label: '🔔 Awaiting Admin Approval', color: 'text-miami-pink', bg: 'bg-pink-50 border-pink-200' },
-  'changes-requested': { label: '📝 Changes Requested', color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
-  'pending': { label: '⏳ Not Started', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-};
-
 const TYPE_ICONS: Record<string, string> = {
   'image': '🖼️',
   'video': '🎬',
@@ -39,10 +34,13 @@ const TYPE_ICONS: Record<string, string> = {
 
 const FILTER_OPTIONS = [
   { key: 'all', label: 'All' },
-  { key: 'approved', label: 'Approved' },
-  { key: 'in-progress', label: 'In Progress' },
-  { key: 'pending-approval', label: 'Pending Approval' },
+  { key: 'pending-approval', label: 'Needs Your Review' },
+  { key: 'client-accepted', label: 'Accepted' },
   { key: 'changes-requested', label: 'Changes Requested' },
+  { key: 'in-progress', label: 'In Progress' },
+  { key: 'approved', label: 'Final Approval' },
+  { key: 'closed', label: 'Closed' },
+  { key: 'cancelled', label: 'Cancelled' },
 ];
 
 export default function ClientDeliverablesPage() {
@@ -157,27 +155,52 @@ export default function ClientDeliverablesPage() {
                           </span>
                         )}
                         {item.status === 'pending-approval' && (
-                          <button
-                            onClick={async () => {
-                              try {
-                                const res = await fetch(`/api/deliverables/${item.id}`, {
-                                  method: 'PATCH',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ status: 'changes-requested' }),
-                                });
-                                if (res.ok) {
-                                  setDeliverables((prev) =>
-                                    prev.map((d) => d.id === item.id ? { ...d, status: 'changes-requested' } : d)
-                                  );
+                          <>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch(`/api/deliverables/${item.id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'client-accepted' }),
+                                  });
+                                  if (res.ok) {
+                                    const updated = await res.json();
+                                    setDeliverables((prev) =>
+                                      prev.map((d) => d.id === item.id ? updated : d)
+                                    );
+                                  }
+                                } catch {
+                                  // silently handle errors
                                 }
-                              } catch {
-                                // silently handle errors
-                              }
-                            }}
-                            className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-[0.65rem] font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
-                          >
-                            Request Changes
-                          </button>
+                              }}
+                              className="px-3 py-1.5 bg-emerald-500 text-white text-[0.65rem] font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
+                            >
+                              ✓ Accept
+                            </button>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch(`/api/deliverables/${item.id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'changes-requested' }),
+                                  });
+                                  if (res.ok) {
+                                    const updated = await res.json();
+                                    setDeliverables((prev) =>
+                                      prev.map((d) => d.id === item.id ? updated : d)
+                                    );
+                                  }
+                                } catch {
+                                  // silently handle errors
+                                }
+                              }}
+                              className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-[0.65rem] font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
+                            >
+                              Request Changes
+                            </button>
+                          </>
                         )}
                         <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full border ${status.bg} ${status.color}`}>
                           {status.label}

@@ -43,6 +43,15 @@ interface Folder {
   driveFolderUrl: string | null;
 }
 
+interface DeliverableItem {
+  id: string;
+  name: string;
+  description?: string;
+  type: string;
+  status: string;
+  dueDate?: string | null;
+}
+
 const STATUS_COLORS: Record<string, string> = {
   'planning': 'bg-blue-100 text-blue-700',
   'in-progress': 'bg-amber-100 text-amber-700',
@@ -69,6 +78,8 @@ export default function ClientDashboard() {
   const [client, setClient] = useState<ClientData | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
+  const [pendingApprovals, setPendingApprovals] = useState<DeliverableItem[]>([]);
+  const [threadCount, setThreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -82,10 +93,14 @@ export default function ClientDashboard() {
         fetch(`/api/clients/${u.clientId}`).then(r => r.json()),
         fetch(`/api/projects?clientId=${u.clientId}`).then(r => r.json()),
         fetch(`/api/folders?clientId=${u.clientId}`).then(r => r.json()),
-      ]).then(([c, p, f]) => {
+        fetch('/api/deliverables').then(r => r.json()),
+        fetch('/api/messages/threads').then(r => r.json()),
+      ]).then(([c, p, f, dels, threads]) => {
         setClient(c);
         setProjects(Array.isArray(p) ? p : []);
         setFolders(Array.isArray(f) ? f : []);
+        setPendingApprovals(Array.isArray(dels) ? dels.filter((d) => d.status === 'pending-approval') : []);
+        setThreadCount(Array.isArray(threads) ? threads.length : 0);
         setLoading(false);
       }).catch(() => setLoading(false));
     } else {
@@ -139,9 +154,9 @@ export default function ClientDashboard() {
             <div className="glass-card p-5">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-muted text-xs font-semibold mb-1">Pending Approvals</div>
+                  <div className="text-muted text-xs font-semibold mb-1">Needs Your Review</div>
                   <div className="font-heading text-3xl font-black text-dark-800">
-                    {projects.filter(p => p.status === 'review').length || 2}
+                    {pendingApprovals.length}
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-lg">⏳</div>
@@ -171,7 +186,7 @@ export default function ClientDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-muted text-xs font-semibold mb-1">Messages</div>
-                  <div className="font-heading text-3xl font-black text-dark-800">4</div>
+                  <div className="font-heading text-3xl font-black text-dark-800">{threadCount}</div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-lg">💬</div>
               </div>
@@ -283,18 +298,62 @@ export default function ClientDashboard() {
               {/* Approvals */}
               <div className="glass-card p-6">
                 <h3 className="font-heading font-bold text-dark-800 mb-4">Approvals</h3>
-                <div className="space-y-3">
-                  <div className="p-3 rounded-xl border border-muted-lighter">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-semibold text-dark-800">Homepage Hero Image</span>
-                      <span className="text-[0.65rem] text-muted">Website Redesign</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors">Approve</button>
-                      <button className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-xs font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors">Request Changes</button>
-                    </div>
+                {pendingApprovals.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    No pending approvals. New deliverables awaiting your review will show up here.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingApprovals.map((item) => (
+                      <div key={item.id} className="p-3 rounded-xl border border-muted-lighter">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-dark-800">{item.name}</span>
+                          <span className="text-[0.65rem] text-muted">Awaiting your review</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/deliverables/${item.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'client-accepted' }),
+                                });
+                                if (res.ok) {
+                                  setPendingApprovals((prev) => prev.filter((d) => d.id !== item.id));
+                                }
+                              } catch {
+                                // silently handle errors
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
+                          >
+                            ✓ Accept
+                          </button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/deliverables/${item.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'changes-requested' }),
+                                });
+                                if (res.ok) {
+                                  setPendingApprovals((prev) => prev.filter((d) => d.id !== item.id));
+                                }
+                              } catch {
+                                // silently handle errors
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-white border border-muted-lighter text-dark-800 text-xs font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
+                          >
+                            Request Changes
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Contact */}

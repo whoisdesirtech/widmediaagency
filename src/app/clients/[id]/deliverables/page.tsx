@@ -4,6 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import { DELIVERABLE_STATUS_CONFIG } from '@/lib/deliverable-lifecycle';
+
+const STATUS_CONFIG = DELIVERABLE_STATUS_CONFIG;
+const STATUS_KEYS = Object.keys(DELIVERABLE_STATUS_CONFIG);
 
 const TABS = [
   { label: 'Overview', href: '', icon: '🏢' },
@@ -24,15 +28,8 @@ interface Deliverable {
   dueDate: string | null;
   description: string;
   projectId: string | null;
+  contractorId: string | null;
 }
-
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  'approved': { label: '✅ Approved', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  'pending': { label: '⏳ Pending', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-  'in-progress': { label: '🔄 In Progress', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  'pending-approval': { label: '🔔 Awaiting Approval', color: 'text-miami-pink', bg: 'bg-pink-50 border-pink-200' },
-  'changes-requested': { label: '📝 Changes Requested', color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
-};
 
 const TYPE_ICONS: Record<string, string> = { 'image': '🖼️', 'video': '🎬', 'document': '📄', 'design': '🎨' };
 
@@ -44,7 +41,7 @@ export default function AdminClientDeliverablesPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editItem, setEditItem] = useState<Deliverable | null>(null);
-  const [form, setForm] = useState({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' });
+  const [form, setForm] = useState({ name: '', type: 'document', dueDate: '', description: '', contractorId: '' });
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState('all');
   const [contractors, setContractors] = useState<any[]>([]);
@@ -62,6 +59,11 @@ export default function AdminClientDeliverablesPage() {
     }).catch(() => setLoading(false));
   }, [id]);
 
+  const getContractorName = (cid: string | null) => {
+    if (!cid) return '';
+    return contractors.find((c: any) => c.id === cid)?.name || 'Unknown';
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -69,13 +71,13 @@ export default function AdminClientDeliverablesPage() {
       const res = await fetch('/api/deliverables', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId: id, ...form, sortOrder: deliverables.length }),
+        body: JSON.stringify({ clientId: id, name: form.name, type: form.type, dueDate: form.dueDate || undefined, description: form.description, contractorId: form.contractorId || undefined, sortOrder: deliverables.length }),
       });
       if (res.ok) {
         const item = await res.json();
         setDeliverables(prev => [...prev, item]);
         setShowCreate(false);
-        setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' });
+        setForm({ name: '', type: 'document', dueDate: '', description: '', contractorId: '' });
       }
     } catch {
       // Intentionally ignored
@@ -90,7 +92,7 @@ export default function AdminClientDeliverablesPage() {
       const res = await fetch(`/api/deliverables/${editItem.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ name: form.name, type: form.type, dueDate: form.dueDate || null, description: form.description }),
       });
       if (res.ok) {
         const updated = await res.json();
@@ -110,7 +112,7 @@ export default function AdminClientDeliverablesPage() {
   };
 
   const openEdit = (item: Deliverable) => {
-    setForm({ name: item.name, type: item.type, status: item.status, dueDate: item.dueDate || '', description: item.description, contractorId: (item as any).contractorId || '' });
+    setForm({ name: item.name, type: item.type, dueDate: item.dueDate || '', description: item.description, contractorId: item.contractorId || '' });
     setEditItem(item);
   };
 
@@ -135,7 +137,7 @@ export default function AdminClientDeliverablesPage() {
               <h1 className="font-heading text-2xl font-black text-dark-800">Deliverables</h1>
               <p className="text-muted text-sm mt-1">Manage deliverables for {client?.name}</p>
             </div>
-            <button onClick={() => { setForm({ name: '', type: 'document', status: 'pending', dueDate: '', description: '', contractorId: '' }); setShowCreate(true); }} className="btn-primary">+ Add Deliverable</button>
+            <button onClick={() => { setForm({ name: '', type: 'document', dueDate: '', description: '', contractorId: '' }); setShowCreate(true); }} className="btn-primary">+ Add Deliverable</button>
           </div>
 
           <div className="flex gap-1 mb-8 border-b border-muted-lighter overflow-x-auto">
@@ -151,9 +153,9 @@ export default function AdminClientDeliverablesPage() {
           </div>
 
           <div className="flex gap-2 mb-6 flex-wrap">
-            {['all', 'pending-approval', 'pending', 'in-progress', 'approved'].map((f) => (
+            {['all', ...STATUS_KEYS].map((f) => (
               <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${filter === f ? 'bg-dark text-white' : 'bg-white border border-muted-lighter text-dark-800 hover:bg-muted-lighter/30'}`}>
-                {f === 'all' ? 'All' : f === 'pending-approval' ? 'Awaiting Approval' : f.charAt(0).toUpperCase() + f.slice(1)}
+                {f === 'all' ? 'All' : STATUS_CONFIG[f].label.replace(/^[^\s]*\s/, '')}
               </button>
             ))}
           </div>
@@ -167,7 +169,7 @@ export default function AdminClientDeliverablesPage() {
                 <button onClick={() => setShowCreate(true)} className="btn-primary inline-flex">+ Add Deliverable</button>
               </div>
             ) : filtered.map((item) => {
-              const status = STATUS_CONFIG[item.status] || STATUS_CONFIG['pending'];
+              const status = STATUS_CONFIG[item.status] || STATUS_CONFIG.draft;
               return (
                 <div key={item.id} className="glass-card p-5">
                   <div className="flex items-center justify-between">
@@ -177,12 +179,14 @@ export default function AdminClientDeliverablesPage() {
                       </div>
                       <div>
                         <h4 className="font-semibold text-dark-800 text-sm">{item.name}</h4>
-                        <p className="text-xs text-muted">{item.description || 'No description'} {item.dueDate ? `· Due ${item.dueDate}` : ''}</p>
+                        <p className="text-xs text-muted">{item.description || 'No description'} {item.dueDate ? `· Due ${item.dueDate}` : ''} {getContractorName(item.contractorId) && `· ${getContractorName(item.contractorId)}`}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`text-[0.65rem] font-semibold px-2.5 py-1 rounded-full border ${status.bg} ${status.color}`}>{status.label}</span>
-                      <button onClick={() => openEdit(item)} className="px-2 py-1 text-xs text-muted hover:text-dark-800">✏️</button>
+                      {!['closed', 'cancelled'].includes(item.status) && (
+                        <button onClick={() => openEdit(item)} className="px-2 py-1 text-xs text-muted hover:text-dark-800">✏️</button>
+                      )}
                       <button onClick={() => handleDelete(item.id)} className="px-2 py-1 text-xs text-red-500 hover:text-red-700">🗑️</button>
                     </div>
                   </div>
@@ -222,29 +226,21 @@ export default function AdminClientDeliverablesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-dark-800 mb-1.5">Status</label>
-                  <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="pending-approval">Awaiting Approval</option>
-                    <option value="approved">Approved</option>
-                    <option value="changes-requested">Changes Requested</option>
-                  </select>
+                  <label className="block text-xs font-semibold text-dark-800 mb-1.5">Due Date</label>
+                  <input type="text" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" placeholder="e.g. Jul 28, 2026" />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Due Date</label>
-                <input type="text" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" placeholder="e.g. Jul 28, 2026" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Assign Contractor</label>
-                <select value={form.contractorId} onChange={e => setForm(f => ({ ...f, contractorId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
-                  <option value="">None</option>
-                  {contractors.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.name} — {c.role}</option>
-                  ))}
-                </select>
-              </div>
+              {!editItem && (
+                <div>
+                  <label className="block text-xs font-semibold text-dark-800 mb-1.5">Assign Contractor</label>
+                  <select value={form.contractorId} onChange={e => setForm(f => ({ ...f, contractorId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
+                    <option value="">None (starts as draft)</option>
+                    {contractors.map((c: any) => (
+                      <option key={c.id} value={c.id}>{c.name} — {c.role}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <div className="p-6 border-t border-muted-lighter flex gap-3">
               <button onClick={editItem ? handleEdit : handleCreate} disabled={saving || !form.name} className="btn-primary disabled:opacity-50">

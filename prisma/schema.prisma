@@ -322,6 +322,15 @@ model Deliverable {
   reviewedBy    String?
   reviewedAt    DateTime?
   approvedAt    DateTime?
+  assignedAt              DateTime?
+  contractorAcceptedAt    DateTime?
+  contractorDeclinedAt    DateTime?
+  declineReason           String?
+  clientAcceptedAt        DateTime?
+  finalApprovedAt         DateTime?
+  closedAt                DateTime?
+  closedBy                String?
+  revisionCount           Int       @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

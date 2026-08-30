@@ -2,16 +2,9 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Sidebar from '@/components/Sidebar';
+import { DELIVERABLE_STATUS_CONFIG, TERMINAL_STATES } from '@/lib/deliverable-lifecycle';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  'draft': { label: 'Draft', color: 'text-gray-600', bg: 'bg-gray-50 border-gray-200' },
-  'approved': { label: 'Approved', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  'pending': { label: 'Pending', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-  'in-progress': { label: 'In Progress', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  'pending-approval': { label: 'Awaiting Approval', color: 'text-miami-pink', bg: 'bg-pink-50 border-pink-200' },
-  'changes-requested': { label: 'Changes Requested', color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
-  'rejected': { label: 'Rejected', color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
-};
+const TERMINAL: string[] = [...(TERMINAL_STATES as string[])];
 
 const TYPE_ICONS: Record<string, string> = {
   image: '🖼️',
@@ -25,6 +18,7 @@ export default function AdminDeliverablesPage() {
   const [clients, setClients] = useState<any[]>([]);
   const [contractors, setContractors] = useState<any[]>([]);
   const [sows, setSows] = useState<any[]>([]);
+  const [me, setMe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -32,8 +26,13 @@ export default function AdminDeliverablesPage() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterContractor, setFilterContractor] = useState('all');
   const [filterClient, setFilterClient] = useState('all');
-  const [reviewModal, setReviewModal] = useState<{ id: string; name: string; action: 'approve' | 'changes' | 'reject' } | null>(null);
-  const [reviewFeedback, setReviewFeedback] = useState('');
+
+  const [assignModal, setAssignModal] = useState<{ id: string; name: string; contractorId: string } | null>(null);
+  const [cancelModal, setCancelModal] = useState<{ id: string; name: string } | null>(null);
+  const [finalModal, setFinalModal] = useState<{ id: string; name: string } | null>(null);
+  const [modalFeedback, setModalFeedback] = useState('');
+
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const [form, setForm] = useState({
     clientId: '',
@@ -45,7 +44,16 @@ export default function AdminDeliverablesPage() {
     description: '',
   });
 
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
+
   useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try { setMe(JSON.parse(stored)); } catch { /* ignore */ }
+    }
     Promise.all([
       fetch('/api/deliverables').then(r => r.json()),
       fetch('/api/clients').then(r => r.json()),
@@ -87,6 +95,7 @@ export default function AdminDeliverablesPage() {
     if (!contractorId) return 'Unassigned';
     return contractors.find((c: any) => c.id === contractorId)?.name || contractors.find((c: any) => c.id === contractorId)?.email || 'Unknown';
   };
+  const isAdmin = me?.role === 'admin';
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,9 +119,13 @@ export default function AdminDeliverablesPage() {
         setDeliverables(prev => [...prev, deliverable]);
         setShowCreate(false);
         setForm({ clientId: '', contractorId: '', sowId: '', name: '', type: 'document', dueDate: '', description: '' });
+        showToast(form.contractorId ? 'Deliverable created and assigned' : 'Deliverable created', 'success');
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to create deliverable', 'error');
       }
     } catch {
-      // Intentionally ignored
+      showToast('Failed to create deliverable', 'error');
     }
     setSaving(false);
   };
@@ -122,50 +135,94 @@ export default function AdminDeliverablesPage() {
     const res = await fetch(`/api/deliverables/${id}`, { method: 'DELETE' });
     if (res.ok) {
       setDeliverables(prev => prev.filter(d => d.id !== id));
+      showToast('Deliverable deleted', 'success');
     }
   };
 
-  const handleApprove = async (id: string) => {
+  const doAssign = async () => {
+    if (!assignModal) return;
+    setSaving(true);
+    const res = await fetch(`/api/deliverables/${assignModal.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'assigned', contractorId: assignModal.contractorId }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setDeliverables(prev => prev.map(d => d.id === updated.id ? updated : d));
+      showToast('Contractor assigned', 'success');
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Assignment failed', 'error');
+    }
+    setAssignModal(null);
+    setSaving(false);
+  };
+
+  const doCancel = async () => {
+    if (!cancelModal) return;
+    setSaving(true);
+    const res = await fetch(`/api/deliverables/${cancelModal.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'cancelled', reason: modalFeedback || undefined }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setDeliverables(prev => prev.map(d => d.id === updated.id ? updated : d));
+      showToast('Deliverable cancelled', 'success');
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Cancel failed', 'error');
+    }
+    setCancelModal(null);
+    setModalFeedback('');
+    setSaving(false);
+  };
+
+  const doFinalApprove = async () => {
+    if (!finalModal) return;
+    setSaving(true);
+    const res = await fetch(`/api/deliverables/${finalModal.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'approved', feedback: modalFeedback || undefined }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setDeliverables(prev => prev.map(d => d.id === updated.id ? updated : d));
+      showToast('Final approval recorded', 'success');
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Final approval failed', 'error');
+    }
+    setFinalModal(null);
+    setModalFeedback('');
+    setSaving(false);
+  };
+
+  const doClose = async (id: string) => {
+    setSaving(true);
     const res = await fetch(`/api/deliverables/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'approved', feedback: reviewFeedback || null }),
+      body: JSON.stringify({ status: 'closed' }),
     });
     if (res.ok) {
       const updated = await res.json();
       setDeliverables(prev => prev.map(d => d.id === id ? updated : d));
+      showToast('Deliverable closed', 'success');
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Close failed', 'error');
     }
-    setReviewModal(null);
-    setReviewFeedback('');
+    setSaving(false);
   };
 
-  const handleRequestChanges = async (id: string) => {
-    const res = await fetch(`/api/deliverables/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'changes-requested', feedback: reviewFeedback || null }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setDeliverables(prev => prev.map(d => d.id === id ? updated : d));
-    }
-    setReviewModal(null);
-    setReviewFeedback('');
-  };
+  const canAssign = (d: any) => ['draft', 'assigned', 'declined'].includes(d.status);
+  const canCancel = (d: any) => !TERMINAL.includes(d.status) && d.status !== 'approved';
 
-  const handleReject = async (id: string) => {
-    const res = await fetch(`/api/deliverables/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'rejected', feedback: reviewFeedback || null }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setDeliverables(prev => prev.map(d => d.id === id ? updated : d));
-    }
-    setReviewModal(null);
-    setReviewFeedback('');
-  };
+  const statusKeys = Object.keys(DELIVERABLE_STATUS_CONFIG);
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
@@ -175,41 +232,23 @@ export default function AdminDeliverablesPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="font-heading text-2xl font-black text-dark-800">Deliverables Management</h1>
-              <p className="text-muted text-sm mt-1">View, create, and approve deliverables across all contractors and clients</p>
+              <p className="text-muted text-sm mt-1">Create, assign, review, and close deliverables across all contractors and clients</p>
             </div>
             <button onClick={() => setShowCreate(true)} className="btn-primary">+ New Deliverable</button>
           </div>
 
-          <div className="flex gap-3 mb-6">
-            <select
-              value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
-              className="px-3 py-2 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-semibold"
-            >
+          <div className="flex gap-3 mb-6 flex-wrap">
+            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="px-3 py-2 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-semibold">
               <option value="all">All Statuses</option>
-              {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                <option key={key} value={key}>{cfg.label}</option>
-              ))}
+              {statusKeys.map(k => <option key={k} value={k}>{DELIVERABLE_STATUS_CONFIG[k].label}</option>)}
             </select>
-            <select
-              value={filterContractor}
-              onChange={e => setFilterContractor(e.target.value)}
-              className="px-3 py-2 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-semibold"
-            >
+            <select value={filterContractor} onChange={e => setFilterContractor(e.target.value)} className="px-3 py-2 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-semibold">
               <option value="all">All Contractors</option>
-              {contractors.map((c: any) => (
-                <option key={c.id} value={c.id}>{c.name || c.email}</option>
-              ))}
+              {contractors.map((c: any) => <option key={c.id} value={c.id}>{c.name || c.email}</option>)}
             </select>
-            <select
-              value={filterClient}
-              onChange={e => setFilterClient(e.target.value)}
-              className="px-3 py-2 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-semibold"
-            >
+            <select value={filterClient} onChange={e => setFilterClient(e.target.value)} className="px-3 py-2 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm font-semibold">
               <option value="all">All Clients</option>
-              {clients.map((c: any) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
+              {clients.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
@@ -231,11 +270,11 @@ export default function AdminDeliverablesPage() {
           ) : (
             <div className="space-y-3">
               {filteredDeliverables.map((d) => {
-                const statusCfg = STATUS_CONFIG[d.status] || STATUS_CONFIG['pending'];
+                const statusCfg = DELIVERABLE_STATUS_CONFIG[d.status] || DELIVERABLE_STATUS_CONFIG.draft;
                 const typeIcon = TYPE_ICONS[d.type] || '📄';
                 return (
                   <div key={d.id} className="glass-card p-5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
                       <div className="flex items-center gap-3">
                         <span className="text-xl">{typeIcon}</span>
                         <div>
@@ -243,62 +282,64 @@ export default function AdminDeliverablesPage() {
                           <p className="text-xs text-muted">
                             {getClientName(d.clientId)} · {getContractorName(d.contractorId)}
                             {d.dueDate && ` · Due ${d.dueDate}`}
+                            {d.revisionCount > 0 && ` · ${d.revisionCount} revision${d.revisionCount > 1 ? 's' : ''}`}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className={`text-[0.65rem] font-semibold px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.color}`}>
                           {statusCfg.label}
                         </span>
 
-                        {d.status === 'pending-approval' && (
+                        {canAssign(d) && (
                           <>
-                            <button
-                              onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'approve' })}
-                              className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
-                            >
-                              ✓ Approve
-                            </button>
-                            <button
-                              onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'changes' })}
-                              className="px-3 py-1.5 bg-orange-400 text-white text-xs font-semibold rounded-lg hover:bg-orange-500 transition-colors"
-                            >
-                              ↻ Request Changes
-                            </button>
-                            <button
-                              onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'reject' })}
-                              className="px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded-lg hover:bg-red-600 transition-colors"
-                            >
-                              ✕ Reject
+                            <button onClick={() => setAssignModal({ id: d.id, name: d.name, contractorId: d.contractorId || '' })} className="px-3 py-1.5 bg-indigo-500 text-white text-xs font-semibold rounded-lg hover:bg-indigo-600 transition-colors">
+                              {d.status === 'assigned' || d.status === 'declined' ? 'Reassign' : 'Assign'}
                             </button>
                           </>
                         )}
 
-                        {d.status === 'changes-requested' && (
-                          <button
-                            onClick={() => setReviewModal({ id: d.id, name: d.name, action: 'approve' })}
-                            className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
-                          >
-                            ✓ Re-approve
+                        {d.status === 'client-accepted' && isAdmin && (
+                          <button onClick={() => setFinalModal({ id: d.id, name: d.name })} className="px-3 py-1.5 bg-purple-600 text-white text-xs font-semibold rounded-lg hover:bg-purple-700 transition-colors">
+                            ✓ Final Approval
+                          </button>
+                        )}
+                        {d.status === 'approved' && isAdmin && (
+                          <button onClick={() => doClose(d.id)} disabled={saving} className="px-3 py-1.5 bg-dark text-white text-xs font-semibold rounded-lg hover:bg-dark-700 transition-colors disabled:opacity-50">
+                            🔒 Close
                           </button>
                         )}
 
-                        {d.status === 'approved' && d.approvedAt && (
-                          <span className="text-[0.65rem] text-emerald-600 font-semibold">
-                            ✓ Approved {new Date(d.approvedAt).toLocaleDateString()}
-                          </span>
+                        {canCancel(d) && (
+                          <button onClick={() => setCancelModal({ id: d.id, name: d.name })} className="px-3 py-1.5 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors">
+                            Cancel
+                          </button>
                         )}
 
-                        <button
-                          onClick={() => handleDelete(d.id)}
-                          className="px-3 py-1.5 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors"
-                        >
-                          Delete
-                        </button>
+                        {!TERMINAL.includes(d.status) && (
+                          <button onClick={() => handleDelete(d.id)} className="px-3 py-1.5 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors">
+                            Delete
+                          </button>
+                        )}
+
+                        {d.status === 'approved' && d.finalApprovedAt && (
+                          <span className="text-[0.65rem] text-purple-600 font-semibold">
+                            ✓ Approved {new Date(d.finalApprovedAt).toLocaleDateString()}
+                          </span>
+                        )}
+                        {d.status === 'closed' && d.closedAt && (
+                          <span className="text-[0.65rem] text-dark-800 font-semibold">
+                            Closed {new Date(d.closedAt).toLocaleDateString()}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    {d.description && (
-                      <p className="text-xs text-muted mt-2 ml-9">{d.description}</p>
+                    {d.description && <p className="text-xs text-muted mt-2 ml-9">{d.description}</p>}
+                    {d.declineReason && (
+                      <div className="mt-2 ml-9 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                        <p className="text-[0.65rem] font-semibold text-red-700 mb-0.5">Decline Reason</p>
+                        <p className="text-xs text-red-800">{d.declineReason}</p>
+                      </div>
                     )}
                     {d.submittedUrl && (
                       <div className="mt-2 ml-9">
@@ -313,9 +354,9 @@ export default function AdminDeliverablesPage() {
                         if (Array.isArray(atts) && atts.length > 0) {
                           return (
                             <div className="mt-2 ml-9 flex flex-wrap gap-1.5">
-                              {atts.map((att: string, i: number) => (
-                                <a key={i} href={att} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-0.5 rounded bg-muted-lighter text-[0.6rem] font-semibold text-dark-800 hover:bg-muted transition-colors">
-                                  📎 Attachment {i + 1}
+                              {atts.map((att: any, i: number) => (
+                                <a key={i} href={typeof att === 'string' ? att : att?.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-0.5 rounded bg-muted-lighter text-[0.6rem] font-semibold text-dark-800 hover:bg-muted transition-colors">
+                                  📎 {typeof att === 'string' ? `Attachment ${i + 1}` : (att.name || `Attachment ${i + 1}`)}
                                 </a>
                               ))}
                             </div>
@@ -350,63 +391,36 @@ export default function AdminDeliverablesPage() {
             <form onSubmit={handleCreate} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Client *</label>
-                <select
-                  value={form.clientId}
-                  onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
-                  required
-                >
+                <select value={form.clientId} onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" required>
                   <option value="">Select a client</option>
-                  {clients.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  {clients.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Contractor</label>
-                <select
-                  value={form.contractorId}
-                  onChange={e => setForm(f => ({ ...f, contractorId: e.target.value, sowId: '' }))}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
-                >
-                  <option value="">No contractor</option>
-                  {contractors.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.name || c.email}</option>
-                  ))}
+                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Contractor (assign now?)</label>
+                <select value={form.contractorId} onChange={e => setForm(f => ({ ...f, contractorId: e.target.value, sowId: '' }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
+                  <option value="">Leave unassigned (draft)</option>
+                  {contractors.map((c: any) => <option key={c.id} value={c.id}>{c.name || c.email}</option>)}
                 </select>
+                <p className="text-[0.65rem] text-muted mt-1">With a contractor selected, the deliverable starts as Assigned and they are notified. Otherwise it starts as Draft and you assign later.</p>
               </div>
               {form.contractorId && (
                 <div>
                   <label className="block text-xs font-semibold text-dark-800 mb-1.5">SOW</label>
-                  <select
-                    value={form.sowId}
-                    onChange={e => setForm(f => ({ ...f, sowId: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
-                  >
+                  <select value={form.sowId} onChange={e => setForm(f => ({ ...f, sowId: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
                     <option value="">No SOW</option>
-                    {filteredSows.map((s: any) => (
-                      <option key={s.id} value={s.id}>Rate: ${s.rate}/{s.rateType} ({s.startDate})</option>
-                    ))}
+                    {filteredSows.map((s: any) => <option key={s.id} value={s.id}>Rate: ${s.rate}/{s.rateType} ({s.startDate})</option>)}
                   </select>
                 </div>
               )}
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Name *</label>
-                <input
-                  type="text" value={form.name} required
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
-                  placeholder="e.g. Logo Design Draft"
-                />
+                <input type="text" value={form.name} required onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" placeholder="e.g. Logo Design Draft" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-dark-800 mb-1.5">Type</label>
-                  <select
-                    value={form.type}
-                    onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
-                  >
+                  <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm">
                     <option value="document">📄 Document</option>
                     <option value="image">🖼️ Image</option>
                     <option value="video">🎬 Video</option>
@@ -415,26 +429,15 @@ export default function AdminDeliverablesPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-dark-800 mb-1.5">Due Date</label>
-                  <input
-                    type="date" value={form.dueDate}
-                    onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
-                  />
+                  <input type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm" />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Description</label>
-                <textarea
-                  value={form.description} rows={3}
-                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm resize-none"
-                  placeholder="Describe the deliverable..."
-                />
+                <textarea value={form.description} rows={3} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm resize-none" placeholder="Describe the deliverable..." />
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
-                  {saving ? 'Creating...' : 'Create Deliverable'}
-                </button>
+                <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">{saving ? 'Creating...' : 'Create Deliverable'}</button>
                 <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
               </div>
             </form>
@@ -442,63 +445,56 @@ export default function AdminDeliverablesPage() {
         </div>
       )}
 
-      {reviewModal && (
+      {assignModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-            <div className="p-6 border-b border-muted-lighter">
-              <div className="flex items-center justify-between">
-                <h3 className="font-heading font-bold text-dark-800 text-lg">
-                  {reviewModal.action === 'approve' ? 'Approve Deliverable' : reviewModal.action === 'reject' ? 'Reject Deliverable' : 'Request Changes'}
-                </h3>
-                <button onClick={() => { setReviewModal(null); setReviewFeedback(''); }} className="text-muted hover:text-dark-800 text-lg">✕</button>
-              </div>
-              <p className="text-sm text-muted mt-1">{reviewModal.name}</p>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-dark-800 mb-1.5">Feedback (optional)</label>
-                <textarea
-                  value={reviewFeedback}
-                  onChange={e => setReviewFeedback(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm resize-none"
-                  placeholder={reviewModal.action === 'approve' ? 'Any feedback for the contractor...' : reviewModal.action === 'reject' ? 'Why is this being rejected?' : 'What changes are needed?'}
-                />
-              </div>
-              <div className="flex gap-3">
-                {reviewModal.action === 'approve' && (
-                  <button
-                    onClick={() => handleApprove(reviewModal.id)}
-                    className="px-4 py-2 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
-                  >
-                    ✓ Approve
-                  </button>
-                )}
-                {reviewModal.action === 'changes' && (
-                  <button
-                    onClick={() => handleRequestChanges(reviewModal.id)}
-                    className="px-4 py-2 bg-orange-400 text-white text-sm font-semibold rounded-lg hover:bg-orange-500 transition-colors"
-                  >
-                    ↻ Request Changes
-                  </button>
-                )}
-                {reviewModal.action === 'reject' && (
-                  <button
-                    onClick={() => handleReject(reviewModal.id)}
-                    className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    ✕ Reject
-                  </button>
-                )}
-                <button
-                  onClick={() => { setReviewModal(null); setReviewFeedback(''); }}
-                  className="px-4 py-2 border-2 border-muted-lighter text-dark-800 text-sm font-semibold rounded-lg hover:bg-muted-lighter/30 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <h3 className="font-heading font-bold text-dark-800 text-lg mb-1">Assign Contractor</h3>
+            <p className="text-sm text-muted mb-4">{assignModal.name}</p>
+            <select value={assignModal.contractorId} onChange={e => setAssignModal(m => m ? { ...m, contractorId: e.target.value } : m)} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm mb-4">
+              <option value="">Select a contractor</option>
+              {contractors.map((c: any) => <option key={c.id} value={c.id}>{c.name || c.email}</option>)}
+            </select>
+            <div className="flex gap-3">
+              <button onClick={doAssign} disabled={saving || !assignModal.contractorId} className="btn-primary disabled:opacity-50">{saving ? 'Assigning...' : 'Assign'}</button>
+              <button onClick={() => setAssignModal(null)} className="btn-secondary">Cancel</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {cancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <h3 className="font-heading font-bold text-dark-800 text-lg mb-1">Cancel Deliverable</h3>
+            <p className="text-sm text-muted mb-4">{cancelModal.name}</p>
+            <textarea value={modalFeedback} onChange={e => setModalFeedback(e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm resize-none mb-4" placeholder="Reason (optional)" />
+            <div className="flex gap-3">
+              <button onClick={doCancel} disabled={saving} className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50">{saving ? 'Cancelling...' : 'Cancel Deliverable'}</button>
+              <button onClick={() => { setCancelModal(null); setModalFeedback(''); }} className="btn-secondary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {finalModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <h3 className="font-heading font-bold text-dark-800 text-lg mb-1">Final Approval</h3>
+            <p className="text-sm text-muted mb-4">The client has accepted &quot;{finalModal.name}&quot;. Record the agency&apos;s final operational approval.</p>
+            <textarea value={modalFeedback} onChange={e => setModalFeedback(e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm resize-none mb-4" placeholder="Notes (optional)" />
+            <div className="flex gap-3">
+              <button onClick={doFinalApprove} disabled={saving} className="px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50">{saving ? 'Approving...' : '✓ Final Approval'}</button>
+              <button onClick={() => { setFinalModal(null); setModalFeedback(''); }} className="btn-secondary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-lg shadow-lg text-sm font-semibold transition-all ${
+          toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+        }`}>
+          {toast.type === 'success' ? '✓ ' : '✕ '}{toast.message}
         </div>
       )}
     </div>

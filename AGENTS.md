@@ -61,7 +61,9 @@ Contractors can have multiple approved roles (e.g., developer + photographer). R
 
 ## SOW ↔ Deliverables workflow
 
-Deliverables link to SOWs via `sowId`. The flow: Admin creates SOW → creates Deliverable records (linked via sowId) → Contractor sees SOW + deliverables in "My SOWs" → Contractor updates status (Start → In Progress → Submit) → Admin approves → Client sees approved deliverables.
+Deliverables link to SOWs via `sowId`. Full lifecycle lives in `src/lib/deliverable-lifecycle.ts` (single source of truth for states, labels, and transition guards — import it in new portal code instead of local STATUS_CONFIG maps):
+
+`draft → assigned → accepted → in-progress → pending-approval → client-accepted → approved (admin final) → closed`; revision loop via `changes-requested → in-progress`; exceptions: `assigned → declined → assigned | cancelled`; terminal states `closed`/`cancelled`. Permission model: admin+staff create/assign/cancel; contractor accept/decline/start/submit/revise; client accept/request-changes; **final approval and closure are admin-only**. All transitions are enforced in `PATCH /api/deliverables/[id]` and recorded in AuditLog with `fromStatus/toStatus`. The flow: Admin creates SOW → creates Deliverable records (create-with-contractor = `assigned` and notifies them; otherwise `draft`) → Contractor accepts/declines → works → submits (URL or attachment required) → Client accepts or requests changes → Admin final-approves → Admin closes.
 
 ## Individualized Training System
 

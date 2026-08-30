@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(req: Request) {
   try {
@@ -16,6 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Client ID and name are required' }, { status: 400 });
     }
 
+    const assigned = !!contractorId;
     const deliverable = await prisma.deliverable.create({
       data: {
         clientId,
@@ -25,14 +27,22 @@ export async function POST(req: Request) {
         taskId: taskId || null,
         name,
         type: type || 'document',
-        status: status || 'pending',
+        status: assigned ? 'assigned' : 'draft',
         dueDate: dueDate || null,
         description: description || '',
         sortOrder: sortOrder || 0,
+        ...(assigned ? { assignedAt: new Date() } : {}),
       },
     });
 
-    await logAudit(user, { action: 'deliverable.create', method: 'POST', path: '/api/deliverables', entity: 'Deliverable', entityId: deliverable.id, metadata: { name, clientId } });
+    if (assigned) {
+      const contractorUser = await prisma.user.findFirst({ where: { contractorId } });
+      if (contractorUser) {
+        await createNotification({ userId: contractorUser.id, type: 'deliverable_status', title: 'New Deliverable Assignment', message: `"${name}" has been assigned to you. Please accept or decline.`, link: '/contractor/deliverables' });
+      }
+    }
+
+    await logAudit(user, { action: assigned ? 'deliverable.assign' : 'deliverable.create', method: 'POST', path: '/api/deliverables', entity: 'Deliverable', entityId: deliverable.id, metadata: { name, clientId, contractorId: contractorId || null, toStatus: deliverable.status } });
     return NextResponse.json(deliverable, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Failed to create deliverable' }, { status: 500 });
