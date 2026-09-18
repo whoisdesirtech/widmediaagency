@@ -36,6 +36,7 @@ export default function LandingPage() {
             <a href="#services" className="text-sm text-white/50 hover:text-white transition-colors">Services</a>
             <a href="#platform" className="text-sm text-white/50 hover:text-white transition-colors">Platform</a>
             <a href="#about" className="text-sm text-white/50 hover:text-white transition-colors">About</a>
+            <Link href="/grow" className="text-sm text-white/50 hover:text-white transition-colors">Growth System</Link>
             <Link href="/portal-guide" className="text-sm text-white/50 hover:text-white transition-colors">Portal Guide</Link>
             <Link href="/knowledge-base" className="text-sm text-white/50 hover:text-white transition-colors">Knowledge Base</Link>
             <Link href="/developer" className="text-sm text-white/50 hover:text-white transition-colors">Developer</Link>
@@ -205,6 +206,8 @@ export default function LandingPage() {
             Creative Business Operations Platform. All contracts are drafts until reviewed by a licensed attorney.
           </div>
           <div className="text-xs text-white/30">
+            <Link href="/grow" className="hover:text-white/60 transition-colors">Growth System</Link>
+            <span className="mx-2">·</span>
             <Link href="/portal-guide" className="hover:text-white/60 transition-colors">Portal Guide</Link>
             <span className="mx-2">·</span>
             <Link href="/knowledge-base" className="hover:text-white/60 transition-colors">Knowledge Base</Link>

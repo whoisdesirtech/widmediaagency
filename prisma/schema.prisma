@@ -450,6 +450,32 @@ model RateLimitBucket {
   resetAt DateTime
 }
 
+model GrowthLead {
+  id               String   @id @default(uuid())
+  firstName        String
+  lastName         String?
+  email            String
+  company          String?
+  segment          String   @default("other") // media_agency | luxury_hospitality | corporate_lifestyle | other
+  annualRevenue    String?  // <1M | 1M-5M | 5M-20M | 20M+
+  monthlySpend     Int?     // current monthly marketing/media spend (USD)
+  projectBudget    Int?     // one-time project budget (USD)
+  retainerBudget   Int?     // monthly retainer budget (USD)
+  decisionTimeline String?  // immediate | <30days | 30-90days | 90days+
+  serviceInterest  String?  // retained | project-audit | project-production | other
+  message          String?
+  score            Int      @default(0)
+  tier             String   @default("cold") // cold | engaged | hot | sales_ready
+  status           String   @default("new") // new | warm | qualified | education_drip | referral_out | dead
+  consent          Boolean  @default(false)
+  lastTouchAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+}
+
 model AuditLog {
   id        String   @id @default(uuid())
   userId    String?
