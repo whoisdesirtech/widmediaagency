@@ -455,8 +455,10 @@ model GrowthLead {
   firstName        String
   lastName         String?
   email            String
+  phone            String?
   company          String?
   segment          String   @default("other") // media_agency | luxury_hospitality | corporate_lifestyle | other
+  source           String?  // channel/origin (e.g. masterclass-landing, organic)
   annualRevenue    String?  // <1M | 1M-5M | 5M-20M | 20M+
   monthlySpend     Int?     // current monthly marketing/media spend (USD)
   projectBudget    Int?     // one-time project budget (USD)

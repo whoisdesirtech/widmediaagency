@@ -13,7 +13,9 @@ interface GrowthLeadBody {
   firstName: string;
   lastName?: string;
   email: string;
+  phone?: string;
   company?: string;
+  source?: string;
   segment?: string;
   annualRevenue?: string;
   monthlySpend?: number;
@@ -97,6 +99,8 @@ export async function POST(req: Request) {
           lastName: body.lastName?.trim() || null,
           email: body.email.trim().toLowerCase(),
           company: body.company?.trim() || null,
+          phone: body.phone?.trim() || null,
+          source: body.source?.trim() || null,
           segment,
           annualRevenue: body.annualRevenue || null,
           monthlySpend,

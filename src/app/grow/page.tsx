@@ -9,12 +9,55 @@ import FollowUpPlanner from '@/components/growth/FollowUpPlanner';
 import PipelineDemo from '@/components/growth/PipelineDemo';
 
 const NAV = [
-  { href: '#system', label: 'System' },
-  { href: '#services', label: 'Services' },
-  { href: '#case-study', label: 'Case Study' },
-  { href: '#results', label: 'Results' },
-  { href: '#tools', label: 'Tools' },
-  { href: '#contact', label: 'Contact' },
+  { href: '#pipeline', label: 'The Pipeline' },
+  { href: '#curriculum', label: 'Curriculum' },
+  { href: '#session', label: 'Live Session' },
+  { href: '#tools', label: 'Practice' },
+  { href: '#services', label: 'Agency' },
+  { href: '#rsvp', label: 'RSVP' },
+];
+
+const PIPELINE_STAGES = ['Lead', 'Proposal', 'Needs Info', 'Follow-Up', 'Won · Lost', 'Revenue'];
+
+const PIPELINE_METRICS: [string, string][] = [
+  ['Total Leads', 'How many opportunities entered the pipeline'],
+  ['Proposals Sent', 'How many leads received an offer'],
+  ['Needs More Information', "Which prospects aren't ready to move forward"],
+  ['Follow-Up 30+', 'Older opportunities requiring continued nurturing'],
+  ['Follow-Up 60+', "Long-term prospects that shouldn't be forgotten"],
+  ['Won', 'Converted customers'],
+  ['Lost', 'Opportunities that did not convert'],
+  ['Revenue', 'Financial result of the pipeline'],
+];
+
+const FRAMEWORK: [string, string, string][] = [
+  ['1', 'Generate', 'Where leads come from: referrals, networking, Google, social media, events, existing customers, partnerships, website and landing pages.'],
+  ['2', 'Capture', 'Name, email, phone, business, need/problem, source, and the date they entered the pipeline.'],
+  ['3', 'Qualify', 'What does the prospect need? Can you solve it? Are they ready, or do they need more information? Is there a clear next step?'],
+  ['4', 'Present', 'Consultation, proposal, offer, pricing, and next steps — a clear ask instead of an open loop.'],
+  ['5', 'Nurture', 'The 30+ and 60+ follow-up system. A lead that didn\u2019t respond isn\u2019t a dead lead — it\u2019s a lead at an earlier stage.'],
+  ['6', 'Convert', 'Won → revenue → customer onboarding. The pipeline\u2019s output, not an accident.'],
+  ['7', 'Analyze', 'Total leads → proposals → won → revenue. Where are prospects getting stuck? How many older leads are being neglected?'],
+];
+
+const SESSION_AGENDA: [string, string, string][] = [
+  ['0–10', 'Why leads matter', 'The difference between a list of contacts and a working pipeline.'],
+  ['10–20', 'Lead generation', 'Every source: referrals, networking, Google, social, events, partnerships.'],
+  ['20–30', 'Building the pipeline', 'Stage by stage: lead → proposal → followed up → won or lost.'],
+  ['30–40', 'Follow-up and nurturing', 'The 30+ and 60+ system — nothing gets forgotten.'],
+  ['40–50', 'Tracking leads and revenue', 'The metrics that answer: where are we stuck, how much is this producing?'],
+  ['50–60', 'Live example + Q&A', "Real WhoIsDésir examples, not a generic course. Ask anything."],
+];
+
+const PAID_MODULES = [
+  'Lead Generation',
+  'Lead Capture & Qualification',
+  'Proposals & Offers',
+  'Lead Nurturing',
+  '30/60+ Day Follow-Up',
+  'Sales Pipeline Management',
+  'Conversion & Revenue',
+  'Measuring Performance',
 ];
 
 const SEGMENTS = [
@@ -120,20 +163,20 @@ export default function GrowPage() {
               WhoIsDésir<span className="text-miami-pink">®</span> Media
             </span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6">
             {NAV.map((n) => (
               <a key={n.href} href={n.href} className="text-sm text-white/50 hover:text-white transition-colors">
                 {n.label}
               </a>
             ))}
           </div>
-          <a href="#contact" className="btn-primary text-sm px-5 py-2.5">
-            Book discovery
+          <a href="#rsvp" className="btn-primary text-sm px-5 py-2.5">
+            Reserve a seat
           </a>
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* HERO — MASTERCLASS */}
       <section className="relative pt-32 pb-24 px-6">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute w-[600px] h-[600px] rounded-full bg-miami-pink/10 blur-[130px] -top-40 -right-40" />
@@ -142,38 +185,210 @@ export default function GrowPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-8">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs text-white/60 font-medium">Lead acquisition system · South Florida + digital-first</span>
+            <span className="text-xs text-white/60 font-medium">Free masterclass · Live on Google Meet · 60 minutes</span>
           </div>
           <h1 className="font-heading font-black text-4xl md:text-7xl leading-[1.02] mb-6">
-            <span className="text-white">Predictable pipeline for</span>
+            <span className="text-white">Lead Generation &amp; </span>
             <br />
-            <span className="gradient-text">media agencies &amp; hospitality brands</span>
+            <span className="text-white">Lead Nurturing </span>
+            <span className="gradient-text">Masterclass</span>
           </h1>
           <p className="text-lg text-white/40 max-w-2xl mx-auto mb-8 leading-relaxed">
-            WhoIsDésir Media runs its own lead engine: qualified outreach, a 21-day nurture cadence, and a
-            contact-to-contract system with 15-minute response on inbound. This page exists to explain it — and to
-            qualify you honestly.
+            A free live training from <b className="text-white">WhoIsDésir® Media</b> — the agency that runs this system for
+            media, hospitality, and corporate-lifestyle clients. You learn the whole pipeline: generate, capture, qualify,
+            present, nurture, convert, and analyze. Practical and introductory. Real examples, not a generic course.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#tools" className="btn-primary text-base px-8 py-3.5">
-              Run the qualification calculator
+            <a href="#rsvp" className="btn-primary text-base px-8 py-3.5">
+              Reserve a free seat
             </a>
-            <a href="#contact" className="btn-secondary border-white/10 text-white/70 hover:border-white/30 hover:text-white text-base px-8 py-3.5">
-              Book a discovery call
+            <a href="#pipeline" className="btn-secondary border-white/10 text-white/70 hover:border-white/30 hover:text-white text-base px-8 py-3.5">
+              See the pipeline model
             </a>
           </div>
           <p className="mt-6 text-xs text-white/30">
-            No outcome promises, ever. Verified results only, shown with visible [MASKED] placeholders until figures are signed off.
+            No outcome promises, ever. This is the operating system behind our verified [MASKED] client results — learn it before you hire it.
           </p>
         </div>
       </section>
 
+      {/* PIPELINE */}
+      <section id="pipeline" className="border-y border-white/5 bg-white/[0.02] py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <Eyebrow>The core model</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">
+              A lead isn&rsquo;t dead because they didn&rsquo;t buy immediately
+            </h2>
+            <p className="text-white/40 max-w-xl mx-auto">
+              Leads are a pipeline, not a list of contacts. Every opportunity is always at some stage — the question is what
+              it needs next.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-14">
+            {PIPELINE_STAGES.map((stage, i) => (
+              <div key={stage} className="flex items-center gap-2">
+                <span
+                  className={`rounded-xl border px-4 py-2 text-sm font-heading font-bold ${
+                    i === PIPELINE_STAGES.length - 1
+                      ? 'border-miami-pink/40 bg-miami-pink/10 text-white'
+                      : i === 0
+                        ? 'border-miami-blue-light/40 bg-miami-blue-light/10 text-white'
+                        : 'border-white/10 bg-white/[0.03] text-white/70'
+                  }`}
+                >
+                  {stage}
+                </span>
+                {i < PIPELINE_STAGES.length - 1 && <span className="text-white/25">→</span>}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            {PIPELINE_METRICS.map(([metric, lesson]) => (
+              <div key={metric} className="flex items-start gap-3 rounded-2xl border border-white/5 bg-white/[0.03] p-5">
+                <div className="font-heading font-bold text-miami-blue-light whitespace-nowrap">{metric}</div>
+                <span className="text-white/20 mt-2">→</span>
+                <p className="text-sm text-white/60 leading-relaxed">{lesson}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 rounded-2xl border border-miami-pink/20 bg-white/[0.02] p-6 md:p-8">
+            <p className="text-white/40 text-sm mb-3">
+              Instead of: <span className="text-white/70 italic">&ldquo;They didn&rsquo;t respond, so I guess they&rsquo;re not interested.&rdquo;</span>
+            </p>
+            <p className="text-white/90 text-lg font-heading font-bold">
+              You learn: <span className="gradient-text">&ldquo;What stage is this lead in, what information are they missing, and what is the next appropriate follow-up?&rdquo;</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FRAMEWORK */}
+      <section id="curriculum" className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Eyebrow>Masterclass framework</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Seven steps from stranger to revenue</h2>
+            <p className="text-white/40 max-w-lg mx-auto">
+              The whole course is one loop you can run for any business — the same stages we run at the agency.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {FRAMEWORK.map(([n, title, desc]) => (
+              <div key={n} className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white font-heading font-black shrink-0">{n}</div>
+                <div>
+                  <h3 className="font-heading font-bold text-white mb-1">{title}</h3>
+                  <p className="text-sm text-white/40 leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FREE SESSION */}
+      <section id="session" className="py-24 px-6 bg-white/[0.01]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <Eyebrow>Free · Live · 60 minutes</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Lead Generation &amp; Lead Nurturing Fundamentals</h2>
+            <p className="text-white/40 max-w-xl mx-auto">
+              A practical, introductory Google Meet session with real WhoIsDésir examples. No sales pitch — just the system.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] overflow-hidden mb-12">
+            {SESSION_AGENDA.map(([time, title, desc], i) => (
+              <div key={time} className={`flex items-start gap-5 p-6 ${i > 0 ? 'border-t border-white/5' : ''}`}>
+                <div className="font-heading font-black text-white/30 text-sm whitespace-nowrap">{time} min</div>
+                <div>
+                  <h3 className="font-heading font-bold text-white">{title}</h3>
+                  <p className="text-sm text-white/40">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div id="rsvp" className="max-w-2xl mx-auto">
+            <MasterclassRsvpForm />
+          </div>
+        </div>
+      </section>
+
+      {/* PAID ROADMAP */}
+      <section id="roadmap" className="py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <Eyebrow>What&rsquo;s next</Eyebrow>
+            <div className="inline-flex items-center gap-2 rounded-full border border-miami-blue-light/30 bg-miami-blue-light/10 px-4 py-1.5 text-xs text-miami-blue-light font-medium mb-6">
+              Roadmap · Requires Florida CIE approval
+            </div>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">The Certified Masterclass</h2>
+            <p className="text-white/40 max-w-xl mx-auto">
+              The free session is the full practical path today. Once Florida CIE approval allows a structured curriculum with
+              assessment and certification, this page becomes the door to it. We won&rsquo;t sell that tier before it&rsquo;s legal.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-12">
+            {PAID_MODULES.map((m) => (
+              <div key={m} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-sm text-white/70 font-heading font-bold">
+                {m}
+              </div>
+            ))}
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-6 md:p-8">
+            <p className="text-sm text-white/50 leading-relaxed">
+              <b className="text-white">Then assessment, not just video:</b> students receive 20 fictional leads and must
+              correctly place them into the pipeline — total leads → proposal → needs info → follow-up 30+ → follow-up 60+ →
+              won/lost — then calculate the resulting revenue.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs font-heading font-bold">
+              {['LEARN', 'PRACTICE', 'ASSESS', 'CERTIFY'].map((s, i) => (
+                <div key={s} className="flex items-center gap-2">
+                  <span className="rounded-full border border-miami-pink/30 bg-miami-pink/10 px-3 py-1 text-miami-pink">{s}</span>
+                  {i < 3 && <span className="text-white/25">→</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TOOLS */}
+      <section id="tools" className="py-24 px-6 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <Eyebrow>Learn → practice</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Practice what you learn</h2>
+            <p className="text-white/40 max-w-xl mx-auto">
+              The same calculators and pipeline demos the masterclass is built on. Run your own numbers — no email required.
+            </p>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <QualificationCalculator />
+            <ScoringSimulator />
+            <div className="lg:col-span-2">
+              <FunnelBuilder />
+            </div>
+            <div className="lg:col-span-2">
+              <FollowUpPlanner />
+            </div>
+            <div className="lg:col-span-2">
+              <PipelineDemo />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SEGMENTS */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-16 px-6">
+      <section id="who" className="border-y border-white/5 bg-white/[0.02] py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <Eyebrow>Who we serve</Eyebrow>
-            <h2 className="font-heading font-black text-3xl md:text-4xl text-white">Three clear segments</h2>
+            <Eyebrow>Built from a live agency</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-4xl text-white">We teach what the agency runs daily</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {SEGMENTS.map((s) => (
@@ -219,8 +434,8 @@ export default function GrowPage() {
       <section id="services" className="py-24 px-6 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <Eyebrow>How we work</Eyebrow>
-            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Services with honest floors</h2>
+            <Eyebrow>When you&rsquo;re past learning</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Agency services with honest floors</h2>
             <p className="text-white/40 max-w-lg mx-auto">
               Engagements below our minimum spend get educational resources or partner referrals — never force-fitted.
             </p>
@@ -341,32 +556,6 @@ export default function GrowPage() {
         </div>
       </section>
 
-      {/* TOOLS */}
-      <section id="tools" className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <Eyebrow>Interactive tools</Eyebrow>
-            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Prove the system to yourself</h2>
-            <p className="text-white/40 max-w-xl mx-auto">
-              The same calculators we use in discovery — run your own numbers, no email required.
-            </p>
-          </div>
-          <div className="grid lg:grid-cols-2 gap-6">
-            <QualificationCalculator />
-            <ScoringSimulator />
-            <div className="lg:col-span-2">
-              <FunnelBuilder />
-            </div>
-            <div className="lg:col-span-2">
-              <FollowUpPlanner />
-            </div>
-            <div className="lg:col-span-2">
-              <PipelineDemo />
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* COMPLIANCE */}
       <section className="py-24 px-6 bg-white/[0.01]">
         <div className="max-w-4xl mx-auto">
@@ -390,14 +579,15 @@ export default function GrowPage() {
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* CONTACT — AGENCY */}
       <section id="contact" className="py-24 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <Eyebrow>Talk to us</Eyebrow>
-            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Book against the floor, or stay on the drip</h2>
+            <Eyebrow>After the masterclass</Eyebrow>
+            <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">When you need the machine itself</h2>
             <p className="text-white/40">
-              Inbound answers within <b className="text-white">15 minutes</b>; your senior account executive takes ownership within{' '}
+              Book an agency engagement against the floors, or stay on the educational drip. Inbound answers within{' '}
+              <b className="text-white">15 minutes</b>; your senior account executive takes ownership within{' '}
               <b className="text-white">24 hours</b> of the discovery call.
             </p>
           </div>
@@ -468,7 +658,120 @@ function ScriptsPlaybook() {
   );
 }
 
-/* ---------- Multi-stage lead capture form ---------- */
+/* ---------- Masterclass RSVP ---------- */
+function MasterclassRsvpForm() {
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    company: '',
+    message: '',
+    consent: false,
+  });
+
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!form.consent) {
+      setError('Consent is required — one click, honored forever.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch('/api/growth-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          phone: form.phone,
+          company: form.company,
+          message: form.message,
+          segment: 'other',
+          serviceInterest: 'masterclass',
+          source: 'masterclass-landing',
+          consent: form.consent,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Submission failed');
+      setDone(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 md:p-10 text-center">
+        <div className="font-heading font-black text-3xl gradient-text mb-4">Seat reserved — welcome in</div>
+        <p className="text-white/50 mb-6">
+          Your calendar invite with the Google Meet link is on the way to the inbox you entered. We keep the room practical:
+          60 minutes, real examples, and a working pipeline you can start using the same day.
+        </p>
+        <button
+          onClick={() => {
+            setDone(false);
+            setForm({ ...form, firstName: '', lastName: '', email: '', phone: '', company: '', message: '', consent: false });
+          }}
+          className="btn-secondary border-white/10 text-white/70 hover:border-white/30 hover:text-white"
+        >
+          Register another seat
+        </button>
+      </div>
+    );
+  }
+
+  const inputCls =
+    'w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-white text-sm focus:border-miami-pink outline-none';
+
+  return (
+    <form onSubmit={submit} className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 md:p-10">
+      <div className="text-center mb-6">
+        <h3 className="font-heading font-black text-2xl text-white">Reserve your free seat</h3>
+        <p className="text-sm text-white/40 mt-2">Live on Google Meet · 60 minutes · first-name, no-pitch culture</p>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <input required className={inputCls} placeholder="First name" value={form.firstName} onChange={(e) => set('firstName', e.target.value)} />
+        <input className={inputCls} placeholder="Last name" value={form.lastName} onChange={(e) => set('lastName', e.target.value)} />
+        <input required type="email" className={inputCls} placeholder="Work email" value={form.email} onChange={(e) => set('email', e.target.value)} />
+        <input type="tel" className={inputCls} placeholder="Phone (optional, for the reminder)"
+          value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+        <input className={`${inputCls} sm:col-span-2`} placeholder="Business (optional)" value={form.company} onChange={(e) => set('company', e.target.value)} />
+      </div>
+      <label className="block text-xs text-white/50 mt-4">
+        What&rsquo;s your #1 demand-generating blocker right now? (optional)
+        <input className={`${inputCls} mt-1`} placeholder="e.g. no repeatable referral source, old follow-ups go cold…"
+          value={form.message} onChange={(e) => set('message', e.target.value)} />
+      </label>
+      <label className="flex items-start gap-2 text-sm text-white/60 cursor-pointer mt-5">
+        <input type="checkbox" checked={form.consent} onChange={(e) => set('consent', e.target.checked)} className="accent-miami-pink mt-0.5" />
+        <span>
+          I consent to receive the session invite and relevant follow-up. CAN-SPAM/GDPR compliant: one-click opt-out, real
+          company identification, and our physical Florida address on every message.
+        </span>
+      </label>
+      {error && <div className="mt-4 rounded-lg border border-miami-pink/40 bg-miami-pink/10 px-4 py-2 text-sm text-miami-pink-soft">{error}</div>}
+      <button type="submit" disabled={busy} className="btn-primary w-full mt-6 disabled:opacity-50">
+        {busy ? 'Reserving…' : 'Reserve a free seat'}
+      </button>
+      <p className="text-center text-[10px] text-white/20 mt-3">
+        No outcome promises. We teach the pipeline; results stay [MASKED] until signed off — exactly what the session teaches you to do too.
+      </p>
+    </form>
+  );
+}
+
+/* ---------- Multi-stage agency lead capture form ---------- */
 const SEGMENT_ID = ['media_agency', 'luxury_hospitality', 'corporate_lifestyle', 'other'] as const;
 
 function GrowthLeadForm() {
