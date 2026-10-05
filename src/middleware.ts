@@ -7,7 +7,7 @@ const MUTATING = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
 // These are cookie-free, cross-origin-friendly public endpoints.
 // They are rate-limited in their handlers; CSRF does not apply (no ambient authority).
-const PUBLIC_PATHS = ['/api/booking', '/api/plugin-lead', '/api/auth/'];
+const PUBLIC_PATHS = ['/api/booking', '/api/plugin-lead', '/api/growth-lead', '/api/auth/'];
 
 function randomToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
