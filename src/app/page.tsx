@@ -34,11 +34,11 @@ export default function LandingPage() {
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <a href="#services" className="text-sm text-white/50 hover:text-white transition-colors">Services</a>
+            <a href="#ventures" className="text-sm text-white/50 hover:text-white transition-colors">Ventures</a>
             <a href="#platform" className="text-sm text-white/50 hover:text-white transition-colors">Platform</a>
-            <a href="#about" className="text-sm text-white/50 hover:text-white transition-colors">About</a>
+            <Link href="/portfolio" className="text-sm text-miami-pink font-semibold hover:text-white transition-colors">Portfolio</Link>
             <Link href="/grow" className="text-sm text-white/50 hover:text-white transition-colors">Growth System</Link>
-            <Link href="/portal-guide" className="text-sm text-white/50 hover:text-white transition-colors">Portal Guide</Link>
-            <Link href="/knowledge-base" className="text-sm text-white/50 hover:text-white transition-colors">Knowledge Base</Link>
+            <Link href="/speaker" className="text-sm text-white/50 hover:text-white transition-colors">Speaker</Link>
             <Link href="/developer" className="text-sm text-white/50 hover:text-white transition-colors">Developer</Link>
           </div>
           <Link href="/login" className="btn-primary text-sm px-5 py-2.5">
@@ -110,6 +110,122 @@ export default function LandingPage() {
                 <p className="text-sm text-white/40 leading-relaxed">{s.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURED VENTURES & TECHNOLOGY */}
+      <section id="ventures" className="py-24 px-6 border-y border-white/5 bg-white/[0.015]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div>
+              <span className="text-xs font-semibold text-miami-pink uppercase tracking-widest mb-3 block">Innovation &amp; Ventures</span>
+              <h2 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">Proprietary Products &amp; Platforms</h2>
+              <p className="text-white/40 max-w-xl text-base">
+                Beyond agency services, WhoIsDésir® designs and engineers AI-augmented software platforms, financial tools, and client productions.
+              </p>
+            </div>
+            <Link
+              href="/portfolio"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-heading font-bold text-white gradient-bg hover:shadow-glow-pink transition-all whitespace-nowrap self-start md:self-auto"
+            >
+              <span>Explore All Works in Portfolio</span>
+              <span>→</span>
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Magnitax Card */}
+            <div className="group rounded-2xl bg-white/[0.02] border border-white/5 p-6 hover:border-amber-400/30 hover:bg-white/[0.04] transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20">
+                    Financial AI
+                  </span>
+                  <span className="text-[10px] text-white/30 font-mono">Prototype</span>
+                </div>
+                <h3 className="font-heading font-bold text-xl text-white mb-1">Magnitax®</h3>
+                <p className="text-xs text-amber-300/80 mb-3 font-medium">AI-Augmented Tax Platform</p>
+                <p className="text-xs text-white/50 leading-relaxed mb-4">
+                  Automated document intake, intelligent W-2 extraction, and client portal removing tax season bottlenecks.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-white/30">Next.js · Firestore</span>
+                <Link href="/portfolio" className="text-xs font-semibold text-miami-pink hover:text-white transition-colors">
+                  Details →
+                </Link>
+              </div>
+            </div>
+
+            {/* Creative Hub AI Card */}
+            <div className="group rounded-2xl bg-white/[0.02] border border-white/5 p-6 hover:border-cyan-400/30 hover:bg-white/[0.04] transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">
+                    FinTech AI
+                  </span>
+                  <span className="text-[10px] text-white/30 font-mono">Live Demo</span>
+                </div>
+                <h3 className="font-heading font-bold text-xl text-white mb-1">Creative Hub AI</h3>
+                <p className="text-xs text-miami-blue-light/80 mb-3 font-medium">Stock Valuation Engine</p>
+                <p className="text-xs text-white/50 leading-relaxed mb-4">
+                  Automated discounted cash flow modeling, sensitivity analysis, and narrative valuation summaries.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-white/30">Python · Next.js</span>
+                <Link href="/articles/creative-hub-ai-live-demo.html" className="text-xs font-semibold text-cyan-300 hover:text-white transition-colors">
+                  Case Study →
+                </Link>
+              </div>
+            </div>
+
+            {/* Silver Parrots Card */}
+            <div className="group rounded-2xl bg-white/[0.02] border border-white/5 p-6 hover:border-purple-400/30 hover:bg-white/[0.04] transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-400/10 text-purple-300 border border-purple-400/20">
+                    Hospitality
+                  </span>
+                  <span className="text-[10px] text-white/30 font-mono">Venture</span>
+                </div>
+                <h3 className="font-heading font-bold text-xl text-white mb-1">Silver Parrots®</h3>
+                <p className="text-xs text-purple-300/80 mb-3 font-medium">Automated Concierge Ops</p>
+                <p className="text-xs text-white/50 leading-relaxed mb-4">
+                  24/7 automated VIP guest experience, dining dispatch, and persistent itinerary memory.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-white/30">Webhook APIs</span>
+                <Link href="/portfolio" className="text-xs font-semibold text-purple-300 hover:text-white transition-colors">
+                  Details →
+                </Link>
+              </div>
+            </div>
+
+            {/* 1804 Media Showcase Card */}
+            <div className="group rounded-2xl bg-white/[0.02] border border-white/5 p-6 hover:border-emerald-400/30 hover:bg-white/[0.04] transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">
+                    Media Production
+                  </span>
+                  <span className="text-[10px] text-white/30 font-mono">Delivered</span>
+                </div>
+                <h3 className="font-heading font-bold text-xl text-white mb-1">1804 Showcase</h3>
+                <p className="text-xs text-emerald-300/80 mb-3 font-medium">Grand Opening &amp; Culinary</p>
+                <p className="text-xs text-white/50 leading-relaxed mb-4">
+                  Culinary photography, event coverage, and branding suite for 1804 Haitian Pizza.
+                </p>
+              </div>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-white/30">60+ Assets</span>
+                <Link href="/proposals/whoisdesir-1804" className="text-xs font-semibold text-emerald-300 hover:text-white transition-colors">
+                  Showcase →
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -206,11 +322,13 @@ export default function LandingPage() {
             Creative Business Operations Platform. All contracts are drafts until reviewed by a licensed attorney.
           </div>
           <div className="text-xs text-white/30">
+            <Link href="/portfolio" className="text-white hover:text-miami-pink transition-colors">Portfolio</Link>
+            <span className="mx-2">·</span>
             <Link href="/grow" className="hover:text-white/60 transition-colors">Growth System</Link>
             <span className="mx-2">·</span>
-            <Link href="/portal-guide" className="hover:text-white/60 transition-colors">Portal Guide</Link>
+            <Link href="/speaker" className="hover:text-white/60 transition-colors">Speaker</Link>
             <span className="mx-2">·</span>
-            <Link href="/knowledge-base" className="hover:text-white/60 transition-colors">Knowledge Base</Link>
+            <Link href="/portal-guide" className="hover:text-white/60 transition-colors">Portal Guide</Link>
             <span className="mx-2">·</span>
             <Link href="/developer" className="hover:text-white/60 transition-colors">Developer</Link>
           </div>

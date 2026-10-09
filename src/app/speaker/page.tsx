@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import Link from 'next/link'
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 const navLinks = [
   { label: 'About', href: '#about' },
+  { label: 'Ventures', href: '#ventures' },
   { label: 'Topics', href: '#topics' },
   { label: 'Past Talks', href: '#past-talks' },
   { label: 'Contact', href: '#contact' },
@@ -220,6 +222,151 @@ function About() {
               <img src="/speaker-logo.png" alt="WhoIsDésir® Logo" className="w-full h-full object-contain" />
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Ventures() {
+  return (
+    <section id="ventures" className="py-20 sm:py-28 bg-dark-900 border-y border-white/5">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <span className="text-xs font-semibold text-miami-pink uppercase tracking-widest mb-3 block">
+            Founder Ventures &amp; Products
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-heading font-black text-white mb-4">
+            Active Platforms &amp; Systems
+          </h2>
+          <p className="text-muted font-body max-w-2xl mx-auto">
+            Practical AI applications, proprietary operating systems, and media production built from the ground up — not just keynote theory.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          {/* Magnitax Card */}
+          <div className="rounded-3xl bg-dark-800 border border-white/5 p-8 flex flex-col justify-between hover:border-amber-400/30 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20">
+                  Financial AI
+                </span>
+                <span className="text-xs text-muted font-mono">Prototype &amp; Strategy</span>
+              </div>
+              <h3 className="font-heading font-black text-2xl text-white mb-2">Magnitax®</h3>
+              <p className="text-sm text-miami-pink-soft font-medium mb-3">AI-Augmented Tax &amp; Financial Services</p>
+              <p className="text-sm text-muted leading-relaxed mb-6 font-body">
+                Client intake automation, intelligent document extraction (W-2, 1099), and real-time return status pipelines engineered to eliminate tax season friction.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Next.js</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Firestore</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Document AI</span>
+              </div>
+            </div>
+            <Link
+              href="/portfolio"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white gradient-bg rounded-xl hover:shadow-glow-pink transition-all"
+            >
+              View in Portfolio →
+            </Link>
+          </div>
+
+          {/* Creative Hub AI Card */}
+          <div className="rounded-3xl bg-dark-800 border border-white/5 p-8 flex flex-col justify-between hover:border-cyan-400/30 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">
+                  FinTech Valuation
+                </span>
+                <span className="text-xs text-muted font-mono">Live Demo</span>
+              </div>
+              <h3 className="font-heading font-black text-2xl text-white mb-2">Creative Hub AI</h3>
+              <p className="text-sm text-miami-blue-light font-medium mb-3">AI Stock Valuation &amp; Market Intelligence</p>
+              <p className="text-sm text-muted leading-relaxed mb-6 font-body">
+                Algorithmic discounted cash flow modeling, sensitivity analysis, and natural language narrative synthesis that unpacks valuation drivers in plain English.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Python ML</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Next.js</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Market APIs</span>
+              </div>
+            </div>
+            <Link
+              href="/articles/creative-hub-ai-live-demo.html"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-dark-700 border border-cyan-400/30 rounded-xl hover:bg-cyan-400/10 transition-all"
+            >
+              Read Demo Case Study →
+            </Link>
+          </div>
+
+          {/* Silver Parrots Card */}
+          <div className="rounded-3xl bg-dark-800 border border-white/5 p-8 flex flex-col justify-between hover:border-purple-400/30 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-purple-400/10 text-purple-300 border border-purple-400/20">
+                  Hospitality Tech
+                </span>
+                <span className="text-xs text-muted font-mono">Active Venture</span>
+              </div>
+              <h3 className="font-heading font-black text-2xl text-white mb-2">Silver Parrots®</h3>
+              <p className="text-sm text-purple-300 font-medium mb-3">Automated Guest &amp; Concierge Operations</p>
+              <p className="text-sm text-muted leading-relaxed mb-6 font-body">
+                Context-aware VIP concierge dispatching, dining reservations, and persistent guest memory driving elevated boutique hospitality.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Automation APIs</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Webhooks</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Concierge Ops</span>
+              </div>
+            </div>
+            <Link
+              href="/portfolio"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white gradient-bg rounded-xl hover:shadow-glow-pink transition-all"
+            >
+              Explore Venture Details →
+            </Link>
+          </div>
+
+          {/* WhoIsDésir Media Agency Card */}
+          <div className="rounded-3xl bg-dark-800 border border-white/5 p-8 flex flex-col justify-between hover:border-miami-pink/30 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-miami-pink/10 text-miami-pink border border-miami-pink/20">
+                  Agency SaaS
+                </span>
+                <span className="text-xs text-muted font-mono">Live in Production</span>
+              </div>
+              <h3 className="font-heading font-black text-2xl text-white mb-2">WhoIsDésir® Media Platform</h3>
+              <p className="text-sm text-miami-pink-soft font-medium mb-3">Creative Business Operations OS</p>
+              <p className="text-sm text-muted leading-relaxed mb-6 font-body">
+                Automated contract assembly, tamper-evident SHA-256 e-signatures, multi-role contractor onboarding, and Google Drive deliverable workflows.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Next.js 14</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Prisma / Postgres</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Drive API</span>
+              </div>
+            </div>
+            <Link
+              href="/developer"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-dark-700 border border-white/10 rounded-xl hover:border-white/30 transition-all"
+            >
+              Platform Architecture →
+            </Link>
+          </div>
+        </div>
+
+        {/* Explore All CTA */}
+        <div className="text-center">
+          <Link
+            href="/portfolio"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm font-heading font-bold text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all"
+          >
+            <span>Explore All Ventures, Case Studies &amp; Media Portfolio</span>
+            <span className="text-miami-pink">→</span>
+          </Link>
         </div>
       </div>
     </section>
@@ -582,6 +729,7 @@ export default function SpeakerPage() {
       <Navbar />
       <Hero />
       <About />
+      <Ventures />
       <Topics />
       <PastTalks />
       <Contact />
