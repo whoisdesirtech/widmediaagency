@@ -198,14 +198,13 @@ function About() {
             <div className="space-y-4 text-muted font-body leading-relaxed">
               <p>
                 Désir Fils is an AI engineer and entrepreneur building at the intersection of
-                artificial intelligence, media, and hospitality. As the founder of an AI-powered
-                media and hospitality company, he applies machine learning and automation across
-                media production, marketing, business operations, and guest experiences.
+                artificial intelligence, media production, and educational technology. As an engineer and venture builder, he applies machine learning, modern software architecture, and automation across
+                financial intelligence, digital media, educational platforms, and agency operations.
               </p>
               <p>
                 His portfolio includes <strong className="text-white">Magnitax®</strong> (AI-augmented
-                tax and financial services), <strong className="text-white">Silver Parrots®</strong>
-                (hospitality and concierge), the <strong className="text-white">WhoIsDésir®</strong>{' '}
+                tax and financial services), <strong className="text-white">Silver Parrots®</strong>{' '}
+                (K-5 EdTech and state assessment tutoring platform in collaboration with FIU Business), the <strong className="text-white">WhoIsDésir®</strong>{' '}
                 Media Agency, and the Creative Hub AI demo — an AI-powered stock valuation and
                 market analysis tool that demonstrates practical AI application in finance.
               </p>
@@ -306,26 +305,26 @@ function Ventures() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-purple-400/10 text-purple-300 border border-purple-400/20">
-                  Hospitality Tech
+                  EdTech Platform
                 </span>
-                <span className="text-xs text-muted font-mono">Active Venture</span>
+                <span className="text-xs text-muted font-mono">FIU Incubation</span>
               </div>
               <h3 className="font-heading font-black text-2xl text-white mb-2">Silver Parrots®</h3>
-              <p className="text-sm text-purple-300 font-medium mb-3">Automated Guest &amp; Concierge Operations</p>
+              <p className="text-sm text-purple-300 font-medium mb-3">K-5 State Assessment &amp; Tutor Marketplace</p>
               <p className="text-sm text-muted leading-relaxed mb-6 font-body">
-                Context-aware VIP concierge dispatching, dining reservations, and persistent guest memory driving elevated boutique hospitality.
+                Dual-portal EdTech ecosystem connecting elementary families with certified educators for Common Core state testing prep, instructional video tutorials, and 1-on-1 tutoring.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
-                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Automation APIs</span>
-                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Webhooks</span>
-                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Concierge Ops</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">K-5 Common Core</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Tutor Marketplace</span>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">FIU Business</span>
               </div>
             </div>
             <Link
-              href="/portfolio"
+              href="/portfolio/silver-parrots"
               className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white gradient-bg rounded-xl hover:shadow-glow-pink transition-all"
             >
-              Explore Venture Details →
+              Explore Platform Showcase →
             </Link>
           </div>
 

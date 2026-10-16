@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-type Category = 'all' | 'ai-software' | 'creative-media' | 'hospitality';
+type Category = 'all' | 'ai-software' | 'creative-media' | 'education';
 
 interface Project {
   id: string;
   title: string;
   subtitle: string;
-  category: 'ai-software' | 'creative-media' | 'hospitality';
+  category: 'ai-software' | 'creative-media' | 'education';
   categoryLabel: string;
   status: string;
   statusColor: string;
@@ -88,26 +88,32 @@ const PROJECTS: Project[] = [
   {
     id: 'silver-parrots',
     title: 'Silver Parrots®',
-    subtitle: 'AI-Integrated Luxury Hospitality & Concierge Operations',
-    category: 'hospitality',
-    categoryLabel: 'Hospitality & Operations',
-    status: 'Venture in Development',
+    subtitle: 'K-5 State Assessment & Certified Tutor Marketplace',
+    category: 'education',
+    categoryLabel: 'EdTech & Learning',
+    status: 'Platform Architecture & Strategy',
     statusColor: 'bg-purple-400/10 text-purple-300 border-purple-400/30',
-    badge: 'Hospitality Tech',
+    badge: 'EdTech Platform',
+    image: '/portfolio/silver-parrots-logo.png',
+    imageAlt: 'Silver Parrots Official Brand Logo',
     description:
-      'An intelligent guest experience and automated concierge platform powering boutique hospitality, private dining reservations, and curated lifestyle services.',
+      'An educational technology ecosystem and certified educator marketplace engineered to ease annual Common Core state assessment stress for elementary families through curriculum video tutorials and private tutoring.',
     problemSolved:
-      'Bridging the gap between 24/7 guest demand and boutique hospitality staffing with personalized, context-aware automated concierge responses.',
+      'Alleviates high-stakes testing anxiety and student retention risks by equipping busy parents with curriculum-aligned video modules, diagnostic guides, and vetted certified teachers for virtual or in-person sessions.',
     highlights: [
-      '24/7 VIP guest messaging with automated dining & excursion reservations',
-      'Seamless multi-channel dispatch across WhatsApp, SMS, and web concierge',
-      'Persistent guest profile preferences and tailored itinerary synthesis',
-      'Operations dashboard for instant staff handoffs on complex requests',
+      'Dual-portal architecture: separate workflows for Parents/Students and Certified Educators',
+      'Common Core K-5 curriculum alignment with multimedia video tutorials and practice lessons',
+      'Certified educator marketplace: flexible teacher scheduling and parent booking (virtual & in-person)',
+      'Academic incubation in partnership with the Florida International University (FIU) Business Department',
     ],
-    technologies: ['Next.js', 'Automation APIs', 'Webhook Routing', 'Multi-Channel Comms', 'Tailwind CSS'],
+    technologies: ['Next.js', 'Dual Portal UI', 'EdTech Video CMS', 'Tutor Marketplace', 'Curriculum Mapping', 'FIU Incubation'],
     primaryLink: {
-      label: 'Inquire About Hospitality Partnership →',
-      href: 'mailto:digitalvurv@gmail.com?subject=Silver%20Parrots%20Partnership%20Inquiry',
+      label: 'Explore Platform Showcase →',
+      href: '/portfolio/silver-parrots',
+    },
+    secondaryLink: {
+      label: 'Pitch Deck ↗',
+      href: 'https://docs.google.com/presentation/d/1Vgkf8xiq5nbSfuhtOx9MEqdqZSnCqnDRtirdFlomqFg/edit?usp=sharing',
       isExternal: true,
     },
   },
@@ -264,8 +270,8 @@ export default function PortfolioPage() {
               <div className="text-xs text-white/40">Production Asset Library</div>
             </div>
             <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 text-center">
-              <div className="font-heading font-black text-2xl sm:text-3xl gradient-text mb-1">24/7</div>
-              <div className="text-xs text-white/40">Automated Concierge Ops</div>
+              <div className="font-heading font-black text-2xl sm:text-3xl gradient-text mb-1">K-5</div>
+              <div className="text-xs text-white/40">Common Core Learning</div>
             </div>
           </div>
         </div>
@@ -296,6 +302,16 @@ export default function PortfolioPage() {
               AI &amp; Software ({PROJECTS.filter((p) => p.category === 'ai-software').length})
             </button>
             <button
+              onClick={() => setActiveTab('education')}
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'education'
+                  ? 'gradient-bg text-white shadow-glow-pink'
+                  : 'text-white/50 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              EdTech &amp; Learning ({PROJECTS.filter((p) => p.category === 'education').length})
+            </button>
+            <button
               onClick={() => setActiveTab('creative-media')}
               className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'creative-media'
@@ -304,16 +320,6 @@ export default function PortfolioPage() {
               }`}
             >
               Creative Media ({PROJECTS.filter((p) => p.category === 'creative-media').length})
-            </button>
-            <button
-              onClick={() => setActiveTab('hospitality')}
-              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === 'hospitality'
-                  ? 'gradient-bg text-white shadow-glow-pink'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Hospitality Tech ({PROJECTS.filter((p) => p.category === 'hospitality').length})
             </button>
           </div>
         </div>
@@ -353,7 +359,7 @@ export default function PortfolioPage() {
                   </div>
                   <div>
                     <div className="text-3xl mb-1">
-                      {project.category === 'hospitality' ? '🦜' : project.id === 'creative-hub-ai' ? '📈' : '⚡'}
+                      {project.category === 'education' ? '🎓' : project.id === 'creative-hub-ai' ? '📈' : '⚡'}
                     </div>
                     <div className="font-heading font-black text-xl text-white">{project.title}</div>
                   </div>
@@ -441,7 +447,7 @@ export default function PortfolioPage() {
             Collaborate With Us
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-white mb-6">
-            Building something ambitious in AI, Media, or Hospitality?
+            Building something ambitious in AI, EdTech, or Media?
           </h2>
           <p className="text-base text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-body">
             Whether you need custom software engineering, commercial media production, or keynote speaking on practical AI adoption, we are ready to build.
