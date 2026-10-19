@@ -186,20 +186,20 @@ export default function LandingPage() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-400/10 text-purple-300 border border-purple-400/20">
-                    Hospitality
+                    EdTech
                   </span>
-                  <span className="text-[10px] text-white/30 font-mono">Venture</span>
+                  <span className="text-[10px] text-white/30 font-mono">FIU Incubation</span>
                 </div>
                 <h3 className="font-heading font-bold text-xl text-white mb-1">Silver Parrots®</h3>
-                <p className="text-xs text-purple-300/80 mb-3 font-medium">Automated Concierge Ops</p>
+                <p className="text-xs text-purple-300/80 mb-3 font-medium">K-5 Assessment &amp; Tutoring</p>
                 <p className="text-xs text-white/50 leading-relaxed mb-4">
-                  24/7 automated VIP guest experience, dining dispatch, and persistent itinerary memory.
+                  Common Core testing prep, video tutorials, and certified educator booking for elementary families.
                 </p>
               </div>
               <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-white/30">Webhook APIs</span>
-                <Link href="/portfolio" className="text-xs font-semibold text-purple-300 hover:text-white transition-colors">
-                  Details →
+                <span className="text-[10px] font-mono text-white/30">K-5 Standards</span>
+                <Link href="/portfolio/silver-parrots" className="text-xs font-semibold text-purple-300 hover:text-white transition-colors">
+                  Showcase →
                 </Link>
               </div>
             </div>
