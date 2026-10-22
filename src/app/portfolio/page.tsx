@@ -35,17 +35,17 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     id: 'magnitax',
-    title: 'Magnitax®',
-    subtitle: 'AI-Augmented Tax & Financial Services Portal',
+    title: 'WhoIsDésir® Financial',
+    subtitle: 'AI-Augmented Financial Services & Tax Operations Portal',
     category: 'ai-software',
     categoryLabel: 'AI & Software Platform',
     status: 'Active Prototype & Strategy',
     statusColor: 'bg-amber-400/10 text-amber-300 border-amber-400/30',
     badge: 'Financial AI',
     image: '/portfolio/magnitax-preview.png',
-    imageAlt: 'Magnitax Gold Theme Portal Interface Mockup',
+    imageAlt: 'WhoIsDésir® Financial Portal Interface (Magnitax® Architecture)',
     description:
-      'A luxury, AI-augmented tax and financial intelligence platform designed to eliminate traditional tax filing bottlenecks for clients, preparers, and reviewers.',
+      'A high-performance financial intelligence and client workflow portal engineered to eliminate filing bottlenecks for clients, tax professionals, and review teams. Formerly developed under the Magnitax® prototype architecture.',
     problemSolved:
       'Solves friction in manual document collection, slow tax season review cycles, and fragmented communication between clients and certified preparers.',
     highlights: [
@@ -62,15 +62,15 @@ const PROJECTS: Project[] = [
   },
   {
     id: 'creative-hub-ai',
-    title: 'Creative Hub AI',
+    title: 'WhoIsDésir® Invests AI',
     subtitle: 'AI-Powered Stock Valuation & Market Analysis Engine',
     category: 'ai-software',
     categoryLabel: 'AI & Software Platform',
     status: 'Interactive Demo & Case Study',
     statusColor: 'bg-cyan-400/10 text-cyan-300 border-cyan-400/30',
-    badge: 'FinTech Intelligence',
+    badge: 'Investment AI',
     description:
-      'A quantitative financial intelligence engine providing automated discounted cash flow valuations, multi-factor market sensitivity analysis, and narrative synthesis.',
+      'A quantitative financial intelligence engine providing automated discounted cash flow valuations, multi-factor market sensitivity analysis, and narrative synthesis that translates complex SEC filings into actionable insights.',
     problemSolved:
       'Enables non-institutional investors and founders to perform institutional-grade valuation models in seconds rather than hours of spreadsheet work.',
     highlights: [
@@ -81,7 +81,7 @@ const PROJECTS: Project[] = [
     ],
     technologies: ['Python', 'Machine Learning', 'Next.js', 'Chart.js', 'Financial Modeling', 'REST API'],
     primaryLink: {
-      label: 'Read Demo Case Study →',
+      label: 'Read Live Demo Case Study →',
       href: '/articles/creative-hub-ai-live-demo.html',
     },
   },
@@ -148,17 +148,17 @@ const PROJECTS: Project[] = [
   },
   {
     id: 'whoisdesir-1804',
-    title: '1804 Haitian Pizza Grand Opening',
-    subtitle: 'Cultural Media Production & Commercial Event Showcase',
+    title: 'WhoIsDésir® Shoots presents 1804 Showcase',
+    subtitle: 'Cultural Media Production & Commercial Culinary Showcase',
     category: 'creative-media',
     categoryLabel: 'Creative Media Production',
     status: 'Completed Client Production',
     statusColor: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',
-    badge: 'Commercial Media',
+    badge: 'WhoIsDésir® Shoots',
     image: '/proposals/whoisdesir-1804/photos/Food Photography Sample 1.jpg',
     imageAlt: '1804 Haitian Pizza Gourmet Culinary Photography',
     description:
-      'End-to-end commercial event photography and culinary branding for the Pompano Beach Grand Opening & FIFA World Cup Showcase, delivering reusable brand marketing assets.',
+      'Commercial culinary visual storytelling, live grand opening event coverage, and brand marketing asset production presented by WhoIsDésir® Shoots for 1804 Haitian Pizza.',
     problemSolved:
       'Capturing authentic cultural cuisine, high-energy community attendance, and commercial-grade food styling to position 1804 as a regional cultural anchor.',
     highlights: [

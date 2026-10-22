@@ -33,10 +33,10 @@ const topics = [
 
 const talks = [
   {
-    title: 'Creative Hub AI — Live Demo',
+    title: 'WhoIsDésir® Invests AI — Live Demo',
     subtitle: 'AI-Powered Stock Valuation & Market Analysis',
     description:
-      'A live walkthrough of Creative Hub AI, an AI-powered tool that analyzes stock data, generates valuations, and provides market insights.',
+      'A live walkthrough of WhoIsDésir® Invests AI, an AI-powered tool that analyzes stock data, generates valuations, and provides market insights.',
     tags: ['AI', 'Finance', 'Live Demo'],
     date: '[DATE TBD]',
     featured: true,
@@ -202,10 +202,9 @@ function About() {
                 financial intelligence, digital media, educational platforms, and agency operations.
               </p>
               <p>
-                His portfolio includes <strong className="text-white">Magnitax®</strong> (AI-augmented
-                tax and financial services), <strong className="text-white">Silver Parrots®</strong>{' '}
+                His portfolio includes <strong className="text-white">WhoIsDésir® Financial</strong> (financial and tax workflow automation, formerly Magnitax®), <strong className="text-white">Silver Parrots®</strong>{' '}
                 (K-5 EdTech and state assessment tutoring platform in collaboration with FIU Business), the <strong className="text-white">WhoIsDésir®</strong>{' '}
-                Media Agency, and the Creative Hub AI demo — an AI-powered stock valuation and
+                Media Agency, and the <strong className="text-white">WhoIsDésir® Invests AI</strong> demo — an AI-powered stock valuation and
                 market analysis tool that demonstrates practical AI application in finance.
               </p>
               <p>
@@ -244,7 +243,7 @@ function Ventures() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Magnitax Card */}
+          {/* WhoIsDésir® Financial Card */}
           <div className="rounded-3xl bg-dark-800 border border-white/5 p-8 flex flex-col justify-between hover:border-amber-400/30 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -253,10 +252,10 @@ function Ventures() {
                 </span>
                 <span className="text-xs text-muted font-mono">Prototype &amp; Strategy</span>
               </div>
-              <h3 className="font-heading font-black text-2xl text-white mb-2">Magnitax®</h3>
-              <p className="text-sm text-miami-pink-soft font-medium mb-3">AI-Augmented Tax &amp; Financial Services</p>
+              <h3 className="font-heading font-black text-2xl text-white mb-2">WhoIsDésir® Financial</h3>
+              <p className="text-sm text-miami-pink-soft font-medium mb-3">AI-Augmented Financial Services &amp; Tax Operations</p>
               <p className="text-sm text-muted leading-relaxed mb-6 font-body">
-                Client intake automation, intelligent document extraction (W-2, 1099), and real-time return status pipelines engineered to eliminate tax season friction.
+                Client intake automation, intelligent document extraction (W-2, 1099), and real-time return status pipelines engineered to eliminate tax season friction. Built on the Magnitax® architecture.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/5 text-white/70">Next.js</span>
@@ -272,7 +271,7 @@ function Ventures() {
             </Link>
           </div>
 
-          {/* Creative Hub AI Card */}
+          {/* WhoIsDésir® Invests AI Card */}
           <div className="rounded-3xl bg-dark-800 border border-white/5 p-8 flex flex-col justify-between hover:border-cyan-400/30 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -281,7 +280,7 @@ function Ventures() {
                 </span>
                 <span className="text-xs text-muted font-mono">Live Demo</span>
               </div>
-              <h3 className="font-heading font-black text-2xl text-white mb-2">Creative Hub AI</h3>
+              <h3 className="font-heading font-black text-2xl text-white mb-2">WhoIsDésir® Invests AI</h3>
               <p className="text-sm text-miami-blue-light font-medium mb-3">AI Stock Valuation &amp; Market Intelligence</p>
               <p className="text-sm text-muted leading-relaxed mb-6 font-body">
                 Algorithmic discounted cash flow modeling, sensitivity analysis, and natural language narrative synthesis that unpacks valuation drivers in plain English.
@@ -416,7 +415,7 @@ function PastTalks() {
             Past Talks
           </h2>
           <p className="text-muted font-body max-w-2xl mx-auto">
-            Featured keynotes, panels, and workshops. The Creative Hub AI demo is the headline
+            Featured keynotes, panels, and workshops. The WhoIsDésir® Invests AI demo is the headline
             AI talk; adjacent experience rounds out the record. Every talk has a written
             recap — open the first paragraph free, create a free account to read the rest.
           </p>

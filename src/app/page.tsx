@@ -135,7 +135,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Magnitax Card */}
+            {/* WhoIsDésir® Financial Card */}
             <div className="group rounded-2xl bg-white/[0.02] border border-white/5 p-6 hover:border-amber-400/30 hover:bg-white/[0.04] transition-all flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -144,8 +144,8 @@ export default function LandingPage() {
                   </span>
                   <span className="text-[10px] text-white/30 font-mono">Prototype</span>
                 </div>
-                <h3 className="font-heading font-bold text-xl text-white mb-1">Magnitax®</h3>
-                <p className="text-xs text-amber-300/80 mb-3 font-medium">AI-Augmented Tax Platform</p>
+                <h3 className="font-heading font-bold text-xl text-white mb-1">WhoIsDésir® Financial</h3>
+                <p className="text-xs text-amber-300/80 mb-3 font-medium">AI-Augmented Financial Platform</p>
                 <p className="text-xs text-white/50 leading-relaxed mb-4">
                   Automated document intake, intelligent W-2 extraction, and client portal removing tax season bottlenecks.
                 </p>
@@ -158,7 +158,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Creative Hub AI Card */}
+            {/* WhoIsDésir® Invests AI Card */}
             <div className="group rounded-2xl bg-white/[0.02] border border-white/5 p-6 hover:border-cyan-400/30 hover:bg-white/[0.04] transition-all flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -167,7 +167,7 @@ export default function LandingPage() {
                   </span>
                   <span className="text-[10px] text-white/30 font-mono">Live Demo</span>
                 </div>
-                <h3 className="font-heading font-bold text-xl text-white mb-1">Creative Hub AI</h3>
+                <h3 className="font-heading font-bold text-xl text-white mb-1">WhoIsDésir® Invests AI</h3>
                 <p className="text-xs text-miami-blue-light/80 mb-3 font-medium">Stock Valuation Engine</p>
                 <p className="text-xs text-white/50 leading-relaxed mb-4">
                   Automated discounted cash flow modeling, sensitivity analysis, and narrative valuation summaries.
@@ -209,14 +209,14 @@ export default function LandingPage() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">
-                    Media Production
+                    WhoIsDésir® Shoots
                   </span>
                   <span className="text-[10px] text-white/30 font-mono">Delivered</span>
                 </div>
-                <h3 className="font-heading font-bold text-xl text-white mb-1">1804 Showcase</h3>
-                <p className="text-xs text-emerald-300/80 mb-3 font-medium">Grand Opening &amp; Culinary</p>
+                <h3 className="font-heading font-bold text-lg text-white mb-1">WhoIsDésir® Shoots presents 1804 Showcase</h3>
+                <p className="text-xs text-emerald-300/80 mb-3 font-medium">Culinary &amp; Event Production</p>
                 <p className="text-xs text-white/50 leading-relaxed mb-4">
-                  Culinary photography, event coverage, and branding suite for 1804 Haitian Pizza.
+                  Commercial culinary visual storytelling, live grand opening event coverage, and brand assets for 1804 Haitian Pizza.
                 </p>
               </div>
               <div className="pt-4 border-t border-white/5 flex items-center justify-between">
