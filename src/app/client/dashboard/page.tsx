@@ -281,7 +281,7 @@ export default function ClientDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-xs text-muted font-semibold mb-1">PROPOSAL</div>
-                    <div className="font-heading font-bold text-dark-800">WhoIsDésir 1804</div>
+                    <div className="font-heading font-bold text-dark-800">WhoIsDésir® Shoots presents 1804 Showcase</div>
                     <div className="text-xs text-muted mt-1">View your project proposal</div>
                   </div>
                   <a
