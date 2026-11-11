@@ -175,6 +175,18 @@ vercel --prod --yes</pre>
     <li><strong>Developer Docs:</strong> Visit <code>/developer</code> on the live site for API reference</li>
   </ul>
 
+  <h2>10. Runbook — Database &amp; Login Troubleshooting</h2>
+  <p>When the site loads but no one can log in, the cause is almost always a <strong>database connection problem</strong>, not an app or hosting problem. This runbook walks through diagnosing a dead <code>DATABASE_URL</code>, the misleading "Invalid credentials" message, DNS/pooler checks, fixing <code>DIRECT_URL</code>, and recreating an admin account.</p>
+  <div class="info"><strong>Full runbook:</strong> <a href="/db-login-troubleshooting-runbook.pdf" download>📥 Download the Database &amp; Login Troubleshooting Runbook (PDF)</a></div>
+  <ul>
+    <li><strong>Symptom:</strong> "Invalid credentials" for a known-good password, or "Connection error. Please try again."</li>
+    <li><strong>Why:</strong> <code>authorize()</code> in <code>src/lib/auth.ts</code> throws when the DB is unreachable, and the login page reports any failure as invalid credentials.</li>
+    <li><strong>Diagnose:</strong> test <code>DATABASE_URL</code>/<code>DIRECT_URL</code>, resolve <code>db.&lt;ref&gt;.supabase.co</code> (NXDOMAIN = project gone), watch for <code>tenant/user ... not found</code> from the pooler.</li>
+    <li><strong>Fix:</strong> update both URLs in <code>.env</code>, remove duplicate keys, then verify with a Prisma count before touching data.</li>
+    <li><strong>Recover:</strong> <code>npm run db:push</code> + <code>npm run db:seed</code>, or <code>npx tsx prisma/create-admin.ts</code> for a missing admin.</li>
+  </ul>
+  <div class="warning"><strong>Never commit <code>.env</code>.</strong> Rotate any database password that has been exposed.</div>
+
 </div>
 </body>
 </html>
