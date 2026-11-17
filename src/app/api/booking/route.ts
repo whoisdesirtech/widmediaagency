@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
 import { rateLimit, clientKey, tooManyRequests } from '@/lib/rateLimit';
+import { escapeHtml, sanitizeHeaderValue } from '@/lib/html';
 
 const ORGANIZER_EMAIL = 'digitalvurv@gmail.com';
 
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
         await transporter.sendMail({
           from: `"Désir Fils Speaker Page" <${process.env.SMTP_USER}>`,
           to: ORGANIZER_EMAIL,
-          subject: `New Booking Inquiry from ${body.name}`,
+          subject: `New Booking Inquiry from ${sanitizeHeaderValue(body.name)}`,
           html: buildEmailHtml(body),
         });
       } catch (emailError) {
@@ -65,17 +66,23 @@ export async function POST(req: Request) {
 }
 
 function buildEmailHtml(data: Record<string, any>): string {
+  const name = escapeHtml(data.name);
+  const email = escapeHtml(data.email);
+  const organization = data.organization ? escapeHtml(data.organization) : '';
+  const eventName = data.eventName ? escapeHtml(data.eventName) : '';
+  const message = escapeHtml(data.message);
+
   return `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
       <h2 style="color:#ED145A;">New Speaking Inquiry</h2>
       <table style="width:100%;border-collapse:collapse">
-        <tr><td style="padding:8px 0;color:#888;width:120px">Name</td><td style="padding:8px 0">${data.name}</td></tr>
-        <tr><td style="padding:8px 0;color:#888">Email</td><td style="padding:8px 0"><a href="mailto:${data.email}">${data.email}</a></td></tr>
-        ${data.organization ? `<tr><td style="padding:8px 0;color:#888">Organization</td><td style="padding:8px 0">${data.organization}</td></tr>` : ''}
-        ${data.eventName ? `<tr><td style="padding:8px 0;color:#888">Event</td><td style="padding:8px 0">${data.eventName}</td></tr>` : ''}
+        <tr><td style="padding:8px 0;color:#888;width:120px">Name</td><td style="padding:8px 0">${name}</td></tr>
+        <tr><td style="padding:8px 0;color:#888">Email</td><td style="padding:8px 0"><a href="mailto:${email}">${email}</a></td></tr>
+        ${organization ? `<tr><td style="padding:8px 0;color:#888">Organization</td><td style="padding:8px 0">${organization}</td></tr>` : ''}
+        ${eventName ? `<tr><td style="padding:8px 0;color:#888">Event</td><td style="padding:8px 0">${eventName}</td></tr>` : ''}
       </table>
       <hr style="border:none;border-top:1px solid #eee;margin:16px 0" />
-      <p style="color:#333">${data.message}</p>
+      <p style="color:#333">${message}</p>
       <hr style="border:none;border-top:1px solid #eee;margin:16px 0" />
       <p style="font-size:12px;color:#999">Sent from the Désir Fils speaker page.</p>
     </div>

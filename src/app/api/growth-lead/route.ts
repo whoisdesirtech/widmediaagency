@@ -112,7 +112,9 @@ export async function POST(req: Request) {
           score,
           tier,
           status: qualification.verdict === 'sales_ready' ? 'warm' : 'new',
-          consent: true,
+          // Persist the value actually submitted. Validation rejects anything
+          // other than `true`, but the stored record must never invent consent.
+          consent: body.consent === true,
           lastTouchAt: new Date(),
         },
       });

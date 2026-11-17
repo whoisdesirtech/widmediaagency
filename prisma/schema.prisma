@@ -812,3 +812,262 @@ model Review {
   reviewer   User?    @relation("ReviewReviewer", fields: [reviewerId], references: [id])
 }
 
+// ---------------------------------------------------------------------------
+// Creative talent operations (additive; no existing model is modified)
+// ---------------------------------------------------------------------------
+
+model Applicant {
+  id              String    @id @default(uuid())
+  agencyId        String?
+  referenceCode   String    @unique
+  fullName        String
+  email           String
+  phone           String?
+  location        String?
+  timezone        String?
+  primaryRole     String
+  secondaryRoles  String    @default("[]")
+  seniority       String?
+  engagementType  String?
+  availability    String    @default("{}")
+  rateExpectation Int?
+  currency        String    @default("USD")
+  portfolioUrl    String?
+  reelUrl         String?
+  links           String    @default("[]")
+  source          String?
+  consent         Boolean   @default(false)
+  consentVersion  String?
+  consentAt       DateTime?
+  status          String    @default("received")
+  duplicateOfId   String?
+  notes           String?
+  ownerUserId     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  assets  ApplicationAsset[]
+  events  ApplicantEvent[]
+  reviews TalentReview[]
+  profile TalentProfile?
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([agencyId, status])
+}
+
+model ApplicationAsset {
+  id          String    @id @default(uuid())
+  applicantId String
+  kind        String
+  url         String
+  label       String?
+  createdAt   DateTime  @default(now())
+  applicant   Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@index([applicantId])
+}
+
+model ApplicantEvent {
+  id          String    @id @default(uuid())
+  applicantId String
+  type        String
+  fromStatus  String?
+  toStatus    String?
+  actorUserId String?
+  note        String?
+  metadata    String?
+  createdAt   DateTime  @default(now())
+  applicant   Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@index([applicantId, createdAt])
+}
+
+model TalentProfile {
+  id           String    @id @default(uuid())
+  applicantId  String    @unique
+  agencyId     String?
+  displayName  String
+  primaryRole  String
+  seniority    String?
+  status       String    @default("active")
+  contractorId String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  applicant    Applicant @relation(fields: [applicantId], references: [id])
+
+  skills       TalentSkill[]
+  availability TalentAvailability[]
+  portfolio    TalentPortfolioItem[]
+}
+
+model TalentSkill {
+  id       String        @id @default(uuid())
+  talentId String
+  name     String
+  level    Int           @default(3)
+  years    Int?
+  talent   TalentProfile @relation(fields: [talentId], references: [id], onDelete: Cascade)
+
+  @@unique([talentId, name])
+  @@index([name])
+}
+
+model TalentAvailability {
+  id        String        @id @default(uuid())
+  talentId  String
+  startDate DateTime
+  endDate   DateTime
+  status    String        @default("available")
+  notes     String?
+  talent    TalentProfile @relation(fields: [talentId], references: [id], onDelete: Cascade)
+
+  @@index([talentId, startDate])
+}
+
+model TalentPortfolioItem {
+  id       String        @id @default(uuid())
+  talentId String
+  title    String
+  url      String
+  role     String?
+  year     Int?
+  vertical String?
+  talent   TalentProfile @relation(fields: [talentId], references: [id], onDelete: Cascade)
+
+  @@index([talentId])
+}
+
+model TalentReview {
+  id             String    @id @default(uuid())
+  applicantId    String
+  reviewerUserId String
+  rubric         String    @default("{}")
+  score          Float
+  decision       String
+  notes          String?
+  createdAt      DateTime  @default(now())
+  applicant      Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@index([applicantId, createdAt])
+}
+
+model TalentQueueItem {
+  id           String   @id @default(uuid())
+  agencyId     String?
+  type         String
+  entityType   String
+  entityId     String
+  state        String   @default("open")
+  ownerUserId  String?
+  dueAt        DateTime?
+  escalationAt DateTime?
+  reasonCode   String?
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([state, dueAt])
+  @@index([entityType, entityId])
+}
+
+model EmailLog {
+  id          String   @id @default(uuid())
+  toAddress   String
+  template    String
+  subject     String
+  status      String
+  providerId  String?
+  error       String?
+  relatedType String?
+  relatedId   String?
+  createdAt   DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([relatedType, relatedId])
+}
+
+model AutomationRun {
+  id             String   @id @default(uuid())
+  automation     String
+  mode           String
+  status         String
+  entityType     String?
+  entityId       String?
+  fallbackReason String?
+  durationMs     Int?
+  createdAt      DateTime @default(now())
+
+  @@index([automation, createdAt])
+  @@index([status])
+}
+
+model ProjectOpportunity {
+  id                 String    @id @default(uuid())
+  agencyId           String?
+  source             String
+  sourceDetail       String?
+  rawText            String?
+  buyerName          String?
+  buyerRole          String?
+  buyerCompany       String?
+  buyerEmail         String?
+  buyerVerified      Boolean   @default(false)
+  serviceCategory    String?
+  budgetMin          Int?
+  budgetMax          Int?
+  budgetCurrency     String    @default("USD")
+  budgetVerified     Boolean   @default(false)
+  timelineStart      DateTime?
+  timelineEnd        DateTime?
+  location           String?
+  remote             Boolean?
+  rightsSummary      String?
+  scores             String    @default("{}")
+  weightedScore      Float?
+  band               String    @default("unverified")
+  riskLevel          String?
+  missingInformation String    @default("[]")
+  redFlags           String    @default("[]")
+  ownerUserId        String?
+  responseDeadline   DateTime?
+  growthLeadId       String?
+  prospectId         String?
+  bookingInquiryId   String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  requirement OpportunityRequirement?
+
+  @@index([band, responseDeadline])
+  @@index([agencyId, createdAt])
+}
+
+model OpportunityRequirement {
+  id              String             @id @default(uuid())
+  opportunityId   String             @unique
+  serviceCategory String
+  roles           String             @default("[]")
+  skills          String             @default("[]")
+  startDate       DateTime?
+  endDate         DateTime?
+  location        String?
+  remote          Boolean?
+  crewSize        Int?
+  deliverables    String             @default("[]")
+  rights          String?
+  budgetBand      String?
+  paymentTerms    String?
+  revisionRounds  Int?
+  confidentiality String?
+  fieldStatus     String             @default("{}")
+  sourceQuotes    String             @default("{}")
+  conflicts       String             @default("[]")
+  confirmedBy     String?
+  confirmedAt     DateTime?
+  sowId           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  opportunity     ProjectOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+}
+

@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
         "Cache-Control": "no-store, max-age=0"
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to generate ZIP download:", error);
     return NextResponse.json(
-      { error: `Compilation error: ${error.message}` },
+      { error: "Compilation error", code: "PROPOSAL_COMPILE_FAILED" },
       { status: 500 }
     );
   }

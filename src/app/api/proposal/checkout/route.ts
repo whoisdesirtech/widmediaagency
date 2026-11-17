@@ -18,10 +18,10 @@ export async function POST(request: NextRequest) {
     
     // Stateless MVP Simulation fallback
     return NextResponse.json({ url: "/proposal-builder/checkout" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Checkout session initiation failed:", error);
     return NextResponse.json(
-      { error: `Payment gateway error: ${error.message}` },
+      { error: "Payment gateway error", code: "PROPOSAL_CHECKOUT_FAILED" },
       { status: 500 }
     );
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
@@ -14,38 +15,126 @@ function generatePassword(length = 12) {
   return pw;
 }
 
+function smtpConfigured(): boolean {
+  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+/**
+ * Credentials are delivered to the contractor's inbox. They are never returned
+ * to the browser, so they cannot leak through browser history, screenshots, or XSS.
+ */
+async function sendCredentialsEmail(to: string, name: string, password: string): Promise<void> {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    secure: process.env.SMTP_PORT === '465',
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+
+  await transporter.sendMail({
+    from: `"WhoIsDésir® Media" <${process.env.SMTP_USER}>`,
+    to,
+    subject: 'Your WhoIsDésir® Media contractor login',
+    text: [
+      `Hello ${name},`,
+      '',
+      'A contractor account has been created for you.',
+      '',
+      `Email: ${to}`,
+      `Temporary password: ${password}`,
+      '',
+      'Sign in at /login and change your password immediately.',
+      'If you did not expect this email, contact the agency.',
+      '',
+      '— WhoIsDésir® Media Agency',
+    ].join('\n'),
+  });
+}
+
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
     const admin = await requireAdmin();
     if (isNextResponse(admin)) return admin;
 
     const body = await req.json().catch(() => ({}));
-    const customEmail = body?.email;
+    const rawCustomEmail = body?.email;
+
+    if (rawCustomEmail !== undefined && rawCustomEmail !== null && rawCustomEmail !== '') {
+      if (typeof rawCustomEmail !== 'string' || !isValidEmail(rawCustomEmail.trim())) {
+        return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+      }
+    }
+
+    const customEmail =
+      typeof rawCustomEmail === 'string' && rawCustomEmail.trim()
+        ? rawCustomEmail.trim().toLowerCase()
+        : undefined;
 
     const contractor = await prisma.contractor.findUnique({ where: { id: params.id } });
     if (!contractor) {
       return NextResponse.json({ error: 'Contractor not found' }, { status: 404 });
     }
 
+    if (!smtpConfigured()) {
+      return NextResponse.json(
+        { error: 'Email delivery is not configured. Credentials were not issued.' },
+        { status: 503 }
+      );
+    }
+
+    // Existing linked account: reset the password and email the new one.
     if (contractor.userId) {
       const existingUser = await prisma.user.findUnique({ where: { id: contractor.userId } });
       if (existingUser) {
+        const targetEmail = customEmail || existingUser.email;
+
+        if (targetEmail !== existingUser.email) {
+          const emailOwner = await prisma.user.findUnique({ where: { email: targetEmail } });
+          if (emailOwner && emailOwner.id !== existingUser.id) {
+            return NextResponse.json({ error: 'Email is already in use' }, { status: 409 });
+          }
+        }
+
         const tempPw = generatePassword();
         const hash = await bcrypt.hash(tempPw, 10);
-        const updateData: any = { passwordHash: hash };
+
+        try {
+          await sendCredentialsEmail(targetEmail, existingUser.name, tempPw);
+        } catch {
+          return NextResponse.json(
+            { error: 'Could not send credentials email. No changes were made.' },
+            { status: 502 }
+          );
+        }
+
+        const updateData: { passwordHash: string; email?: string } = { passwordHash: hash };
         if (customEmail) updateData.email = customEmail;
         await prisma.user.update({ where: { id: existingUser.id }, data: updateData });
-        await logAudit(admin, { action: 'contractor.login.reset', method: 'POST', path: `/api/contractors/${params.id}/login`, entity: 'Contractor', entityId: params.id });
+
+        await logAudit(admin, {
+          action: 'contractor.login.reset',
+          method: 'POST',
+          path: `/api/contractors/${params.id}/login`,
+          entity: 'Contractor',
+          entityId: params.id,
+          metadata: { delivery: 'email' },
+        });
+
         return NextResponse.json({
-          email: customEmail || existingUser.email,
-          password: tempPw,
+          email: targetEmail,
           name: existingUser.name,
-          message: 'Password reset. New credentials generated.',
+          message: 'Password reset. Credentials emailed to the contractor.',
         });
       }
     }
 
-    const email = customEmail || `${contractor.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@whodesir.com`;
+    const email =
+      customEmail ||
+      `${contractor.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@whodesir.com`;
 
     const existingByEmail = await prisma.user.findUnique({ where: { email } });
     if (existingByEmail && existingByEmail.role !== 'contractor') {
@@ -60,6 +149,16 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
     const tempPassword = generatePassword();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+    // Send before persisting so a delivery failure leaves the account untouched.
+    try {
+      await sendCredentialsEmail(email, contractor.name, tempPassword);
+    } catch {
+      return NextResponse.json(
+        { error: 'Could not send credentials email. No changes were made.' },
+        { status: 502 }
+      );
+    }
 
     const user = existingByEmail
       ? await prisma.user.update({
@@ -113,13 +212,21 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       }
     }
 
-    await logAudit(admin, { action: 'contractor.login.create', method: 'POST', path: `/api/contractors/${params.id}/login`, entity: 'Contractor', entityId: params.id, metadata: existingByEmail ? { linkedExistingUser: true } : undefined });
+    await logAudit(admin, {
+      action: 'contractor.login.create',
+      method: 'POST',
+      path: `/api/contractors/${params.id}/login`,
+      entity: 'Contractor',
+      entityId: params.id,
+      metadata: existingByEmail ? { linkedExistingUser: true, delivery: 'email' } : { delivery: 'email' },
+    });
 
     return NextResponse.json({
       email,
-      password: tempPassword,
       name: contractor.name,
-      message: existingByEmail ? 'Existing account linked. New credentials generated.' : 'Contractor login created.',
+      message: existingByEmail
+        ? 'Existing account linked. Credentials emailed to the contractor.'
+        : 'Contractor login created. Credentials emailed to the contractor.',
     });
   } catch (err) {
     console.error(`[contractor-login] Failed for contractor ${params.id}:`, err);

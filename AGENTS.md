@@ -4,6 +4,10 @@ Next.js (App Router) agency-management platform: contractor onboarding, SOWs, co
 
 **Current version: 1.2.0** | **Latest tag: v1.0.0** | **Branch: main**
 
+## Key contacts
+
+- **Lead Developer / upstream owner:** [whoisdesirtech](https://github.com/whoisdesirtech) — review and merge authority for PRs. The `origin` remote is `https://github.com/whoisdesirtech/widmediaagency`; contributors without write access push to their fork and open a PR against it.
+
 ## Commands
 
 - `npm run dev` — start dev server

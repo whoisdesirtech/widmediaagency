@@ -178,12 +178,11 @@ export default function ContractorDetailPage() {
               <div className="space-y-2">
                 {loginCredentials && (
                   <div className="p-4 bg-miami-pink/5 border border-miami-pink/20 rounded-xl mb-3">
-                    <div className="text-xs font-bold text-miami-pink mb-2">Contractor Login Credentials</div>
+                    <div className="text-xs font-bold text-miami-pink mb-2">Contractor Login Created</div>
                     <div className="space-y-1 text-xs">
                       <div><span className="text-muted">Email:</span> <span className="font-mono font-semibold text-dark-800">{loginCredentials.email}</span></div>
-                      <div><span className="text-muted">Password:</span> <span className="font-mono font-semibold text-dark-800">{loginCredentials.password}</span></div>
                     </div>
-                    <p className="text-[0.65rem] text-muted mt-2">Share these credentials with the contractor. They can log in at /login.</p>
+                    <p className="text-[0.65rem] text-muted mt-2">Credentials were emailed to the contractor. Ask them to change the password after first sign-in.</p>
                   </div>
                 )}
                 {resetResult && (
@@ -191,9 +190,8 @@ export default function ContractorDetailPage() {
                     <div className="text-xs font-bold text-blue-700 mb-2">Password Reset</div>
                     <div className="space-y-1 text-xs">
                       <div><span className="text-muted">Email:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.email}</span></div>
-                      <div><span className="text-muted">New Password:</span> <span className="font-mono font-semibold text-dark-800">{resetResult.password}</span></div>
                     </div>
-                    <p className="text-[0.65rem] text-muted mt-2">Share this new password securely with the contractor.</p>
+                    <p className="text-[0.65rem] text-muted mt-2">A new temporary password was emailed to the contractor.</p>
                   </div>
                 )}
                 <div>
