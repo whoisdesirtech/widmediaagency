@@ -1,4 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import {
+  WORDPRESS_QUIZ_QUESTIONS,
+  WORDPRESS_QUIZ_SEED,
+  validateQuestionBank,
+} from '../src/lib/wordpress-quiz';
 
 const prisma = new PrismaClient();
 
@@ -85,7 +90,96 @@ const lessons = [
       { id: 'verification', title: 'Verify Your Account', order: 7 },
     ],
   },
+  {
+    slug: 'wordpress-developer',
+    title: 'WordPress Developer Training',
+    description:
+      'Enfold city landing pages, the SOP workflow, responsive embeds, Yoast SEO fields, QA, and delivery.',
+    targetRole: 'wordpress-developer',
+    requiresGithub: false,
+    requiresSlack: false,
+    steps: [
+      { id: 'role-overview', title: 'Role Overview & Access', order: 1 },
+      { id: 'account-access', title: 'Account Access & Login', order: 2 },
+      { id: 'content-ai', title: 'Creating Content with AI', order: 3 },
+      { id: 'content-spreadsheet', title: 'Adding Content to the Spreadsheet', order: 4 },
+      { id: 'duplicate-page', title: 'Duplicating the City Page in Enfold', order: 5 },
+      { id: 'add-content', title: 'Adding Content to New Pages Properly', order: 6 },
+      { id: 'enfold-headings', title: 'Enfold Headings & Layout Rules', order: 7 },
+      { id: 'responsive-video-embeds', title: 'Responsive Video Embeds', order: 8 },
+      { id: 'yoast-seo', title: 'Yoast SEO Fields', order: 9 },
+      { id: 'visual-qa', title: 'Visual QA — Desktop & Mobile', order: 10 },
+      { id: 'delivery-reporting', title: 'Delivery & Reporting', order: 11 },
+    ],
+  },
 ];
+
+async function seedWordPressQuiz() {
+  const errors = validateQuestionBank(WORDPRESS_QUIZ_QUESTIONS);
+  if (errors.length > 0) {
+    throw new Error(`WordPress quiz question bank is invalid:\n  - ${errors.join('\n  - ')}`);
+  }
+
+  const quiz = await prisma.trainingQuiz.upsert({
+    where: { slug: WORDPRESS_QUIZ_SEED.slug },
+    update: {
+      title: WORDPRESS_QUIZ_SEED.title,
+      description: WORDPRESS_QUIZ_SEED.description,
+      targetRole: WORDPRESS_QUIZ_SEED.targetRole,
+      passingScore: WORDPRESS_QUIZ_SEED.passingScore,
+      isActive: WORDPRESS_QUIZ_SEED.isActive,
+    },
+    create: {
+      slug: WORDPRESS_QUIZ_SEED.slug,
+      title: WORDPRESS_QUIZ_SEED.title,
+      description: WORDPRESS_QUIZ_SEED.description,
+      targetRole: WORDPRESS_QUIZ_SEED.targetRole,
+      passingScore: WORDPRESS_QUIZ_SEED.passingScore,
+      isActive: WORDPRESS_QUIZ_SEED.isActive,
+    },
+  });
+
+  let createdQuestions = 0;
+  let updatedQuestions = 0;
+
+  for (const question of WORDPRESS_QUIZ_QUESTIONS) {
+    const existing = await prisma.quizQuestion.findUnique({
+      where: { quizId_key: { quizId: quiz.id, key: question.key } },
+    });
+
+    const data = {
+      category: question.category,
+      prompt: question.prompt,
+      options: question.options,
+      correctIndex: question.correctIndex,
+      explanation: question.explanation,
+      difficulty: question.difficulty ?? 'intermediate',
+      order: question.order,
+      isActive: true,
+    };
+
+    if (existing) {
+      await prisma.quizQuestion.update({ where: { id: existing.id }, data });
+      updatedQuestions++;
+    } else {
+      await prisma.quizQuestion.create({
+        data: {
+          ...data,
+          quizId: quiz.id,
+          key: question.key,
+        },
+      });
+      createdQuestions++;
+    }
+  }
+
+  const enfold = WORDPRESS_QUIZ_QUESTIONS.filter((q) => q.category === 'enfold').length;
+  const basics = WORDPRESS_QUIZ_QUESTIONS.filter((q) => q.category === 'wordpress-basics').length;
+
+  console.log(
+    `\nWordPress certification quiz: ${createdQuestions} questions created, ${updatedQuestions} updated (${enfold} Enfold, ${basics} WordPress basics, pass ${WORDPRESS_QUIZ_SEED.passingScore}%)`
+  );
+}
 
 async function main() {
   let created = 0;
@@ -121,6 +215,8 @@ async function main() {
   for (const l of lessons) {
     console.log(`  - ${l.slug} (${l.steps.length} steps, requiresGithub: ${l.requiresGithub}, requiresSlack: ${(l as { requiresSlack?: boolean }).requiresSlack || false})`);
   }
+
+  await seedWordPressQuiz();
 }
 
 main()

@@ -25,6 +25,7 @@ const ADMIN_ONLY_ITEMS = [
   { href: '/admin/audit', label: 'Audit Admin', icon: '🛡️' },
   { href: '/admin/audit-log', label: 'Audit Log', icon: '🧾' },
   { href: '/admin/developer-training', label: 'Developer Training', icon: '🎓' },
+  { href: '/admin/wordpress-developer', label: 'WordPress Training', icon: '🧩' },
   { href: '/admin/workforce', label: 'Workforce Dashboard', icon: '👷' },
 ];
 

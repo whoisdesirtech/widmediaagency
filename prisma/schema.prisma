@@ -72,6 +72,9 @@ model Contractor {
   roles               ContractorRole[]
   trainingAssignments TrainingAssignment[]
   tasks               ProjectTask[]
+  quizAttempts        QuizAttempt[]
+  payTier             ContractorPayTier?
+  wordpressWorkSubmissions WordPressWorkSubmission[]
   messageThreads      MessageThread[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
@@ -812,3 +815,114 @@ model Review {
   reviewer   User?    @relation("ReviewReviewer", fields: [reviewerId], references: [id])
 }
 
+
+// --- WordPress Developer Training, certification quiz, pay tier, and work review ---
+
+model TrainingQuiz {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  title         String
+  description   String?
+  targetRole    String   @default("wordpress-developer")
+  passingScore  Int      @default(80)
+  timeLimitMins Int?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+}
+
+model QuizQuestion {
+  id           String       @id @default(uuid())
+  quizId       String
+  quiz         TrainingQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  key          String
+  category     String // enfold | wordpress-basics
+  prompt       String
+  options      Json // string[]
+  correctIndex Int
+  explanation  String?
+  difficulty   String       @default("intermediate")
+  order        Int          @default(0)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([quizId, key])
+  @@index([quizId, order])
+}
+
+model QuizAttempt {
+  id             String       @id @default(uuid())
+  quizId         String
+  quiz           TrainingQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  contractorId   String
+  contractor     Contractor   @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  attemptNumber  Int          @default(1)
+  status         String       @default("assigned") // assigned | in_progress | submitted | reviewed
+  answers        Json? // [{ questionId, selectedIndex }]
+  score          Int?
+  maxScore       Int?
+  percentage     Int?
+  passed         Boolean?
+  assignedAt     DateTime     @default(now())
+  startedAt      DateTime?
+  submittedAt    DateTime?
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  reviewNotes    String?
+  overrideScore  Int?
+  overridePassed Boolean?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([quizId, contractorId])
+  @@index([contractorId, submittedAt])
+}
+
+model ContractorPayTier {
+  id            String     @id @default(uuid())
+  contractorId  String     @unique
+  contractor    Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  tier          String     @default("standard") // standard | certified
+  standardRate  Float?
+  certifiedRate Float?
+  rateType      String     @default("project")
+  source        String     @default("default") // default | quiz | manual
+  quizAttemptId String?
+  effectiveAt   DateTime   @default(now())
+  notes         String?
+  updatedBy     String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model WordPressWorkSubmission {
+  id                String     @id @default(uuid())
+  contractorId      String
+  contractor        Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  city              String
+  pageName          String
+  pageUrl           String
+  editUrl           String?
+  seoTitle          String
+  focusKeyphrase    String
+  slug              String
+  metaDescription   String
+  relatedKeyphrases String     @default("")
+  canonicalUrl      String?
+  socialTitle       String
+  socialDescription String
+  notes             String?
+  status            String     @default("submitted") // submitted | approved | changes_requested
+  adminNotes        String?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([contractorId, createdAt])
+  @@index([status])
+}

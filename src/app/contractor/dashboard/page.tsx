@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import ContractorSidebar from '@/components/ContractorSidebar';
 import StatusBadge from '@/components/StatusBadge';
+import WordPressQuizModal from '@/components/WordPressQuizModal';
 
 interface UserInfo {
   id: string;
@@ -329,6 +330,9 @@ export default function ContractorDashboard() {
               <div className="text-muted text-sm">Your agency admin will create your Statement of Work. Check back soon.</div>
             </div>
           )}
+
+          {/* Auto-opens for WordPress developers on their first login. */}
+          <WordPressQuizModal autoOpen showTrigger={false} />
         </div>
       </main>
     </div>

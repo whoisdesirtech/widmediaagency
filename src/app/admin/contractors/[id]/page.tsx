@@ -13,6 +13,7 @@ const AVAILABLE_ROLES = [
   { value: 'designer', label: 'Graphic Designer', icon: '🎨' },
   { value: 'ai-automation', label: 'AI Automation Specialist', icon: '🤖' },
   { value: 'web-designer', label: 'Web Designer', icon: '🌐' },
+  { value: 'wordpress-developer', label: 'WordPress Developer', icon: '🧩' },
   { value: 'developer', label: 'Developer', icon: '💻' },
   { value: 'copywriter', label: 'Copywriter', icon: '✍️' },
   { value: 'motion-designer', label: 'Motion Designer', icon: '✨' },
@@ -26,6 +27,7 @@ const ROLE_ICONS: Record<string, string> = {
   designer: '🎨', 'ai-automation': '🤖', developer: '💻',
   copywriter: '✍️', 'web-designer': '🌐', 'motion-designer': '✨',
   'virtual-assistant': '🗓️', 'marketing-specialist': '📈', 'podcast-editor': '🎙️',
+  'wordpress-developer': '🧩',
 };
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {

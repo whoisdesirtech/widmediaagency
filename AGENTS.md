@@ -104,6 +104,19 @@ Required env vars (optional): `SLACK_BOT_TOKEN` (workspace bot with `users:read`
 - `slack-fundamentals` (7 steps, Slack required)
 - `secret-key-rotation` (8 steps, no GitHub, no Slack)
 - `google-calendar-setup` (10 steps, GitHub required) — wires the messaging Google Calendar integration
+- `wordpress-developer` (11 steps, no GitHub, no Slack) — Enfold city-page SOP; paired with the separate certification quiz
+
+## WordPress Developer Training & Certification
+
+Role: `wordpress-developer`. Three separate parts: the SOP training module, a separate 10-question certification quiz (5 Enfold + 5 WordPress fundamentals, intermediate), and a practical city-page work submission reviewed by admins. See `docs/WORDPRESS_DEVELOPER_TRAINING.md` for the full spec.
+
+- Source of truth: `src/lib/wordpress-quiz.ts` (question bank, grading, pay-tier helpers).
+- Quiz is graded **server-side only**; pass mark 80% stored on `TrainingQuiz.passingScore`; answer keys are never sent to the browser.
+- Assigned idempotently by `src/lib/wordpress-developer-provisioning.ts` on contractor creation, login creation, and `wordpress-developer` role approval.
+- Passing sets `ContractorPayTier.tier = 'certified'` (higher rate); failing keeps `standard`, and a failed retake never downgrades an earned tier. `certifiedRate` defaults to `standardRate × 1.25`.
+- Routes: contractor `/api/training/wordpress-quiz` (`start`/`submit`) and `/api/training/wordpress-work`; admin `/api/admin/training/wordpress-quiz` (+`/[attemptId]` review/override/rates) and `/api/admin/training/wordpress-work` (+`/[id]` approve/changes).
+- UI: `/contractor/wordpress-developer` (module/work/certification, auto-opening quiz modal on the dashboard) and `/admin/wordpress-developer` (attempts, overrides, pay rates, work review).
+- Seed with `npx tsx prisma/seed-training.ts`; it upserts questions by `QuizQuestion.key`.
 
 ## Phase 4A: Task & Review Foundation
 

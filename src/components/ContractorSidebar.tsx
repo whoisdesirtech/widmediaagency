@@ -21,18 +21,28 @@ const DEVELOPER_ITEMS = [
   { href: '/contractor/developer', label: 'Developer Workspace', icon: '💻' },
 ];
 
+const WORDPRESS_ITEMS = [
+  { href: '/contractor/wordpress-developer', label: 'WordPress Training', icon: '🧩' },
+];
+
 const ROLE_LABELS: Record<string, string> = {
   photography: 'Photography', videography: 'Videography', 'social-media': 'Social Media',
   designer: 'Design', 'ai-automation': 'AI Automation', developer: 'Development',
   copywriter: 'Copywriting', 'web-designer': 'Web Design', 'motion-designer': 'Motion Design',
   'virtual-assistant': 'Virtual Assistance', 'marketing-specialist': 'Marketing', 'podcast-editor': 'Podcast Editing',
+  'wordpress-developer': 'WordPress Development',
 };
 
 export default function ContractorSidebar({ user, contractorRoles }: { user?: { name: string; email: string }; contractorRoles?: string[] }) {
   const pathname = usePathname();
   const roles = contractorRoles || [];
   const isDeveloper = roles.includes('developer');
-  const allItems = isDeveloper ? [...NAV_ITEMS, ...DEVELOPER_ITEMS] : NAV_ITEMS;
+  const isWordPressDeveloper = roles.includes('wordpress-developer');
+  const roleItems = [
+    ...(isDeveloper ? DEVELOPER_ITEMS : []),
+    ...(isWordPressDeveloper ? WORDPRESS_ITEMS : []),
+  ];
+  const allItems = [...NAV_ITEMS, ...roleItems];
 
   const subtitle = roles.length > 0
     ? roles.map(r => ROLE_LABELS[r] || r).join(' · ')

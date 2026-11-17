@@ -45,6 +45,24 @@ function SOWBuilderForm() {
     fetch('/api/contractors').then(r => r.json()).then(setContractors).catch(() => {});
   }, []);
 
+  const selectedContractor = contractors.find((c: any) => c.id === form.contractorId);
+  const selectedPayTier = selectedContractor?.payTier;
+
+  const handleContractorChange = (contractorId: string) => {
+    const contractor = contractors.find((c: any) => c.id === contractorId);
+    const tier = contractor?.payTier;
+    setForm(f => {
+      const suggestedRate =
+        tier?.tier === 'certified' ? tier?.certifiedRate : tier?.standardRate;
+      return {
+        ...f,
+        contractorId,
+        rate: f.rate || (suggestedRate !== null && suggestedRate !== undefined ? String(suggestedRate) : ''),
+        rateType: tier?.rateType || f.rateType,
+      };
+    });
+  };
+
   const addDeliverable = () => setForm(f => ({ ...f, deliverables: [...f.deliverables, ''] }));
   const updateDeliverable = (i: number, val: string) => {
     setForm(f => ({ ...f, deliverables: f.deliverables.map((d, idx) => idx === i ? val : d) }));
@@ -93,7 +111,7 @@ function SOWBuilderForm() {
                 <label className="block text-xs font-semibold text-dark-800 mb-1.5">Contractor *</label>
                 <select
                   value={form.contractorId} required
-                  onChange={e => setForm(f => ({ ...f, contractorId: e.target.value }))}
+                  onChange={e => handleContractorChange(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border-2 border-muted-lighter bg-white text-dark-800 text-sm"
                 >
                   <option value="">Select contractor...</option>
@@ -101,6 +119,44 @@ function SOWBuilderForm() {
                     <option key={c.id} value={c.id}>{c.name} — {c.role.replace(/-/g, ' ')}</option>
                   ))}
                 </select>
+
+                {selectedContractor && (
+                  <div className="mt-3 rounded-xl border border-muted-lighter bg-[#F8F9FC] px-4 py-3 text-xs text-dark-600">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full border px-2.5 py-0.5 font-semibold capitalize ${
+                          selectedPayTier?.tier === 'certified'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                            : 'border-muted-lighter bg-white text-dark-600'
+                        }`}
+                      >
+                        {selectedPayTier?.tier === 'certified' ? 'Certified pay tier' : 'Standard pay tier'}
+                      </span>
+                      {selectedPayTier?.standardRate != null && (
+                        <span>Standard: ${selectedPayTier.standardRate}</span>
+                      )}
+                      {selectedPayTier?.certifiedRate != null && (
+                        <span>Certified: ${selectedPayTier.certifiedRate}</span>
+                      )}
+                      {!selectedPayTier && <span>No pay tier recorded yet.</span>}
+                    </div>
+                    {(selectedPayTier?.certifiedRate != null || selectedPayTier?.standardRate != null) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const suggested =
+                            selectedPayTier?.tier === 'certified'
+                              ? selectedPayTier?.certifiedRate
+                              : selectedPayTier?.standardRate;
+                          if (suggested != null) setForm(f => ({ ...f, rate: String(suggested) }));
+                        }}
+                        className="mt-2 rounded-lg border border-miami-blue-light/40 bg-white px-3 py-1 text-[0.7rem] font-semibold text-miami-blue-beach"
+                      >
+                        Apply {selectedPayTier?.tier === 'certified' ? 'certified' : 'standard'} rate
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

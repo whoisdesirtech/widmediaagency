@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminOrStaff, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
+import { ensureWordPressDeveloperProvisioning } from '@/lib/wordpress-developer-provisioning';
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +36,12 @@ export async function POST(req: Request) {
 
     await logAudit(user, { action: 'contractor.create', method: 'POST', path: '/api/contractors', entity: 'Contractor', entityId: contractor.id, metadata: { role } });
 
+    // Assign the WordPress module and separate quiz as soon as a WordPress
+    // developer record exists, so the quiz is waiting when their login is created.
+    if (role === 'wordpress-developer') {
+      await ensureWordPressDeveloperProvisioning(contractor.id, { assignedBy: user.email });
+    }
+
     return NextResponse.json(contractor, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create contractor' }, { status: 500 });
@@ -53,7 +60,11 @@ export async function GET() {
 
     const contractors = await prisma.contractor.findMany({
       where,
-      include: { sows: true, _count: { select: { sows: true, assembledContracts: true } } },
+      include: {
+        sows: true,
+        payTier: true,
+        _count: { select: { sows: true, assembledContracts: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(contractors);

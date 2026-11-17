@@ -16,6 +16,7 @@ const ALLOWED_ROLES = [
   'marketing-specialist',
   'podcast-editor',
   'web-designer',
+  'wordpress-developer',
 ];
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {

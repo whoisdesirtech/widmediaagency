@@ -128,6 +128,29 @@ export default function ContractorTrainingPage() {
             <p className="text-sm text-muted">Your onboarding guide, portal walkthrough, and vendor phases</p>
           </div>
 
+          {user?.contractorRoles?.includes('wordpress-developer') && (
+            <div className="mb-8 rounded-2xl border border-miami-blue-light/30 bg-gradient-to-br from-miami-blue-beach/10 to-white p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">🧩</span>
+                  <div>
+                    <h2 className="font-heading text-base font-bold text-dark-800">WordPress Developer Program</h2>
+                    <p className="mt-0.5 max-w-2xl text-sm text-dark-500">
+                      Work through the Enfold city-page SOP, submit real page work, then pass the separate
+                      10-question certification quiz at 80% to unlock the certified pay tier.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/contractor/wordpress-developer"
+                  className="rounded-xl gradient-bg px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Open program
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* Your Training Assignments */}
           <div className="mb-8">
             <h2 className="font-heading text-lg font-bold text-dark mb-4">Your Training</h2>

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notifications';
 import { logAudit } from '@/lib/audit';
 import { getRoleLessons } from '@/lib/role-training-config';
+import { ensureWordPressDeveloperProvisioning } from '@/lib/wordpress-developer-provisioning';
 
 async function autoAssignLessons(contractorId: string, role: string) {
   const lessonSlugs = getRoleLessons(role);
@@ -18,8 +19,14 @@ async function autoAssignLessons(contractorId: string, role: string) {
       where: { lessonId: lesson.id, contractorId },
     });
     if (!existing) {
+      const lessonSteps = (lesson.steps as Array<{ id: string; title: string; order: number }>) || [];
       await prisma.trainingAssignment.create({
-        data: { lessonId: lesson.id, contractorId, status: 'assigned' },
+        data: {
+          lessonId: lesson.id,
+          contractorId,
+          status: 'assigned',
+          steps: { create: lessonSteps.map((step) => ({ stepId: step.id, status: 'not_started' })) },
+        },
       });
     }
   }
@@ -57,6 +64,27 @@ export async function PATCH(req: Request, { params }: { params: { id: string; ro
 
     if (status === 'approved') {
       await autoAssignLessons(id, existing.role);
+
+      // Approving the WordPress developer role also assigns the separate quiz.
+      const wordpressProvisioning = await ensureWordPressDeveloperProvisioning(id, {
+        notifyUserId: (await prisma.user.findFirst({ where: { contractorId: id }, select: { id: true } }))?.id ?? null,
+        assignedBy: user.email,
+      });
+      if (wordpressProvisioning.eligible && (wordpressProvisioning.lessonAssigned || wordpressProvisioning.attemptAssigned)) {
+        await logAudit(user, {
+          action: 'wordpress_developer.provisioned',
+          method: 'PATCH',
+          path: `/api/contractors/${id}/roles/${roleId}`,
+          entity: 'Contractor',
+          entityId: id,
+          metadata: {
+            lessonAssigned: wordpressProvisioning.lessonAssigned,
+            attemptAssigned: wordpressProvisioning.attemptAssigned,
+            attemptId: wordpressProvisioning.attemptId,
+            trigger: 'role_approved',
+          },
+        });
+      }
     }
 
     const contractorUser = await prisma.user.findFirst({ where: { contractorId: id } });

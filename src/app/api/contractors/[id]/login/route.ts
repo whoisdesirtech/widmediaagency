@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin, isNextResponse } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 import { createNotification } from '@/lib/notifications';
+import { ensureWordPressDeveloperProvisioning } from '@/lib/wordpress-developer-provisioning';
 
 function generatePassword(length = 12) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
@@ -114,6 +115,27 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     await logAudit(admin, { action: 'contractor.login.create', method: 'POST', path: `/api/contractors/${params.id}/login`, entity: 'Contractor', entityId: params.id, metadata: existingByEmail ? { linkedExistingUser: true } : undefined });
+
+    // A WordPress developer account always receives the module and the separate quiz.
+    const wordpressProvisioning = await ensureWordPressDeveloperProvisioning(contractor.id, {
+      notifyUserId: user.id,
+      assignedBy: admin.email,
+    });
+    if (wordpressProvisioning.eligible && (wordpressProvisioning.lessonAssigned || wordpressProvisioning.attemptAssigned)) {
+      await logAudit(admin, {
+        action: 'wordpress_developer.provisioned',
+        method: 'POST',
+        path: `/api/contractors/${params.id}/login`,
+        entity: 'Contractor',
+        entityId: contractor.id,
+        metadata: {
+          lessonAssigned: wordpressProvisioning.lessonAssigned,
+          attemptAssigned: wordpressProvisioning.attemptAssigned,
+          attemptId: wordpressProvisioning.attemptId,
+          trigger: 'login_created',
+        },
+      });
+    }
 
     return NextResponse.json({
       email,

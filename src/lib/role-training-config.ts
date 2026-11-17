@@ -45,6 +45,11 @@ export const ROLE_TRAINING: Record<string, RoleTrainingConfig> = {
     integrations: ['slack'],
     deliverableTypes: ['design', 'code', 'image'],
   },
+  'wordpress-developer': {
+    lessons: ['contractor-onboarding', 'wordpress-developer', 'slack-fundamentals'],
+    integrations: ['slack'],
+    deliverableTypes: ['code', 'document', 'image'],
+  },
   'copywriter': {
     lessons: ['contractor-onboarding'],
     integrations: ['slack'],
