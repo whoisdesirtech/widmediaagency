@@ -46,6 +46,7 @@ model User {
   reviewedPortalTasks PortalTask[]     @relation("PortalTaskReviewer")
   ownedProspects     Prospect[]       @relation("ProspectOwner")
   reviewedGtmAnalyses  GTMAnalysis[]    @relation("GTMReviewedBy")
+  reviewedIntelligence ProspectIntelligence[] @relation("IntelligenceReviewedBy")
   sentMessages       Message[]
   createdAt    DateTime @default(now())
 }
@@ -371,8 +372,13 @@ model BookingInquiry {
   eventName    String?
   message      String
   status       String   @default("new") // new | reviewed | replied
+  prospectId   String?
+  prospect     Prospect? @relation(fields: [prospectId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([prospectId])
+  @@index([email])
 }
 
 model PluginDownloadLead {
@@ -383,7 +389,12 @@ model PluginDownloadLead {
   city      String
   plugin    String   @default("amazon-associates-snippets")
   version   String   @default("1.1.0")
-  createdAt DateTime @default(now())
+  prospectId String?
+  prospect   Prospect? @relation(fields: [prospectId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@index([prospectId])
+  @@index([email])
 }
 
 model Prospect {
@@ -407,6 +418,9 @@ model Prospect {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   intelligence      ProspectIntelligence?
+  agentEvents          AgentEvent[]
+  pluginDownloadLeads  PluginDownloadLead[]
+  bookingInquiries     BookingInquiry[]
 }
 
 model ProspectIntelligence {
@@ -421,9 +435,15 @@ model ProspectIntelligence {
   riskFlags       Json?    // structured risk flags
   competitiveLandscape Json?
   lastResearchedAt DateTime?
+  status          String   @default("draft") // draft | reviewed | approved
+  reviewedById    String?
+  reviewedBy      User?    @relation("IntelligenceReviewedBy", fields: [reviewedById], references: [id])
+  reviewedAt      DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   gtmAnalysis     GTMAnalysis?
+
+  @@index([status])
 }
 
 model GTMAnalysis {
@@ -442,6 +462,27 @@ model GTMAnalysis {
   reviewedAt             DateTime?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
+}
+
+model AgentEvent {
+  id           String    @id @default(uuid())
+  agent        String
+  action       String
+  status       String    @default("pending_approval") // pending_approval | approved | rejected | failed
+  prospectId   String?
+  prospect     Prospect? @relation(fields: [prospectId], references: [id])
+  actorUserId  String?
+  inputSnapshot Json?
+  output       Json?
+  confidence   Float?
+  model        String?
+  errorMsg     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([prospectId, status])
+  @@index([status, createdAt])
+  @@index([prospectId, createdAt])
 }
 
 model RateLimitBucket {
